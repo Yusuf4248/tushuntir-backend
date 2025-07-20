@@ -11,7 +11,7 @@ import {
   UpdateDateColumn,
   ManyToOne,
 } from "typeorm";
-import { ApiHideProperty, ApiProperty } from "@nestjs/swagger";
+import { ApiProperty } from "@nestjs/swagger";
 import { Field, ID, ObjectType } from "@nestjs/graphql";
 import { Attendance } from "../../attendance/entities/attendance.entity";
 import { HomeworkSubmission } from "../../homework-submission/entities/homework-submission.entity";
@@ -20,7 +20,6 @@ import { Payment } from "../../payments/entities/payment.entity";
 import { Event } from "../../events/entities/event.entity";
 import { ExamResult } from "../../exam-results/entities/exam-result.entity";
 import { GroupStudent } from "../../group-students/entities/group-student.entity";
-import { Group } from "../../group/entities/group.entity";
 
 @ObjectType()
 @Entity("student")

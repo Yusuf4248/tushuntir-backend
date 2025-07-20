@@ -12,6 +12,7 @@ import { Group } from "../../group/entities/group.entity";
 import { ApiProperty } from "@nestjs/swagger";
 import { Attendance } from "../../attendance/entities/attendance.entity";
 import { Homework } from "../../homeworks/entities/homework.entity";
+import { Room } from "../../rooms/entities/room.entity";
 
 export enum LessonStatus {
   YANGI = "yangi",
@@ -46,6 +47,14 @@ export class Lesson {
   notes: string;
 
   @ApiProperty({
+    example: "2025-01-01",
+    description: "Dars sanasi",
+  })
+  @Column({ nullable: true })
+  @Field()
+  date: Date;
+
+  @ApiProperty({
     enum: LessonStatus,
     example: LessonStatus.YANGI,
     description: "Darsning holati (status)",
@@ -67,6 +76,14 @@ export class Lesson {
   @ManyToOne(() => Group, (group) => group.lessons, { nullable: true })
   @Field(() => Group, { nullable: true })
   group: Group;
+
+  @ApiProperty({
+    type: () => Room,
+    nullable: true,
+    description: "Dars bo'lib otadigan xona",
+  })
+  @ManyToOne(() => Room, (room) => room.lesson)
+  room: Room;
 
   @Field()
   @CreateDateColumn({ type: "timestamp" })

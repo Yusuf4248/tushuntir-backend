@@ -9,6 +9,7 @@ import {
   MaxLength,
   MinLength,
   Min,
+  IsDateString,
 } from "class-validator";
 import { LessonStatus } from "../entities/lesson.entity";
 
@@ -41,6 +42,15 @@ export class CreateLessonDto {
   notes: string;
 
   @ApiProperty({
+    example: "2025-06-01",
+    description: "Lesson date in YYYY-MM-DD format",
+    type: String,
+  })
+  @IsNotEmpty()
+  @IsDateString()
+  date: string;
+
+  @ApiProperty({
     enum: LessonStatus,
     default: LessonStatus.YANGI,
     description: "Status of the lesson",
@@ -65,4 +75,16 @@ export class CreateLessonDto {
   @IsInt({ message: "Group ID must be an integer" })
   @Min(1, { message: "Group ID must be at least 1" })
   groupId: number;
+
+  @ApiProperty({
+    example: 1,
+    description: "Room ID",
+    required: false,
+    minimum: 1,
+  })
+  @Field(() => Int, { nullable: true })
+  @IsOptional()
+  @IsInt({ message: "Room ID must be an integer" })
+  @Min(1, { message: "Room ID must be at least 1" })
+  roomId: number;
 }

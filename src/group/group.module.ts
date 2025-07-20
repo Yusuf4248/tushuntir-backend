@@ -12,6 +12,9 @@ import { JwtModule } from "@nestjs/jwt";
 import { GroupTeacher } from "../group-teachers/entities/group-teacher.entity";
 import { GroupStudent } from "../group-students/entities/group-student.entity";
 import { LessonsModule } from "../lessons/lessons.module";
+import { LessonsService } from "../lessons/lessons.service";
+import { GroupTeachersModule } from "../group-teachers/group-teachers.module";
+import { GroupStudentsModule } from "../group-students/group-students.module";
 
 @Module({
   imports: [
@@ -26,6 +29,8 @@ import { LessonsModule } from "../lessons/lessons.module";
     CoursesModule,
     forwardRef(() => LessonsModule),
     JwtModule,
+    GroupTeachersModule,
+    GroupStudentsModule,
   ],
   controllers: [GroupController],
   providers: [GroupService],

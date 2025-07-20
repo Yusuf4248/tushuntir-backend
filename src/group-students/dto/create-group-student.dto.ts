@@ -38,13 +38,13 @@ export class CreateGroupStudentDto {
   @Type(() => Boolean)
   status?: boolean = true;
 
-  @ApiProperty({
-    example: "2025-01-01",
-    description: "Period start date of the group",
-    type: String,
-    format: "date",
-  })
+  @ApiProperty({ example: "2025-01-01" })
   @IsDateString()
-  @IsNotEmpty()
-  period: string;
+  @IsOptional()
+  start_date?: string;
+
+  @ApiProperty({ example: "2025-12-01" })
+  @IsDateString()
+  @IsOptional()
+  end_date?: string;
 }

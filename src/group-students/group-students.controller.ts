@@ -6,6 +6,8 @@ import {
   Patch,
   Param,
   Delete,
+  ParseIntPipe,
+  UseGuards,
 } from "@nestjs/common";
 import {
   ApiTags,
@@ -17,17 +19,24 @@ import {
   ApiNotFoundResponse,
   ApiCreatedResponse,
   ApiOkResponse,
+  ApiBearerAuth,
 } from "@nestjs/swagger";
 import { GroupStudentsService } from "./group-students.service";
 import { CreateGroupStudentDto } from "./dto/create-group-student.dto";
 import { UpdateGroupStudentDto } from "./dto/update-group-student.dto";
 import { GroupStudent } from "./entities/group-student.entity";
+import { Roles } from "../app.constants";
+import { AuthGuard } from "../common/guards/auth.guard";
+import { RolesGuard } from "../common/guards/role.guard";
 
+@ApiBearerAuth("JWT-auth")
 @ApiTags("Group Students")
 @Controller("group-students")
 export class GroupStudentsController {
   constructor(private readonly groupStudentsService: GroupStudentsService) {}
 
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles("admin", "superadmin")
   @Post()
   @ApiOperation({
     summary: "Create a new group-student relationship",
@@ -48,6 +57,8 @@ export class GroupStudentsController {
     return this.groupStudentsService.create(createGroupStudentDto);
   }
 
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles("admin", "superadmin")
   @Get()
   @ApiOperation({
     summary: "Get all group-student relationships",
@@ -61,6 +72,8 @@ export class GroupStudentsController {
     return this.groupStudentsService.findAll();
   }
 
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles("admin", "superadmin")
   @Get(":id")
   @ApiOperation({
     summary: "Get a specific group-student relationship",
@@ -86,6 +99,8 @@ export class GroupStudentsController {
     return this.groupStudentsService.findOne(+id);
   }
 
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles("admin", "superadmin")
   @Patch(":id")
   @ApiOperation({
     summary: "Update a group-student relationship",
@@ -118,6 +133,8 @@ export class GroupStudentsController {
     return this.groupStudentsService.update(+id, updateGroupStudentDto);
   }
 
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles("admin", "superadmin")
   @Delete(":id")
   @ApiOperation({
     summary: "Delete a group-student relationship",
@@ -140,5 +157,85 @@ export class GroupStudentsController {
   })
   remove(@Param("id") id: string) {
     return this.groupStudentsService.remove(+id);
+  }
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles("admin", "superadmin")
+  @Get("by-group/:groupId")
+  @ApiOperation({ summary: "Get all students in a group" })
+  @ApiParam({ name: "groupId", type: Number })
+  @ApiResponse({
+    status: 200,
+    description: "List of group students",
+    type: [GroupStudent],
+  })
+  async findByGroup(
+    @Param("groupId", ParseIntPipe) groupId: number
+  ): Promise<GroupStudent[]> {
+    return this.groupStudentsService.findByGroup(groupId);
+  }
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles("admin", "superadmin")
+  @Get("by-student/:studentId")
+  @ApiOperation({ summary: "Get all groups of a student" })
+  @ApiParam({ name: "studentId", type: Number })
+  @ApiResponse({
+    status: 200,
+    description: "List of groups for student",
+    type: [GroupStudent],
+  })
+  async findByStudent(
+    @Param("studentId", ParseIntPipe) studentId: number
+  ): Promise<GroupStudent[]> {
+    return this.groupStudentsService.findByStudent(studentId);
+  }
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles("admin", "superadmin")
+  @Get("active-in-group/:groupId")
+  @ApiOperation({ summary: "Get active students in a group" })
+  @ApiParam({ name: "groupId", type: Number })
+  @ApiResponse({
+    status: 200,
+    description: "List of active students",
+    type: [GroupStudent],
+  })
+  async findActiveStudentsInGroup(
+    @Param("groupId", ParseIntPipe) groupId: number
+  ): Promise<GroupStudent[]> {
+    return this.groupStudentsService.findActiveStudentsInGroup(groupId);
+  }
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles("admin", "superadmin")
+  @Patch("deactivate/:id")
+  @ApiOperation({ summary: "Deactivate a group-student record" })
+  @ApiParam({ name: "id", type: Number })
+  @ApiResponse({
+    status: 200,
+    description: "Deactivated record",
+    type: GroupStudent,
+  })
+  async deactivateStudent(
+    @Param("id", ParseIntPipe) id: number
+  ): Promise<GroupStudent> {
+    return this.groupStudentsService.deactivateStudent(id);
+  }
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles("admin", "superadmin")
+  @Patch("activate/:id")
+  @ApiOperation({ summary: "Activate a group-student record" })
+  @ApiParam({ name: "id", type: Number })
+  @ApiResponse({
+    status: 200,
+    description: "Activated record",
+    type: GroupStudent,
+  })
+  async activateStudent(
+    @Param("id", ParseIntPipe) id: number
+  ): Promise<GroupStudent> {
+    return this.groupStudentsService.activateStudent(id);
   }
 }

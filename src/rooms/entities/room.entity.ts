@@ -11,6 +11,7 @@ import {
 import { Branch } from "../../branches/entities/branch.entity";
 import { ApiProperty } from "@nestjs/swagger";
 import { Exam } from "../../exams/entities/exam.entity";
+import { Lesson } from "../../lessons/entities/lesson.entity";
 
 @ObjectType()
 @Entity("rooms")
@@ -50,6 +51,14 @@ export class Room {
   @Field(() => [Exam])
   @OneToMany(() => Exam, (exam) => exam.room)
   exams: Exam[];
+
+  @ApiProperty({
+    type: () => Room,
+    nullable: true,
+    description: "Shu xanada bo'ladigan dars",
+  })
+  @OneToMany(() => Lesson, (lesson) => lesson.room, { nullable: true })
+  lesson: Lesson[];
 
   @CreateDateColumn({ name: "created_at" })
   @Field()

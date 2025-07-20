@@ -25,8 +25,8 @@ import { MediaModule } from "./media/media.module";
 import { MailModule } from "./mail/mail.module";
 import { FileModule } from "./file/file.module";
 import { LessonsModule } from "./lessons/lessons.module";
-import { GroupTeachersModule } from './group-teachers/group-teachers.module';
-import { GroupStudentsModule } from './group-students/group-students.module';
+import { GroupTeachersModule } from "./group-teachers/group-teachers.module";
+import { GroupStudentsModule } from "./group-students/group-students.module";
 
 @Module({
   imports: [
@@ -55,6 +55,9 @@ import { GroupStudentsModule } from './group-students/group-students.module';
     AuthModule,
     CoursesModule,
     GroupModule,
+    LessonsModule,
+    GroupTeachersModule,
+    GroupStudentsModule,
     AttendanceModule,
     HomeworksModule,
     HomeworkSubmissionModule,
@@ -70,9 +73,6 @@ import { GroupStudentsModule } from './group-students/group-students.module';
     MediaModule,
     MailModule,
     FileModule,
-    LessonsModule,
-    GroupTeachersModule,
-    GroupStudentsModule,
   ],
   controllers: [],
   providers: [],

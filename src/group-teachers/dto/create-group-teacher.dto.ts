@@ -1,5 +1,11 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsBoolean, IsNotEmpty, IsNumber } from "class-validator";
+import {
+  IsBoolean,
+  IsDateString,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+} from "class-validator";
 
 export class CreateGroupTeacherDto {
   @ApiProperty({ example: 2, description: "Group ID" })
@@ -19,4 +25,20 @@ export class CreateGroupTeacherDto {
   @IsBoolean()
   @IsNotEmpty()
   status: boolean;
+
+  @ApiProperty({
+    example: "2025-01-01",
+    description: "Start date of the group",
+  })
+  @IsDateString()
+  @IsOptional()
+  start_date?: Date;
+
+  @ApiProperty({
+    example: "2025-12-01",
+    description: "End date of the group",
+  })
+  @IsDateString()
+  @IsOptional()
+  end_date?: Date;
 }

@@ -55,7 +55,7 @@ export class TeacherService {
 
   async findAll() {
     const teachers = await this.teacherRepo.find({
-      relations: ["exam", "groups", "branches"],
+      relations: ["exam", "branches"],
     });
     return {
       success: true,
@@ -71,7 +71,7 @@ export class TeacherService {
     }
     const teacher = await this.teacherRepo.findOne({
       where: { id },
-      relations: ["exam", "groups", "branches"],
+      relations: ["exam", "branches"],
     });
     if (!teacher) {
       throw new BadRequestException(`teacher with ${id}-id not found`);

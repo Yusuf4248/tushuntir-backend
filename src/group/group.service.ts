@@ -12,17 +12,21 @@ import { Group } from "./entities/group.entity";
 import { QueryFailedError, Repository } from "typeorm";
 import { CoursesService } from "../courses/courses.service";
 import { LessonsService } from "../lessons/lessons.service";
+import { GroupStudentsService } from "../group-students/group-students.service";
+import { GroupTeachersService } from "../group-teachers/group-teachers.service";
 
 @Injectable()
 export class GroupService {
   constructor(
     @InjectRepository(Group) private readonly groupRepo: Repository<Group>,
     private readonly lessonService: LessonsService,
-    private readonly courseService: CoursesService
+    private readonly courseService: CoursesService,
+    private readonly groupStudentService: GroupStudentsService,
+    private readonly groupTeacherService: GroupTeachersService
   ) {}
   async create(createGroupDto: CreateGroupDto) {
     const { course } = await this.courseService.findOne(
-      createGroupDto.course_id
+      createGroupDto.courseId
     );
 
     try {
@@ -35,12 +39,16 @@ export class GroupService {
         roomId: newGroup.roomId,
         groupId: newGroup.id,
       });
-      console.log("lessons", lessons);
+
+      const newGroup1 = await this.groupRepo.findOne({
+        where: { id: newGroup.id },
+        relations: ["course"],
+      });
 
       return {
         message: "New group created successfully!",
         success: true,
-        newGroup,
+        newGroup: newGroup1,
         lessons,
       };
     } catch (error) {
@@ -50,6 +58,7 @@ export class GroupService {
       ) {
         throw new ConflictException("Group name already exists");
       }
+      console.log(error);
       throw new InternalServerErrorException(
         "Unexpected error during group creation"
       );
@@ -85,10 +94,16 @@ export class GroupService {
     if (!group) {
       throw new NotFoundException(`Group ID-${id} not found`);
     }
+    const { lessons } = await this.lessonService.findGroupAllLessons(id);
+    const students = await this.groupStudentService.findByGroup(id);
+    const teachers = await this.groupTeacherService.findByGroup(id);
     return {
       message: `Group ID-${id}`,
       success: true,
       group,
+      lessons,
+      students,
+      teachers,
     };
   }
 

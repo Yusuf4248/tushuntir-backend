@@ -25,9 +25,8 @@ export class GroupStudentsService {
   async create(
     createGroupStudentDto: CreateGroupStudentDto
   ): Promise<GroupStudent> {
-    const { groupId, studentId, status = true, period } = createGroupStudentDto;
+    const { groupId, studentId, status = true } = createGroupStudentDto;
 
-    // Check if group exists
     const group = await this.groupRepository.findOne({
       where: { id: groupId },
     });
@@ -35,7 +34,6 @@ export class GroupStudentsService {
       throw new NotFoundException(`Group with ID ${groupId} not found`);
     }
 
-    // Check if student exists
     const student = await this.studentRepository.findOne({
       where: { id: studentId },
     });
@@ -43,7 +41,6 @@ export class GroupStudentsService {
       throw new NotFoundException(`Student with ID ${studentId} not found`);
     }
 
-    // Check if relationship already exists
     const existingRelation = await this.groupStudentRepository.findOne({
       where: {
         group: { id: groupId },
@@ -57,12 +54,12 @@ export class GroupStudentsService {
       );
     }
 
-    // Create new group-student relationship
     const groupStudent = this.groupStudentRepository.create({
       group,
       student,
       status,
-      period: new Date(period),
+      start_date: group.start_date,
+      end_date: group.end_date,
     });
 
     return await this.groupStudentRepository.save(groupStudent);
@@ -96,9 +93,8 @@ export class GroupStudentsService {
   ): Promise<GroupStudent> {
     const groupStudent = await this.findOne(id);
 
-    const { groupId, studentId, status, period } = updateGroupStudentDto;
+    const { groupId, studentId } = updateGroupStudentDto;
 
-    // If groupId is provided, check if group exists
     if (groupId && groupId !== groupStudent.group.id) {
       const group = await this.groupRepository.findOne({
         where: { id: groupId },
@@ -106,10 +102,21 @@ export class GroupStudentsService {
       if (!group) {
         throw new NotFoundException(`Group with ID ${groupId} not found`);
       }
+      const existingRelation = await this.groupStudentRepository.findOne({
+        where: {
+          group: { id: groupId || groupStudent.group.id },
+          student: { id: studentId },
+        },
+      });
+
+      if (existingRelation && existingRelation.id !== id) {
+        throw new BadRequestException(
+          "Student is already assigned to this group"
+        );
+      }
       groupStudent.group = group;
     }
 
-    // If studentId is provided, check if student exists
     if (studentId && studentId !== groupStudent.student.id) {
       const student = await this.studentRepository.findOne({
         where: { id: studentId },
@@ -118,7 +125,6 @@ export class GroupStudentsService {
         throw new NotFoundException(`Student with ID ${studentId} not found`);
       }
 
-      // Check if new relationship already exists
       const existingRelation = await this.groupStudentRepository.findOne({
         where: {
           group: { id: groupId || groupStudent.group.id },
@@ -133,15 +139,6 @@ export class GroupStudentsService {
       }
 
       groupStudent.student = student;
-    }
-
-    // Update other fields
-    if (status !== undefined) {
-      groupStudent.status = status;
-    }
-
-    if (period) {
-      groupStudent.period = new Date(period);
     }
 
     return await this.groupStudentRepository.save(groupStudent);
@@ -165,11 +162,14 @@ export class GroupStudentsService {
       throw new NotFoundException(`Group with ID ${groupId} not found`);
     }
 
-    return await this.groupStudentRepository.find({
-      where: { group: { id: groupId } },
-      relations: ["student"],
-      order: { id: "ASC" },
-    });
+    const groupStudents: GroupStudent[] =
+      await this.groupStudentRepository.find({
+        where: { group: { id: groupId } },
+        relations: ["student"],
+        order: { id: "ASC" },
+      });
+    console.log(groupStudents);
+    return groupStudents;
   }
 
   async findByStudent(studentId: number): Promise<GroupStudent[]> {

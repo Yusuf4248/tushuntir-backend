@@ -22,6 +22,11 @@ export enum LessonDurationEnum {
   MINUTES_270 = 270,
 }
 
+export enum TotalLessonsInMonthEnum {
+  TWENTY = 20,
+  TWELVE = 12,
+}
+
 @Entity("course")
 export class Course {
   @ApiProperty({ example: 1, description: "Course ID" })
@@ -59,11 +64,19 @@ export class Course {
   lessons_in_a_week: LessonInAWeekEnum;
 
   @ApiProperty({
+    enum: TotalLessonsInMonthEnum,
+    example: TotalLessonsInMonthEnum.TWELVE,
+    description: "Number of lessons in a month(12, 20)",
+  })
+  @Column({ type: "enum", enum: TotalLessonsInMonthEnum })
+  lessons_in_a_month: TotalLessonsInMonthEnum;
+
+  @ApiProperty({
     enum: LessonDurationEnum,
     example: LessonDurationEnum.MINUTES_240,
     description: "Duration of a single lesson(120, 180, 240, 270 minutes)",
   })
-  @Column({ type: "enum", enum: LessonDurationEnum })
+  @Column({ type: "enum", enum: LessonDurationEnum, nullable: true })
   lesson_duration: LessonDurationEnum;
 
   @ApiProperty({

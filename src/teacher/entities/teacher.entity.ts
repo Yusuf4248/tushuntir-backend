@@ -13,7 +13,6 @@ import { Field, ID, ObjectType } from "@nestjs/graphql";
 import { Homework } from "../../homeworks/entities/homework.entity";
 import { Grade } from "../../grades/entities/grade.entity";
 import { Exam } from "../../exams/entities/exam.entity";
-import { Group } from "../../group/entities/group.entity";
 import { Branch } from "../../branches/entities/branch.entity";
 import { GroupTeacher } from "../../group-teachers/entities/group-teacher.entity";
 

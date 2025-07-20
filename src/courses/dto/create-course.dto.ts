@@ -11,6 +11,7 @@ import {
 import {
   LessonDurationEnum,
   LessonInAWeekEnum,
+  TotalLessonsInMonthEnum,
 } from "../entities/course.entity";
 
 export class CreateCourseDto {
@@ -44,11 +45,20 @@ export class CreateCourseDto {
   @ApiProperty({
     enum: LessonInAWeekEnum,
     example: LessonInAWeekEnum.FIVE,
-    description: "Number of lessons in a week(2,3,4,5)",
+    description: "Number of lessons in a week(3 or 5)",
   })
   @IsEnum(LessonInAWeekEnum)
   @IsNotEmpty()
   lessons_in_a_week: LessonInAWeekEnum;
+
+  @ApiProperty({
+    enum: TotalLessonsInMonthEnum,
+    example: TotalLessonsInMonthEnum.TWELVE,
+    description: "Number of lessons in a month(12 or 20)",
+  })
+  @IsEnum(TotalLessonsInMonthEnum)
+  @IsNotEmpty()
+  lessons_in_a_month: TotalLessonsInMonthEnum;
 
   @ApiProperty({
     enum: LessonDurationEnum,

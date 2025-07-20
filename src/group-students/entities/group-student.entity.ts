@@ -29,9 +29,16 @@ export class GroupStudent {
   status: boolean;
 
   @ApiProperty({
-    example: "2025/01/01 - 2025/12/01",
-    description: "Period of the group",
+    example: "2025-01-01",
+    description: "Start date of the group",
   })
-  @Column()
-  period: Date;
+  @Column({ type: "date", nullable: true })
+  start_date: Date;
+
+  @ApiProperty({
+    example: "2025-12-01",
+    description: "End date of the group",
+  })
+  @Column({ type: "date", nullable: true })
+  end_date: Date;
 }

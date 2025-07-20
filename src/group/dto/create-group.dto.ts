@@ -5,6 +5,7 @@ import {
   IsInt,
   IsString,
   IsMilitaryTime,
+  IsOptional,
 } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 import { GroupStatus } from "../entities/group.entity";
@@ -18,7 +19,7 @@ export class CreateGroupDto {
   @ApiProperty({ example: 3 })
   @IsNotEmpty()
   @IsInt()
-  course_id: number;
+  courseId: number;
 
   @ApiProperty({ example: "2025-06-01" })
   @IsNotEmpty()
@@ -28,7 +29,8 @@ export class CreateGroupDto {
   @ApiProperty({ example: "2025-09-01" })
   @IsNotEmpty()
   @IsDateString()
-  end_date: string;
+  @IsOptional()
+  end_date?: string;
 
   @ApiProperty({ example: "08:30", description: "Group start time (HH:mm)" })
   @IsNotEmpty()
@@ -37,8 +39,9 @@ export class CreateGroupDto {
 
   @ApiProperty({ example: "11:30", description: "Group end time (HH:mm)" })
   @IsNotEmpty()
+  @IsOptional()
   @IsMilitaryTime({ message: "end_time format: HH:mm" })
-  end_time: string;
+  end_time?: string;
 
   @ApiProperty({ enum: GroupStatus, example: GroupStatus.NEW })
   @IsEnum(GroupStatus)

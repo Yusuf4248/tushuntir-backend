@@ -19,10 +19,7 @@ import { Homework } from "../homeworks/entities/homework.entity";
 import * as path from "path";
 import * as bcrypt from "bcrypt";
 import { Media } from "../media/entities/media.entity";
-import {
-  HomeworkStatus,
-  HomeworkSubmission,
-} from "../homework-submission/entities/homework-submission.entity";
+import { HomeworkSubmission } from "../homework-submission/entities/homework-submission.entity";
 
 @Injectable()
 export class StudentService {
@@ -42,8 +39,7 @@ export class StudentService {
     private readonly fileService: FileService
   ) {}
   async create(createStudentDto: CreateStudentDto) {
-    const { password_hash, confirm_password, groupsId, eventsId } =
-      createStudentDto;
+    const { password_hash, confirm_password, eventsId } = createStudentDto;
 
     if (password_hash !== confirm_password) {
       throw new BadRequestException(
@@ -54,7 +50,6 @@ export class StudentService {
     const hashed_password = await bcrypt.hash(password_hash, 7);
 
     let events: Event[] = [];
-    let groups: Group[] = [];
 
     if (Array.isArray(eventsId) && eventsId.length > 0) {
       events = await this.eventRepo.find({
@@ -62,17 +57,10 @@ export class StudentService {
       });
     }
 
-    if (Array.isArray(groupsId) && groupsId.length > 0) {
-      groups = await this.groupRepo.find({
-        where: { id: In(groupsId) },
-      });
-    }
-
     const newStudent = await this.studentRepo.save({
       ...createStudentDto,
       password_hash: hashed_password,
       events,
-      groups,
     });
 
     return {
@@ -84,7 +72,7 @@ export class StudentService {
 
   async findAll() {
     const students = await this.studentRepo.find({
-      relations: ["events", "groups"],
+      relations: ["events"],
     });
     return {
       success: true,
@@ -99,7 +87,7 @@ export class StudentService {
       );
     const student = await this.studentRepo.findOne({
       where: { id },
-      relations: ["events", "groups", "groups.course"],
+      relations: ["events"],
     });
     if (!student) {
       throw new BadRequestException(`student with ${id}-id not fount`);

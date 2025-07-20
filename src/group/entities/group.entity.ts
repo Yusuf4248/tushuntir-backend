@@ -18,7 +18,6 @@ import { Exam } from "../../exams/entities/exam.entity";
 import { Lesson } from "../../lessons/entities/lesson.entity";
 import { GroupTeacher } from "../../group-teachers/entities/group-teacher.entity";
 import { GroupStudent } from "../../group-students/entities/group-student.entity";
-import { Student } from "../../student/entities/student.entities";
 
 export enum GroupStatus {
   NEW = "new",
@@ -41,17 +40,12 @@ export class Group {
   @Column({ type: "varchar", length: 100, unique: true })
   name: string;
 
-  @ApiProperty({ example: 2, description: "Related course ID" })
-  @Field()
-  @Column()
-  course_id: number;
-
   @ApiProperty({ example: "2025-06-01", description: "Group start date" })
   @Column({ type: "date" })
   start_date: Date;
 
   @ApiProperty({ example: "2025-09-01", description: "Group end date" })
-  @Column({ type: "date" })
+  @Column({ type: "date", nullable: true })
   end_date: Date;
 
   @ApiProperty({ example: "08:30", description: "Group start time" })
@@ -59,7 +53,7 @@ export class Group {
   start_time: string;
 
   @ApiProperty({ example: "11:30", description: "Group end time" })
-  @Column({ type: "time" })
+  @Column({ type: "time", nullable: true })
   end_time: string;
 
   @ApiProperty({ enum: GroupStatus, example: GroupStatus.NEW })
@@ -78,7 +72,6 @@ export class Group {
 
   @ApiProperty({ type: () => Course })
   @ManyToOne(() => Course, (course) => course.groups, { onDelete: "CASCADE" })
-  @JoinColumn({ name: "course_id" })
   course: Course;
 
   @OneToMany(() => GroupTeacher, (groupTeacher) => groupTeacher.group, {

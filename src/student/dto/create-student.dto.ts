@@ -12,7 +12,6 @@ import {
   IsOptional,
   IsArray,
 } from "class-validator";
-import { Group } from "../../group/entities/group.entity";
 
 @InputType()
 export class CreateStudentDto {
@@ -100,10 +99,4 @@ export class CreateStudentDto {
   @IsArray()
   @Field(() => [Event], { nullable: true })
   eventsId?: number[];
-
-  @ApiProperty({ example: 1, description: "Tegishli group ID si" })
-  @IsOptional()
-  @IsArray()
-  @Field(() => [Group], { nullable: true })
-  groupsId?: number[];
 }

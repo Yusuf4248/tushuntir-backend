@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { GroupTeacher } from "./entities/group-teacher.entity";
@@ -31,10 +35,24 @@ export class GroupTeachersService {
     });
     if (!teacher) throw new NotFoundException("Teacher not found");
 
+    const existingRelation = await this.groupTeacherRepository.findOne({
+      where: {
+        group: { id: createGroupTeacherDto.groupId },
+        teacher: { id: createGroupTeacherDto.teacherId },
+      },
+    });
+    if (existingRelation) {
+      throw new BadRequestException(
+        "Teacher is already assigned to this group"
+      );
+    }
+
     const newGroupTeacher = this.groupTeacherRepository.create({
       ...createGroupTeacherDto,
       group,
       teacher,
+      start_date: group.start_date,
+      end_date: group.end_date,
     });
 
     return this.groupTeacherRepository.save(newGroupTeacher);
@@ -84,10 +102,6 @@ export class GroupTeachersService {
       groupTeacher.teacher = teacher;
     }
 
-    if (typeof updateDto.status === "boolean") {
-      groupTeacher.status = updateDto.status;
-    }
-
     return this.groupTeacherRepository.save(groupTeacher);
   }
 
@@ -97,5 +111,66 @@ export class GroupTeachersService {
       throw new NotFoundException("GroupTeacher not found");
     }
     return { message: "GroupTeacher deleted successfully" };
+  }
+
+  async deactivateTeacher(id: number): Promise<GroupTeacher> {
+    const groupTeacher = await this.findOne(id);
+    groupTeacher.status = false;
+    return await this.groupTeacherRepository.save(groupTeacher);
+  }
+
+  async activateTeacher(id: number): Promise<GroupTeacher> {
+    const groupTeacher = await this.findOne(id);
+    groupTeacher.status = true;
+    return await this.groupTeacherRepository.save(groupTeacher);
+  }
+
+  async findActiveTeachersInGroup(groupId: number): Promise<GroupTeacher[]> {
+    const group = await this.groupRepository.findOne({
+      where: { id: groupId },
+    });
+    if (!group) {
+      throw new NotFoundException(`Group with ID ${groupId} not found`);
+    }
+
+    return await this.groupTeacherRepository.find({
+      where: {
+        group: { id: groupId },
+        status: true,
+      },
+      relations: ["teacher"],
+      order: { id: "ASC" },
+    });
+  }
+
+  async findByGroup(groupId: number): Promise<GroupTeacher[]> {
+    const group = await this.groupRepository.findOne({
+      where: { id: groupId },
+    });
+    if (!group) {
+      throw new NotFoundException(`Group with ID ${groupId} not found`);
+    }
+
+    const groupTeachers = await this.groupTeacherRepository.find({
+      where: { group: { id: groupId } },
+      relations: ["teacher"],
+      order: { id: "ASC" },
+    });
+    return groupTeachers;
+  }
+
+  async findByTeacher(teacherId: number): Promise<GroupTeacher[]> {
+    const teacher = await this.groupTeacherRepository.findOne({
+      where: { id: teacherId },
+    });
+    if (!teacher) {
+      throw new NotFoundException(`Student with ID ${teacherId} not found`);
+    }
+
+    return await this.groupTeacherRepository.find({
+      where: { teacher: { id: teacherId } },
+      relations: ["group"],
+      order: { id: "ASC" },
+    });
   }
 }

@@ -9,7 +9,6 @@ import {
   Query,
   ParseIntPipe,
   UseGuards,
-  Request,
 } from "@nestjs/common";
 import { LessonsService } from "./lessons.service";
 import { CreateLessonDto } from "./dto/create-lesson.dto";
@@ -20,11 +19,14 @@ import {
   ApiResponse,
   ApiQuery,
   ApiBearerAuth,
+  ApiParam,
+  ApiBody,
 } from "@nestjs/swagger";
 import { Lesson } from "./entities/lesson.entity";
 import { AuthGuard } from "../common/guards/auth.guard";
 import { RolesGuard } from "../common/guards/role.guard";
 import { Roles } from "../app.constants";
+import { UpdateLessonStatusDto } from "./dto/update-lesson-status.dto";
 
 @ApiBearerAuth("JWT-auth")
 @ApiTags("Lessons")
@@ -76,23 +78,32 @@ export class LessonsController {
     return this.lessonsService.remove(id);
   }
 
-  // @UseGuards(AuthGuard, RolesGuard)
-  // @Roles("superadmin", "admin", "teacher", "student")
-  // @Get("by-group/:groupId")
-  // @ApiOperation({ summary: "Get lessons by group (only for student/teacher)" })
-  // @ApiQuery({ name: "page", required: false, example: 1 })
-  // @ApiQuery({ name: "limit", required: false, example: 10 })
-  // async findAllByGroup(
-  //   @Param("groupId", ParseIntPipe) groupId: number,
-  //   @Query("page") page = 1,
-  //   @Query("limit") limit = 10,
-  //   @Request() req: any
-  // ) {
-  //   return this.lessonsService.findAllLessonsByGroup(
-  //     groupId,
-  //     Number(page),
-  //     Number(limit),
-  //     req.user
-  //   );
-  // }
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles("superadmin", "admin", "teacher", "student")
+  @Get("group/:groupId")
+  @ApiOperation({ summary: "Get all lessons by group" })
+  async findAllByGroup(@Param("groupId", ParseIntPipe) groupId: number) {
+    return this.lessonsService.findGroupAllLessons(groupId);
+  }
+
+  @Patch(":id/status")
+  @ApiOperation({
+    summary:
+      "Update lesson status and note, also changes title and note of other lessons",
+  })
+  @ApiParam({ name: "id", type: Number, description: "Lesson ID" })
+  @ApiBody({
+    type: UpdateLessonStatusDto,
+    description: "Status and note for the lesson",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Lesson status updated successfully",
+  })
+  async updateLessonStatus(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() body: UpdateLessonStatusDto
+  ) {
+    return this.lessonsService.updateLessonStatus(id, body.status, body.note);
+  }
 }
