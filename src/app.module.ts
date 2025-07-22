@@ -7,8 +7,6 @@ import { TeacherModule } from "./teacher/teacher.module";
 import { AuthModule } from "./auth/auth.module";
 import { CoursesModule } from "./courses/courses.module";
 import { GroupModule } from "./group/group.module";
-import { GraphQLModule } from "@nestjs/graphql";
-import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
 import { AttendanceModule } from "./attendance/attendance.module";
 import { HomeworksModule } from "./homeworks/homeworks.module";
 import { HomeworkSubmissionModule } from "./homework-submission/homework-submission.module";
@@ -31,12 +29,6 @@ import { GroupStudentsModule } from "./group-students/group-students.module";
 @Module({
   imports: [
     ConfigModule.forRoot({ envFilePath: ".env", isGlobal: true }),
-    // GraphQLModule.forRoot<ApolloDriverConfig>({
-    //   driver: ApolloDriver,
-    //   autoSchemaFile: "schema.gql",
-    //   sortSchema: true,
-    //   playground: true,
-    // }),
     TypeOrmModule.forRoot({
       type: "postgres",
       host: process.env.PG_HOST,

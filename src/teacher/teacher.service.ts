@@ -13,8 +13,6 @@ import * as bcrypt from "bcrypt";
 import * as path from "path";
 import * as fs from "fs";
 import { ChangePasswordDto } from "../student/dto/change-password.dto";
-import { Exam } from "../exams/entities/exam.entity";
-import { Group } from "../group/entities/group.entity";
 import { Branch } from "../branches/entities/branch.entity";
 import { FileService } from "../file/file.service";
 import { Response } from "express";

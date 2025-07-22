@@ -3,16 +3,11 @@ import {
   PrimaryGeneratedColumn,
   Column,
   OneToMany,
-  OneToOne,
-  JoinColumn,
   ManyToMany,
-  JoinTable,
   CreateDateColumn,
   UpdateDateColumn,
-  ManyToOne,
 } from "typeorm";
 import { ApiProperty } from "@nestjs/swagger";
-import { Field, ID, ObjectType } from "@nestjs/graphql";
 import { Attendance } from "../../attendance/entities/attendance.entity";
 import { HomeworkSubmission } from "../../homework-submission/entities/homework-submission.entity";
 import { Grade } from "../../grades/entities/grade.entity";
@@ -21,7 +16,6 @@ import { Event } from "../../events/entities/event.entity";
 import { ExamResult } from "../../exam-results/entities/exam-result.entity";
 import { GroupStudent } from "../../group-students/entities/group-student.entity";
 
-@ObjectType()
 @Entity("student")
 export class Student {
   @ApiProperty({
@@ -29,7 +23,6 @@ export class Student {
     description: "O'quvchining unikal identifikatori",
   })
   @PrimaryGeneratedColumn()
-  @Field(() => ID)
   id: number;
 
   @ApiProperty({
@@ -37,7 +30,6 @@ export class Student {
     description: "O'quvchining ismi",
   })
   @Column({ type: "varchar" })
-  @Field()
   first_name: string;
 
   @ApiProperty({
@@ -45,7 +37,6 @@ export class Student {
     description: "O'quvchining familiyasi",
   })
   @Column({ type: "varchar" })
-  @Field()
   last_name: string;
 
   @ApiProperty({
@@ -53,7 +44,6 @@ export class Student {
     description: "Email manzili (yagona bo'lishi kerak)",
   })
   @Column({ type: "varchar", unique: true })
-  @Field()
   email: string;
 
   @ApiProperty({
@@ -61,7 +51,6 @@ export class Student {
     description: "Telefon raqami (yagona bo'lishi kerak)",
   })
   @Column({ type: "varchar", unique: true })
-  @Field()
   phone: string;
 
   @ApiProperty({
@@ -69,7 +58,6 @@ export class Student {
     description: "Parolning hashlangan ko'rinishi",
   })
   @Column({ type: "varchar" })
-  @Field()
   password_hash: string;
 
   @ApiProperty({
@@ -77,7 +65,6 @@ export class Student {
     description: "Holati: faol yoki nofaol",
   })
   @Column({ default: true })
-  @Field()
   is_active: boolean;
 
   @ApiProperty({
@@ -88,7 +75,6 @@ export class Student {
     type: "enum",
     enum: ["male", "female"],
   })
-  @Field()
   gender: "male" | "female";
 
   @ApiProperty({
@@ -96,7 +82,6 @@ export class Student {
     description: "Tug'ilgan sana (YYYY-MM-DD)",
   })
   @Column({ type: "date" })
-  @Field()
   date_of_birth: Date;
 
   @ApiProperty({
@@ -104,11 +89,9 @@ export class Student {
     description: "Profil rasmi uchun URL",
   })
   @Column({ nullable: true })
-  @Field()
   avatar_url: string;
 
   @Column({ type: "varchar", nullable: true })
-  @Field()
   refersh_token_hash: string;
 
   @OneToMany(() => Attendance, (attendance) => attendance.student)
@@ -123,31 +106,24 @@ export class Student {
   )
   homework_submission: HomeworkSubmission[];
 
-  @Field(() => [Grade])
   @OneToMany(() => Grade, (grades) => grades.student)
   grades: Grade[];
 
   @Column({ nullable: true })
-  @Field({ nullable: true })
   lidId: number;
 
-  @Field(() => [Event])
   @ManyToMany(() => Event, (event) => event.students, { nullable: true })
   events: Event[];
 
-  @Field(() => [Payment])
   @OneToMany(() => Payment, (payments) => payments.student)
   payments: Payment;
 
-  @Field(() => [ExamResult])
   @OneToMany(() => ExamResult, (exam_result) => exam_result.student)
   exam_result: ExamResult[];
 
   @CreateDateColumn({ name: "created_at" })
-  @Field()
   created_at: Date;
 
   @UpdateDateColumn({ name: "updated_at" })
-  @Field()
   updated_at: Date;
 }

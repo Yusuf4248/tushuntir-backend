@@ -1,4 +1,3 @@
-import { ObjectType, Field, ID } from "@nestjs/graphql";
 import {
   Entity,
   Column,
@@ -8,14 +7,12 @@ import {
 } from "typeorm";
 import { ApiProperty } from "@nestjs/swagger";
 
-@ObjectType()
 @Entity("otp")
 export class Otp {
   @ApiProperty({
     example: "123456",
     description: "Unikal OTP ID (UUID)",
   })
-  @Field(() => ID)
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
@@ -23,7 +20,6 @@ export class Otp {
     example: "user@example.com",
     description: "Foydalanuvchining email manzili",
   })
-  @Field()
   @Column({ type: "varchar" })
   email: string;
 
@@ -31,7 +27,6 @@ export class Otp {
     example: "493827",
     description: "Yuborilgan bir martalik parol (OTP)",
   })
-  @Field()
   @Column({ type: "varchar" })
   otp: string;
 
@@ -39,7 +34,6 @@ export class Otp {
     example: "2025-06-02T12:00:00Z",
     description: "OTP amal qilish muddati (vaqti)",
   })
-  @Field()
   @Column({ type: "timestamp" })
   expiration_time: Date;
 
@@ -47,15 +41,12 @@ export class Otp {
     example: false,
     description: "Foydalanuvchi OTP kodni tasdiqlagani yoki yo'qligi",
   })
-  @Field()
   @Column({ type: "boolean", default: false })
   verified: boolean;
 
   @CreateDateColumn({ name: "created_at" })
-  @Field()
   created_at: Date;
 
   @UpdateDateColumn({ name: "updated_at" })
-  @Field()
   updated_at: Date;
 }

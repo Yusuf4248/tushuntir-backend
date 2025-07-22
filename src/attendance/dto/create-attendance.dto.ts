@@ -40,7 +40,8 @@ export class CreateAttendanceDto {
     example: AttendanceStatus.CAME,
   })
   @IsEnum(AttendanceStatus)
-  status: AttendanceStatus;
+  @IsOptional()
+  status?: AttendanceStatus;
 
   @ApiProperty({
     example: "Was late to class due to a specific reason.",

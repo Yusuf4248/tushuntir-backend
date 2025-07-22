@@ -1,4 +1,3 @@
-import { InputType, Field, Int } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
 import {
   IsString,
@@ -13,13 +12,11 @@ import {
 } from "class-validator";
 import { Type } from "class-transformer";
 
-@InputType()
 export class CreateEventDto {
   @ApiProperty({
     example: "Frontend Bootcamp",
     description: "Tadbirning nomi, kamida 3 ta belgidan iborat bo'lishi kerak",
   })
-  @Field()
   @IsString()
   @IsNotEmpty()
   name: string;
@@ -28,7 +25,6 @@ export class CreateEventDto {
     example: "3 kunlik intensiv React kursi",
     description: "Tadbirning batafsil tavsifi",
   })
-  @Field()
   @IsString()
   @IsNotEmpty()
   description: string;
@@ -37,7 +33,6 @@ export class CreateEventDto {
     example: "2025-06-01T09:00:00.000Z",
     description: "Tadbir boshlanish vaqti (ISO formatda)",
   })
-  @Field()
   @Type(() => Date)
   @IsDate({ message: "start_time haqiqiy sana bo'lishi kerak" })
   start_time: Date;
@@ -46,7 +41,6 @@ export class CreateEventDto {
     example: "2025-06-03T17:00:00.000Z",
     description: "Tadbir tugash vaqti (ISO formatda)",
   })
-  @Field()
   @Type(() => Date)
   @IsDate({ message: "end_time haqiqiy sana bo'lishi kerak" })
   end_time: Date;
@@ -56,7 +50,6 @@ export class CreateEventDto {
     description:
       "Maksimal ishtirokchilar soni, ijobiy butun son bo'lishi kerak",
   })
-  @Field(() => Int)
   @IsInt()
   @IsPositive()
   @Min(1)
@@ -68,12 +61,10 @@ export class CreateEventDto {
     description:
       "Filial ID raqami (branchId), mavjud filialga tegishli bo'lishi kerak",
   })
-  @Field(() => Int)
   @IsInt()
   @IsPositive()
   branchId: number;
 
-  @Field(() => [Int])
   @IsOptional()
   @IsArray()
   studentsId?: number[];

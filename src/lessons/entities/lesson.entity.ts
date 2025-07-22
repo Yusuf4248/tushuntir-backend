@@ -1,4 +1,3 @@
-import { Field, ID, ObjectType, registerEnumType } from "@nestjs/graphql";
 import {
   Column,
   CreateDateColumn,
@@ -8,34 +7,26 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { Group } from "../../group/entities/group.entity";
 import { ApiProperty } from "@nestjs/swagger";
+import { Group } from "../../group/entities/group.entity";
 import { Attendance } from "../../attendance/entities/attendance.entity";
 import { Homework } from "../../homeworks/entities/homework.entity";
 import { Room } from "../../rooms/entities/room.entity";
 
 export enum LessonStatus {
-  YANGI = "yangi",
-  BEKOR_QILINGAN = "bekor qilingan",
-  KECHIKTIRILGAN = "kechiktirilgan",
-  YAKUNLANGAN = "yakunlangan",
+  NEW = "new",
+  CANCELLED = "cancelled",
+  COMPLETED = "completed",
 }
 
-registerEnumType(LessonStatus, {
-  name: "LessonStatus",
-});
-
 @Entity()
-@ObjectType()
 export class Lesson {
   @ApiProperty({ example: 1, description: "Lessonning ID raqami" })
   @PrimaryGeneratedColumn()
-  @Field(() => ID)
   id: number;
 
   @ApiProperty({ example: "Matematika darsi", description: "Dars nomi" })
   @Column()
-  @Field()
   title: string;
 
   @ApiProperty({
@@ -43,7 +34,6 @@ export class Lesson {
     description: "Izoh yoki eslatma",
   })
   @Column()
-  @Field()
   notes: string;
 
   @ApiProperty({
@@ -51,21 +41,19 @@ export class Lesson {
     description: "Dars sanasi",
   })
   @Column({ nullable: true })
-  @Field()
   date: Date;
 
   @ApiProperty({
     enum: LessonStatus,
-    example: LessonStatus.YANGI,
+    example: LessonStatus.NEW,
     description: "Darsning holati (status)",
   })
   @Column({
     type: "enum",
     enum: LessonStatus,
     enumName: "lesson_status_enum",
-    default: LessonStatus.YANGI,
+    default: LessonStatus.NEW,
   })
-  @Field(() => LessonStatus)
   status: LessonStatus;
 
   @ApiProperty({
@@ -74,7 +62,6 @@ export class Lesson {
     description: "Dars tegishli bo'lgan guruh",
   })
   @ManyToOne(() => Group, (group) => group.lessons, { nullable: true })
-  @Field(() => Group, { nullable: true })
   group: Group;
 
   @ApiProperty({
@@ -85,21 +72,17 @@ export class Lesson {
   @ManyToOne(() => Room, (room) => room.lesson)
   room: Room;
 
-  @Field()
   @CreateDateColumn({ type: "timestamp" })
   created_at: Date;
 
-  @Field()
   @UpdateDateColumn({ type: "timestamp" })
   updated_at: Date;
 
-  @Field(() => [Attendance], { nullable: true })
   @OneToMany(() => Attendance, (attendance) => attendance.lesson, {
     nullable: true,
   })
   attendance: Attendance[];
 
-  @Field(() => [Homework])
   @OneToMany(() => Homework, (homework) => homework.lesson)
   homework: Homework[];
 }

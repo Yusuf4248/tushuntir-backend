@@ -1,5 +1,4 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { InputType, Field, Int } from "@nestjs/graphql";
 import {
   IsEnum,
   IsNotEmpty,
@@ -13,7 +12,6 @@ import {
 } from "class-validator";
 import { LessonStatus } from "../entities/lesson.entity";
 
-@InputType()
 export class CreateLessonDto {
   @ApiProperty({
     example: "Math lesson",
@@ -21,7 +19,6 @@ export class CreateLessonDto {
     minLength: 3,
     maxLength: 100,
   })
-  @Field()
   @IsString({ message: "Title must be a string" })
   @MinLength(3, { message: "Title must be at least 3 characters long" })
   @MaxLength(100, { message: "Title must be at most 100 characters long" })
@@ -34,7 +31,6 @@ export class CreateLessonDto {
     minLength: 10,
     maxLength: 500,
   })
-  @Field()
   @IsString({ message: "Notes must be a string" })
   @MinLength(10, { message: "Notes must be at least 10 characters long" })
   @MaxLength(500, { message: "Notes must be at most 500 characters long" })
@@ -52,11 +48,10 @@ export class CreateLessonDto {
 
   @ApiProperty({
     enum: LessonStatus,
-    default: LessonStatus.YANGI,
+    default: LessonStatus.NEW,
     description: "Status of the lesson",
     required: false,
   })
-  @Field(() => LessonStatus, { nullable: true })
   @IsEnum(LessonStatus, {
     message:
       "Status must be one of: yangi, bekor qilingan, kechiktirilgan, yakunlangan",
@@ -70,7 +65,6 @@ export class CreateLessonDto {
     required: false,
     minimum: 1,
   })
-  @Field(() => Int, { nullable: true })
   @IsOptional()
   @IsInt({ message: "Group ID must be an integer" })
   @Min(1, { message: "Group ID must be at least 1" })
@@ -82,7 +76,6 @@ export class CreateLessonDto {
     required: false,
     minimum: 1,
   })
-  @Field(() => Int, { nullable: true })
   @IsOptional()
   @IsInt({ message: "Room ID must be an integer" })
   @Min(1, { message: "Room ID must be at least 1" })

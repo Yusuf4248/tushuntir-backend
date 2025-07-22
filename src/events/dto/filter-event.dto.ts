@@ -1,4 +1,4 @@
-import { IsBoolean, IsDate, IsDateString, IsNotEmpty } from "class-validator";
+import { IsBoolean, IsDate, IsNotEmpty } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 
 export class FilterEventDto {

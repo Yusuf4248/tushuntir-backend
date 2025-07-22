@@ -149,7 +149,7 @@ export class LessonsService {
 
     const lessonDates: Date[] = [];
     const totalLessons =
-      group.course.lessons_in_a_month * group.course.lessons_in_a_week;
+      group.course.lessons_in_a_month * group.course.duration;
 
     let currentDate = new Date(group.start_date);
     let weeklyLessonCount = 0;
@@ -331,5 +331,9 @@ export class LessonsService {
       success: true,
       message: `${id}-lesson data deleted`,
     };
+  }
+
+  async startLessonForGroup(lessonId: number) {
+    const lesson = await this.findOne(lessonId);
   }
 }

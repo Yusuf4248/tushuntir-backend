@@ -25,7 +25,7 @@ export class GroupTeacher {
     example: true,
     description: "Status of the teacher in the group (active/inactive)",
   })
-  @Column({ type: "boolean" })
+  @Column({ type: "boolean", default: true })
   status: boolean;
 
   @ApiProperty({

@@ -1,6 +1,4 @@
-import { Field, InputType, Int } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
-import { Type } from "class-transformer";
 import {
   IsString,
   IsEmail,
@@ -11,31 +9,24 @@ import {
   Matches,
   IsPhoneNumber,
   IsArray,
-  ArrayNotEmpty,
-  IsInt,
-  IsOptional,
 } from "class-validator";
 
-@InputType()
 export class CreateTeacherDto {
   @ApiProperty({ example: "Ali" })
   @IsString()
   @IsNotEmpty()
   @MaxLength(50)
-  @Field()
   first_name: string;
 
   @ApiProperty({ example: "Valiyev" })
   @IsString()
   @IsNotEmpty()
   @MaxLength(50)
-  @Field()
   last_name: string;
 
   @ApiProperty({ example: "ali@example.com" })
   @IsEmail()
   @IsNotEmpty()
-  @Field()
   email: string;
 
   @ApiProperty({ example: "P@ssw0rd!" })
@@ -46,13 +37,11 @@ export class CreateTeacherDto {
     message:
       "Password must contain uppercase, lowercase, number and special character",
   })
-  @Field()
   password: string;
 
   @ApiProperty({ example: "+998901234567" })
   @IsString()
   @IsPhoneNumber("UZ")
-  @Field()
   phone: string;
 
   @ApiProperty({
@@ -60,7 +49,6 @@ export class CreateTeacherDto {
     enum: ["assistant teacher", "main teacher"],
   })
   @IsEnum(["assistant teacher", "main teacher"])
-  @Field()
   role: "assistant teacher" | "main teacher";
 
   @ApiProperty({
@@ -70,6 +58,5 @@ export class CreateTeacherDto {
     type: Number,
   })
   @IsArray()
-  @Field(() => [Int])
   branchId: number[];
 }

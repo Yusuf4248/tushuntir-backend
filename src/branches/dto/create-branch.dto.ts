@@ -1,12 +1,5 @@
-import { InputType, Field } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
-import {
-  IsArray,
-  IsNotEmpty,
-  IsOptional,
-  IsPhoneNumber,
-  IsString,
-} from "class-validator";
+import { IsNotEmpty, IsPhoneNumber, IsString } from "class-validator";
 
 export class CreateBranchDto {
   @ApiProperty({ example: "Chilonzor Filiali", description: "Filial nomi" })

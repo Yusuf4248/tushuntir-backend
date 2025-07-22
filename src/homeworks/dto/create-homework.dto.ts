@@ -1,14 +1,6 @@
-import {
-  IsNotEmpty,
-  IsNumber,
-  IsString,
-  IsDateString,
-  IsUrl,
-} from "class-validator";
+import { IsNotEmpty, IsNumber, IsString, IsDateString } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
-import { Field, InputType } from "@nestjs/graphql";
 
-@InputType()
 export class CreateHomeworkDto {
   @ApiProperty({
     example: 1,
@@ -16,7 +8,6 @@ export class CreateHomeworkDto {
   })
   @IsNumber()
   @IsNotEmpty()
-  @Field()
   groupId: number;
 
   @ApiProperty({
@@ -25,7 +16,6 @@ export class CreateHomeworkDto {
   })
   @IsNumber()
   @IsNotEmpty()
-  @Field()
   teacherId: number;
 
   @ApiProperty({
@@ -34,7 +24,6 @@ export class CreateHomeworkDto {
   })
   @IsNumber()
   @IsNotEmpty()
-  @Field()
   lessonId: number;
 
   @ApiProperty({
@@ -43,7 +32,6 @@ export class CreateHomeworkDto {
   })
   @IsString()
   @IsNotEmpty()
-  @Field()
   description: string;
 
   @ApiProperty({
@@ -52,6 +40,5 @@ export class CreateHomeworkDto {
   })
   @IsDateString()
   @IsNotEmpty()
-  @Field()
   deadline: Date;
 }

@@ -1,4 +1,3 @@
-import { Field, ID, Int, ObjectType } from "@nestjs/graphql";
 import {
   Column,
   CreateDateColumn,
@@ -13,14 +12,12 @@ import { ApiProperty } from "@nestjs/swagger";
 import { Exam } from "../../exams/entities/exam.entity";
 import { Lesson } from "../../lessons/entities/lesson.entity";
 
-@ObjectType()
 @Entity("rooms")
 export class Room {
   @ApiProperty({
     example: 1,
     description: "Xonaning ID raqami",
   })
-  @Field(() => ID)
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -29,7 +26,6 @@ export class Room {
     description: "Xonaning nomi",
   })
   @Column()
-  @Field()
   name: string;
 
   @ApiProperty({
@@ -37,7 +33,6 @@ export class Room {
     description: "Xona sig'imi (nechta odam sig'adi)",
   })
   @Column()
-  @Field(() => Int)
   capacity: number;
 
   @ApiProperty({
@@ -45,10 +40,8 @@ export class Room {
     description: "Xonaga tegishli filial (branch)",
   })
   @ManyToOne(() => Branch, (branch) => branch.room)
-  @Field(() => Branch)
   branch: Branch;
 
-  @Field(() => [Exam])
   @OneToMany(() => Exam, (exam) => exam.room)
   exams: Exam[];
 
@@ -61,10 +54,8 @@ export class Room {
   lesson: Lesson[];
 
   @CreateDateColumn({ name: "created_at" })
-  @Field()
   created_at: Date;
 
   @UpdateDateColumn({ name: "updated_at" })
-  @Field()
   updated_at: Date;
 }

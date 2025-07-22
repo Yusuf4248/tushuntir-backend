@@ -1,4 +1,3 @@
-import { Field, ID, ObjectType, registerEnumType } from "@nestjs/graphql";
 import {
   Column,
   CreateDateColumn,
@@ -22,56 +21,41 @@ export enum ExamStatus {
   CANCELLED = "cancelled",
 }
 
-registerEnumType(ExamStatus, {
-  name: "ExamStatus",
-  description: "Exam status (pending, completed, cancelled)",
-});
-
-@ObjectType()
 @Entity()
 export class Exam {
   @ApiProperty({ example: 1 })
-  @Field(() => ID)
   @PrimaryGeneratedColumn()
   id: number;
 
   @ApiProperty({ example: "Final Exam" })
-  @Field()
   @Column()
   title: string;
 
   @ApiProperty({ example: "This is the final exam for Module 1" })
-  @Field()
   @Column()
   description: string;
 
   @ApiProperty({ example: "2025-06-01" })
-  @Field()
   @Column({ type: "date" })
   date: Date;
 
   @ApiProperty({ enum: ExamStatus, example: ExamStatus.PENDING })
-  @Field(() => ExamStatus)
   @Column({ type: "enum", enum: ExamStatus })
   status: ExamStatus;
 
   @ApiProperty({ example: "14:00", description: "Start time (HH:mm)" })
-  @Field()
   @Column({ type: "time" })
   start_time: string;
 
   @ApiProperty({ example: "15:30", description: "End time (HH:mm)" })
-  @Field()
   @Column({ type: "time" })
   end_time: string;
 
   @ApiProperty({ type: () => Room })
-  @Field(() => Room)
   @ManyToOne(() => Room, (room) => room.exams)
   room: Room;
 
   @ApiProperty({ type: () => Group })
-  @Field(() => Group)
   @ManyToOne(() => Group, (group) => group.exams)
   group: Group;
 
@@ -79,15 +63,12 @@ export class Exam {
   @JoinTable()
   teacher: Teacher[];
 
-  @Field(() => [ExamResult])
   @OneToMany(() => ExamResult, (exam_result) => exam_result.exam)
   exam_result: ExamResult[];
 
   @CreateDateColumn({ name: "created_at" })
-  @Field()
   created_at: Date;
 
   @UpdateDateColumn({ name: "updated_at" })
-  @Field()
   updated_at: Date;
 }

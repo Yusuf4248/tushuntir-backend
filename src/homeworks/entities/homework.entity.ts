@@ -1,4 +1,3 @@
-import { Field, ID, ObjectType } from "@nestjs/graphql";
 import {
   Column,
   CreateDateColumn,
@@ -14,10 +13,8 @@ import { HomeworkSubmission } from "../../homework-submission/entities/homework-
 import { ApiProperty } from "@nestjs/swagger";
 import { Lesson } from "../../lessons/entities/lesson.entity";
 
-@ObjectType()
 @Entity("homework")
 export class Homework {
-  @Field(() => ID)
   @PrimaryGeneratedColumn()
   @ApiProperty({ example: 1, description: "Homework ID" })
   id: number;
@@ -34,7 +31,6 @@ export class Homework {
   group: Group;
 
   @Column()
-  @Field()
   @ApiProperty({
     example: "Uyga vazifa tavsifi",
     description: "Vazifa tavsifi",
@@ -42,7 +38,6 @@ export class Homework {
   description: string;
 
   @Column()
-  @Field()
   @ApiProperty({
     example: "2025-06-01T18:00:00.000Z",
     description: "Vazifa topshirish muddati",
@@ -53,7 +48,6 @@ export class Homework {
     () => HomeworkSubmission,
     (homework_submission) => homework_submission.homework
   )
-  @Field(() => [HomeworkSubmission], { nullable: true })
   @ApiProperty({
     type: () => [HomeworkSubmission],
     description: "Vazifaga topshirilgan javoblar ro'yxati",
@@ -61,11 +55,9 @@ export class Homework {
   homework_submission: HomeworkSubmission[];
 
   @ManyToOne(() => Lesson, (lesson) => lesson.homework)
-  @Field(() => Lesson)
   lesson: Lesson;
 
   @CreateDateColumn({ name: "created_at" })
-  @Field()
   @ApiProperty({
     example: "2025-06-18T12:00:00.000Z",
     description: "Yaratilgan sana",
@@ -73,7 +65,6 @@ export class Homework {
   created_at: Date;
 
   @UpdateDateColumn({ name: "updated_at" })
-  @Field()
   @ApiProperty({
     example: "2025-06-19T12:00:00.000Z",
     description: "Oxirgi yangilanish",

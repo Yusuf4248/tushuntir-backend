@@ -1,4 +1,3 @@
-import { InputType, Field } from "@nestjs/graphql";
 import {
   IsNotEmpty,
   IsString,
@@ -7,18 +6,15 @@ import {
 } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 
-@InputType()
 export class CreateLidDto {
   @ApiProperty({ example: "Ali", description: "Lidning ismi" })
   @IsString()
   @IsNotEmpty()
-  @Field()
   first_name: string;
 
   @ApiProperty({ example: "Valiyev", description: "Lidning familiyasi" })
   @IsString()
   @IsNotEmpty()
-  @Field()
   last_name: string;
 
   @ApiProperty({
@@ -27,7 +23,6 @@ export class CreateLidDto {
   })
   @IsString()
   @IsNotEmpty()
-  @Field()
   target: string;
 
   @ApiProperty({
@@ -36,7 +31,6 @@ export class CreateLidDto {
   })
   @IsEmail()
   @IsNotEmpty()
-  @Field()
   email: string;
 
   @ApiProperty({
@@ -45,7 +39,6 @@ export class CreateLidDto {
   })
   @IsString()
   @IsStrongPassword()
-  @Field()
   password: string;
 
   @ApiProperty({
@@ -53,6 +46,5 @@ export class CreateLidDto {
     description: "Parolni tasdiqlash",
   })
   @IsString()
-  @Field()
   confirm_password: string;
 }

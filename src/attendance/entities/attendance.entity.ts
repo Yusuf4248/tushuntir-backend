@@ -1,4 +1,3 @@
-import { Field, ID, ObjectType } from "@nestjs/graphql";
 import {
   Column,
   CreateDateColumn,
@@ -7,20 +6,20 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { Student } from "../../student/entities/student.entities";
 import { ApiProperty } from "@nestjs/swagger";
+import { Student } from "../../student/entities/student.entities";
 import { Lesson } from "../../lessons/entities/lesson.entity";
 
 export enum AttendanceStatus {
   CAME = "came",
   DID_NOT_CAME = "did not came",
+  PENDING = "pending",
+  LATE = "late",
 }
 
-@ObjectType()
 @Entity()
 export class Attendance {
   @ApiProperty({ example: 1, description: "Unikal ID raqami" })
-  @Field(() => ID)
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -38,16 +37,14 @@ export class Attendance {
     example: "2025-06-01T09:00:00.000Z",
     description: "Davomat sanasi",
   })
-  @Field()
   @Column()
   date: Date;
 
   @ApiProperty({
     enum: AttendanceStatus,
     example: AttendanceStatus.CAME,
-    description: "Talabaning holati (masalan: bor, yo'q, kechikkan)",
+    description: "Talabaning holati (masalan: bor, yo'q)",
   })
-  @Field()
   @Column({
     type: "enum",
     enum: AttendanceStatus,
@@ -62,10 +59,8 @@ export class Attendance {
   description: string;
 
   @CreateDateColumn({ name: "created_at" })
-  @Field()
   created_at: Date;
 
   @UpdateDateColumn({ name: "updated_at" })
-  @Field()
   updated_at: Date;
 }

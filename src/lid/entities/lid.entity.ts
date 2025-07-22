@@ -1,16 +1,11 @@
-import { Field, ID, ObjectType, registerEnumType } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
 import {
   Column,
   CreateDateColumn,
   Entity,
-  ManyToOne,
-  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { Group } from "../../group/entities/group.entity";
-import { Student } from "../../student/entities/student.entities";
 
 export enum LidStatus {
   YANGI = "yangi",
@@ -20,26 +15,19 @@ export enum LidStatus {
   RAD_ETILDI = "rad_etildi",
 }
 
-registerEnumType(LidStatus, {
-  name: "LidStatus",
-});
 
 @Entity("lid")
-@ObjectType()
 export class Lid {
   @ApiProperty({ example: 1, description: "Lid ID raqami" })
-  @Field(() => ID)
   @PrimaryGeneratedColumn()
   id: number;
 
   @ApiProperty({ example: "Ali", description: "O'quvchining ismi" })
   @Column({ type: "varchar", nullable: false })
-  @Field()
   first_name: string;
 
   @ApiProperty({ example: "Valiyev", description: "O'quvchining familiyasi" })
   @Column({ type: "varchar", nullable: false })
-  @Field()
   last_name: string;
 
   @ApiProperty({
@@ -47,7 +35,6 @@ export class Lid {
     description: "O'quvchining email manzili",
   })
   @Column({ unique: true })
-  @Field()
   email: string;
 
   @ApiProperty({
@@ -55,7 +42,6 @@ export class Lid {
     description: "Parolning xeshlangan ko'rinishi",
   })
   @Column()
-  @Field()
   password_hash: string;
 
   @ApiProperty({
@@ -63,7 +49,6 @@ export class Lid {
     description: "O'quvchining maqsadi (targeti)",
   })
   @Column()
-  @Field()
   target: string;
 
   @ApiProperty({
@@ -72,7 +57,6 @@ export class Lid {
     required: false,
   })
   @Column({ nullable: true })
-  @Field({ nullable: true })
   test_date: Date;
 
   @ApiProperty({
@@ -80,12 +64,10 @@ export class Lid {
     description: "Test dars (trial lesson) sanasi",
   })
   @Column({ nullable: true })
-  @Field({ nullable: true })
   trial_lesson_date: Date;
 
   @ApiProperty({ description: "Lid qaysi guruhga tegishli" })
   @Column({ nullable: true })
-  @Field({ nullable: true })
   groupId: number;
 
   @ApiProperty({
@@ -93,7 +75,6 @@ export class Lid {
     example: LidStatus.YANGI,
     description: "Lidning hozirgi statusi",
   })
-  @Field(() => LidStatus)
   @Column({ type: "enum", enum: LidStatus, default: LidStatus.YANGI })
   lid_status: LidStatus;
 
@@ -102,10 +83,8 @@ export class Lid {
     description: "Bekor qilish sababi",
   })
   @Column({ nullable: true })
-  @Field({ nullable: true })
   cancel_reason: string;
 
-  @Field({ defaultValue: false, nullable: true })
   @Column({ type: "boolean", default: false, nullable: true })
   is_active: boolean;
 
@@ -114,14 +93,11 @@ export class Lid {
     description: "Refresh token hash qiymati",
   })
   @Column({ default: "" })
-  @Field()
   refresh_token_hash: string;
 
   @CreateDateColumn({ name: "created_at" })
-  @Field()
   created_at: Date;
 
   @UpdateDateColumn({ name: "updated_at" })
-  @Field()
   updated_at: Date;
 }

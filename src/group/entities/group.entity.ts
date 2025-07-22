@@ -1,4 +1,3 @@
-import { Field, ID, ObjectType, registerEnumType } from "@nestjs/graphql";
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -10,7 +9,7 @@ import {
   OneToMany,
   ManyToMany,
 } from "typeorm";
-import { ApiHideProperty, ApiProperty } from "@nestjs/swagger";
+import { ApiProperty } from "@nestjs/swagger";
 import { Course } from "../../courses/entities/course.entity";
 import { Homework } from "../../homeworks/entities/homework.entity";
 import { Payment } from "../../payments/entities/payment.entity";

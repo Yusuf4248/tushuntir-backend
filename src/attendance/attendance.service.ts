@@ -29,6 +29,7 @@ export class AttendanceService {
       ...createAttendanceDto,
       lesson,
       student,
+      date: lesson.date,
     });
     return this.attendanceRepo.save(attendance);
   }

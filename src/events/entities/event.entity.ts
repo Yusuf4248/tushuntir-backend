@@ -1,4 +1,3 @@
-import { Field, ID, ObjectType } from "@nestjs/graphql";
 import {
   Column,
   CreateDateColumn,
@@ -6,7 +5,6 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
@@ -14,16 +12,13 @@ import { ApiProperty } from "@nestjs/swagger";
 import { Branch } from "../../branches/entities/branch.entity";
 import { Student } from "../../student/entities/student.entities";
 
-@ObjectType()
 @Entity("events")
 export class Event {
   @ApiProperty({ example: 1, description: "Eventning ID raqami" })
-  @Field(() => ID)
   @PrimaryGeneratedColumn()
   id: number;
 
   @ApiProperty({ example: "Frontend Bootcamp", description: "Tadbir nomi" })
-  @Field()
   @Column()
   name: string;
 
@@ -31,7 +26,6 @@ export class Event {
     example: "3 kunlik intensiv dasturlash kursi",
     description: "Tadbir tavsifi",
   })
-  @Field()
   @Column()
   description: string;
 
@@ -39,7 +33,6 @@ export class Event {
     example: "2025-06-01T09:00:00.000Z",
     description: "Boshlanish vaqti",
   })
-  @Field()
   @Column()
   start_time: Date;
 
@@ -47,17 +40,14 @@ export class Event {
     example: "2025-06-03T17:00:00.000Z",
     description: "Tugash vaqti",
   })
-  @Field()
   @Column()
   end_time: Date;
 
   @ApiProperty({ example: 50, description: "Maksimal ishtirokchilar soni" })
-  @Field()
   @Column()
   max_participants: number;
 
   @ApiProperty({ example: true, description: "Tadbir faolligi holati" })
-  @Field({ defaultValue: true })
   @Column({ default: true })
   is_active: boolean;
 
@@ -65,20 +55,16 @@ export class Event {
     type: () => Branch,
     description: "Tadbir o'tkaziladigan filial",
   })
-  @Field(() => Branch)
   @ManyToOne(() => Branch, (branch) => branch.events)
   branch: Branch;
 
-  @Field(() => [Student])
   @ManyToMany(() => Student, (student) => student.events, { nullable: true })
   @JoinTable()
   students: Student[];
 
   @CreateDateColumn({ name: "created_at" })
-  @Field()
   created_at: Date;
 
   @UpdateDateColumn({ name: "updated_at" })
-  @Field()
   updated_at: Date;
 }
