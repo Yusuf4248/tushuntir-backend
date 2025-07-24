@@ -461,8 +461,4 @@ export class LessonsService {
       message: `${id}-lesson data deleted`,
     };
   }
-
-  // async startLessonForGroup(lessonId: number) {
-  //   const lesson = await this.findOne(lessonId);
-  // }
 }

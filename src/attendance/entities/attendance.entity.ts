@@ -14,6 +14,7 @@ export enum AttendanceStatus {
   CAME = "came",
   DID_NOT_CAME = "did not came",
   LATE = "late",
+  PENDING = "pending",
 }
 
 @Entity()
@@ -54,7 +55,7 @@ export class Attendance {
     example: "Darsga ma'lum sababga ko'ra kech qoldi.",
     description: "O'quvchining dars kelgan yoki kelmaganligi haqida tavsif",
   })
-  @Column()
+  @Column({ default: "" })
   description: string;
 
   @CreateDateColumn({ name: "created_at" })

@@ -2,14 +2,18 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  Inject,
+  forwardRef,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 import { CreateGroupStudentDto } from "./dto/create-group-student.dto";
 import { UpdateGroupStudentDto } from "./dto/update-group-student.dto";
 import { GroupStudent } from "./entities/group-student.entity";
 import { Group } from "../group/entities/group.entity";
 import { Student } from "../student/entities/student.entities";
+import { AttendanceService } from "../attendance/attendance.service";
+import { Attendance } from "../attendance/entities/attendance.entity";
 
 @Injectable()
 export class GroupStudentsService {
@@ -19,12 +23,12 @@ export class GroupStudentsService {
     @InjectRepository(Group)
     private readonly groupRepository: Repository<Group>,
     @InjectRepository(Student)
-    private readonly studentRepository: Repository<Student>
+    private readonly studentRepository: Repository<Student>,
+    @Inject(forwardRef(() => AttendanceService))
+    private attendanceService: AttendanceService
   ) {}
 
-  async create(
-    createGroupStudentDto: CreateGroupStudentDto
-  ): Promise<GroupStudent> {
+  async create(createGroupStudentDto: CreateGroupStudentDto) {
     const { groupId, studentId, status = true } = createGroupStudentDto;
 
     const group = await this.groupRepository.findOne({
@@ -34,35 +38,51 @@ export class GroupStudentsService {
       throw new NotFoundException(`Group with ID ${groupId} not found`);
     }
 
-    const student = await this.studentRepository.findOne({
-      where: { id: studentId },
+    const students = await this.studentRepository.find({
+      where: { id: In(studentId) },
     });
-    if (!student) {
-      throw new NotFoundException(`Student with ID ${studentId} not found`);
+
+    if (students.length !== studentId.length) {
+      throw new NotFoundException(`Some students not found`);
     }
 
-    const existingRelation = await this.groupStudentRepository.findOne({
-      where: {
-        group: { id: groupId },
-        student: { id: studentId },
-      },
-    });
+    const result: {
+      groupStudent: GroupStudent;
+      attendances: Attendance[];
+    }[] = [];
 
-    if (existingRelation) {
-      throw new BadRequestException(
-        "Student is already assigned to this group"
-      );
+    const groupStudentsToSave: GroupStudent[] = [];
+
+    for (const student of students) {
+      const existingRelation = await this.groupStudentRepository.findOne({
+        where: {
+          group: { id: groupId },
+          student: { id: student.id },
+        },
+      });
+
+      if (existingRelation) {
+        throw new BadRequestException(
+          `Student with ID ${student.id} is already assigned to this group`
+        );
+      }
+
+      const groupStudent = await this.groupStudentRepository.save({
+        group,
+        student,
+        status,
+        start_date: group.start_date,
+        end_date: group.end_date,
+      });
+      groupStudentsToSave.push(groupStudent);
+
+      const attendances =
+        await this.attendanceService.createAllAttendancesForGroupStudent(
+          groupStudent.id
+        );
+      result.push({ groupStudent, attendances });
     }
-
-    const groupStudent = this.groupStudentRepository.create({
-      group,
-      student,
-      status,
-      start_date: group.start_date,
-      end_date: group.end_date,
-    });
-
-    return await this.groupStudentRepository.save(groupStudent);
+    return result;
   }
 
   async findAll(): Promise<GroupStudent[]> {

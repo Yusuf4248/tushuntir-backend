@@ -1,27 +1,36 @@
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
+import { MoreThanOrEqual } from "typeorm";
+import * as dayjs from "dayjs";
 import { CreateAttendanceDto } from "./dto/create-attendance.dto";
 import { UpdateAttendanceDto } from "./dto/update-attendance.dto";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Attendance } from "./entities/attendance.entity";
+import { Attendance, AttendanceStatus } from "./entities/attendance.entity";
 import { Repository } from "typeorm";
 import { StudentService } from "../student/student.service";
 import { LessonsService } from "../lessons/lessons.service";
 import { Student } from "../student/entities/student.entities";
 import { Lesson } from "../lessons/entities/lesson.entity";
 import { GroupService } from "../group/group.service";
+import { GroupStudentsService } from "../group-students/group-students.service";
 
 @Injectable()
 export class AttendanceService {
   constructor(
     @InjectRepository(Attendance)
     private readonly attendanceRepo: Repository<Attendance>,
+    @InjectRepository(Lesson)
+    private readonly lessonRepo: Repository<Lesson>,
     private readonly studentService: StudentService,
     private readonly lessonService: LessonsService,
-    private readonly groupService: GroupService
+    private readonly groupService: GroupService,
+    @Inject(forwardRef(() => GroupStudentsService))
+    private groupStudentService: GroupStudentsService
   ) {}
   async create(createAttendanceDto: CreateAttendanceDto) {
     const { lessonId, studentId } = createAttendanceDto;
@@ -125,5 +134,30 @@ export class AttendanceService {
       success: true,
       attendances,
     };
+  }
+
+  async createAllAttendancesForGroupStudent(groupStudentId: number) {
+    const groupStudent = await this.groupStudentService.findOne(groupStudentId);
+    const today = dayjs().startOf("day").toDate();
+    const lessons = await this.lessonRepo.find({
+      where: {
+        group: { id: groupStudent.group.id },
+        date: MoreThanOrEqual(today),
+      },
+      relations: ["group", "room"],
+      order: { date: "ASC" },
+    });
+
+    const attendancesToCreate = lessons.map((lesson) =>
+      this.attendanceRepo.create({
+        student: groupStudent.student,
+        lesson,
+        date: lesson.date,
+        status: AttendanceStatus.PENDING,
+      })
+    );
+    const savedAttendances =
+      await this.attendanceRepo.save(attendancesToCreate);
+    return savedAttendances;
   }
 }

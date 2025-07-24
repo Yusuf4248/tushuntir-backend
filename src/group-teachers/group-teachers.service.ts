@@ -24,38 +24,44 @@ export class GroupTeachersService {
 
   async create(
     createGroupTeacherDto: CreateGroupTeacherDto
-  ): Promise<GroupTeacher> {
+  ): Promise<GroupTeacher[]> {
+    const { groupId, teacherId, status, start_date } = createGroupTeacherDto;
+
     const group = await this.groupRepository.findOne({
-      where: { id: createGroupTeacherDto.groupId },
+      where: { id: groupId },
     });
     if (!group) throw new NotFoundException("Group not found");
 
-    const teacher = await this.teacherRepository.findOne({
-      where: { id: createGroupTeacherDto.teacherId },
-    });
-    if (!teacher) throw new NotFoundException("Teacher not found");
+    const results: GroupTeacher[] = [];
 
-    const existingRelation = await this.groupTeacherRepository.findOne({
-      where: {
-        group: { id: createGroupTeacherDto.groupId },
-        teacher: { id: createGroupTeacherDto.teacherId },
-      },
-    });
-    if (existingRelation) {
-      throw new BadRequestException(
-        "Teacher is already assigned to this group"
-      );
+    for (const id of teacherId) {
+      const teacher = await this.teacherRepository.findOne({ where: { id } });
+      if (!teacher)
+        throw new NotFoundException(`Teacher with ID ${id} not found`);
+
+      const existingRelation = await this.groupTeacherRepository.findOne({
+        where: { group: { id: groupId }, teacher: { id } },
+      });
+
+      if (existingRelation) {
+        throw new BadRequestException(
+          `Teacher with ID ${id} is already assigned to this group`
+        );
+      }
+
+      const newRelation = this.groupTeacherRepository.create({
+        group,
+        teacher,
+        status: status ?? true,
+        start_date: start_date ?? group.start_date,
+        end_date: group.end_date,
+      });
+
+      const saved = await this.groupTeacherRepository.save(newRelation);
+      results.push(saved);
     }
 
-    const newGroupTeacher = this.groupTeacherRepository.create({
-      ...createGroupTeacherDto,
-      group,
-      teacher,
-      start_date: group.start_date,
-      end_date: group.end_date,
-    });
-
-    return this.groupTeacherRepository.save(newGroupTeacher);
+    return results;
   }
 
   findAll(): Promise<GroupTeacher[]> {

@@ -26,22 +26,10 @@ export class CreateGroupDto {
   @IsDateString()
   start_date: string;
 
-  @ApiProperty({ example: "2025-09-01" })
-  @IsNotEmpty()
-  @IsDateString()
-  @IsOptional()
-  end_date?: string;
-
   @ApiProperty({ example: "08:30", description: "Group start time (HH:mm)" })
   @IsNotEmpty()
   @IsMilitaryTime({ message: "start_time format: HH:mm bo'lishi kerak" })
   start_time: string;
-
-  @ApiProperty({ example: "11:30", description: "Group end time (HH:mm)" })
-  @IsNotEmpty()
-  @IsOptional()
-  @IsMilitaryTime({ message: "end_time format: HH:mm" })
-  end_time?: string;
 
   @ApiProperty({ enum: GroupStatus, example: GroupStatus.NEW })
   @IsEnum(GroupStatus)

@@ -12,17 +12,13 @@ import { Group } from "./entities/group.entity";
 import { QueryFailedError, Repository } from "typeorm";
 import { CoursesService } from "../courses/courses.service";
 import { LessonsService } from "../lessons/lessons.service";
-import { GroupStudentsService } from "../group-students/group-students.service";
-import { GroupTeachersService } from "../group-teachers/group-teachers.service";
 
 @Injectable()
 export class GroupService {
   constructor(
     @InjectRepository(Group) private readonly groupRepo: Repository<Group>,
     private readonly lessonService: LessonsService,
-    private readonly courseService: CoursesService,
-    private readonly groupStudentService: GroupStudentsService,
-    private readonly groupTeacherService: GroupTeachersService
+    private readonly courseService: CoursesService
   ) {}
   async create(createGroupDto: CreateGroupDto) {
     const { course } = await this.courseService.findOne(
@@ -89,7 +85,7 @@ export class GroupService {
       );
     const group = await this.groupRepo.findOne({
       where: { id },
-      relations: ["course"],
+      relations: ["course", "lessons"],
     });
     if (!group) {
       throw new NotFoundException(`Group ID-${id} not found`);

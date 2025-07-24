@@ -49,5 +49,6 @@ export class CreateAttendanceDto {
       "Description of whether the student attended the class or not.",
   })
   @IsString()
-  description: string;
+  @IsOptional()
+  description?: string;
 }

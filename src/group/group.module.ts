@@ -29,8 +29,6 @@ import { GroupStudentsModule } from "../group-students/group-students.module";
     CoursesModule,
     forwardRef(() => LessonsModule),
     JwtModule,
-    GroupTeachersModule,
-    GroupStudentsModule,
   ],
   controllers: [GroupController],
   providers: [GroupService],

@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import {
+  IsArray,
   IsBoolean,
   IsDateString,
   IsNotEmpty,
@@ -20,14 +21,13 @@ export class CreateGroupStudentDto {
   groupId: number;
 
   @ApiProperty({
-    example: 5,
+    example: [5],
     description: "Student ID",
     type: Number,
   })
-  @IsNumber()
+  @IsArray()
   @IsNotEmpty()
-  @Type(() => Number)
-  studentId: number;
+  studentId: number[];
 
   @ApiProperty({
     example: true,
@@ -42,9 +42,4 @@ export class CreateGroupStudentDto {
   @IsDateString()
   @IsOptional()
   start_date?: string;
-
-  @ApiProperty({ example: "2025-12-01" })
-  @IsDateString()
-  @IsOptional()
-  end_date?: string;
 }
