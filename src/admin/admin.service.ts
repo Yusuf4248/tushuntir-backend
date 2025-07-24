@@ -11,8 +11,8 @@ import { In, Repository } from "typeorm";
 import { ChangePasswordDto } from "../student/dto/change-password.dto";
 import { BranchesService } from "../branches/branches.service";
 import { UpdateAdminStatusDto } from "./dto/update-admin-status.dto";
-import * as bcrypt from "bcrypt";
 import { Branch } from "../branches/entities/branch.entity";
+import * as bcrypt from "bcrypt";
 
 @Injectable()
 export class AdminService {
