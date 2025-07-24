@@ -8,7 +8,6 @@ import { Homework } from "../homeworks/entities/homework.entity";
 import { StudentModule } from "../student/student.module";
 import { HomeworksModule } from "../homeworks/homeworks.module";
 import { Grade } from "../grades/entities/grade.entity";
-import { HomeworkSubmissionResolver } from "./homework-submission.resolver";
 import { JwtModule } from "@nestjs/jwt";
 import { Media } from "../media/entities/media.entity";
 import { FileModule } from "../file/file.module";
@@ -28,7 +27,7 @@ import { FileModule } from "../file/file.module";
     FileModule,
   ],
   controllers: [HomeworkSubmissionController],
-  providers: [HomeworkSubmissionService, HomeworkSubmissionResolver],
+  providers: [HomeworkSubmissionService],
   exports: [HomeworkSubmissionService],
 })
 export class HomeworkSubmissionModule {}

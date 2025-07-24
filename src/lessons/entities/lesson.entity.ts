@@ -17,6 +17,7 @@ export enum LessonStatus {
   NEW = "new",
   CANCELLED = "cancelled",
   COMPLETED = "completed",
+  IN_PROGRESS = "in_progress",
 }
 
 @Entity()

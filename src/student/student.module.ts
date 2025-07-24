@@ -3,7 +3,6 @@ import { StudentService } from "./student.service";
 import { StudentController } from "./student.controller";
 import { Student } from "./entities/student.entities";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { StudentResolver } from "./student.resolver";
 import { Attendance } from "../attendance/entities/attendance.entity";
 import { HomeworkSubmission } from "../homework-submission/entities/homework-submission.entity";
 import { Grade } from "../grades/entities/grade.entity";
@@ -38,7 +37,7 @@ import { GroupStudent } from "../group-students/entities/group-student.entity";
     JwtModule,
   ],
   controllers: [StudentController],
-  providers: [StudentResolver, StudentService],
+  providers: [StudentService],
   exports: [StudentService],
 })
 export class StudentModule {}

@@ -3,7 +3,6 @@ import { BranchesService } from "./branches.service";
 import { BranchesController } from "./branches.controller";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { Branch } from "./entities/branch.entity";
-import { BranchResolver } from "./branches.resolver";
 import { Room } from "../rooms/entities/room.entity";
 import { Admin } from "../admin/entities/admin.entity";
 import { Event } from "../events/entities/event.entity";
@@ -16,7 +15,7 @@ import { JwtModule } from "@nestjs/jwt";
     JwtModule,
   ],
   controllers: [BranchesController],
-  providers: [BranchesService, BranchResolver],
+  providers: [BranchesService],
   exports: [BranchesService],
 })
 export class BranchesModule {}

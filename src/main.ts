@@ -23,29 +23,34 @@ async function start() {
     );
     app.useGlobalFilters(new AllExceptionFilter());
     app.setGlobalPrefix("api");
+    // app.enableCors({
+    //   origin: (origin, callback) => {
+    //     const allowedOrigin = [
+    //       "http://localhost:6969",
+    //       "http://localhost:5173",
+    //       "http://185.191.141.200:6969",
+    //       "http://185.191.141.200:3030",
+    //       "https://erp-edu.uz",
+    //     ];
+    //     if (!origin || allowedOrigin.includes(origin)) {
+    //       callback(null, true);
+    //     } else {
+    //       callback(new BadRequestException("Not allowed by CORS"));
+    //     }
+    //   },
+    //   methods: "GET, HEAD, PUT, PATCH, POST, DELETE",
+    //   credentials: true,
+    // });
     app.enableCors({
-      origin: (origin, callback) => {
-        const allowedOrigin = [
-          "http://localhost:6969",
-          "http://localhost:5173",
-          "http://185.191.141.200:6969",
-          "http://185.191.141.200:3030",
-          "http://erp-edu.uz",
-        ];
-        if (!origin || allowedOrigin.includes(origin)) {
-          callback(null, true);
-        } else {
-          callback(new BadRequestException("Not allowed by CORS"));
-        }
-      },
-      methods: "GET, HEAD, PUT, PATCH, POST, DELETE",
+      origin: true,
       credentials: true,
+      methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     });
     const config = new DocumentBuilder()
       .setTitle("ERP PROJECT")
       .setDescription("ERP-REST-API")
       .setVersion("6.9")
-      .addTag("NESTJS", "Validation, SWAGGER, BOT, TOEKNS, SENDMAIL")
+      .addTag("NESTJS", "Validation, SWAGGER, BOT, TOKENS, SENDMAIL")
       .addTag("Nest js", "GUARD, AUTH")
       .addBearerAuth(
         {

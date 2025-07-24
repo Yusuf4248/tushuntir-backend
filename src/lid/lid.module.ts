@@ -6,7 +6,6 @@ import { Lid } from "./entities/lid.entity";
 import { Group } from "../group/entities/group.entity";
 import { GroupModule } from "../group/group.module";
 import { Student } from "../student/entities/student.entities";
-import { LidResolver } from "./lid.resolver";
 import { Otp } from "./entities/otp.entity";
 import { MailModule } from "../mail/mail.module";
 import { JwtModule } from "@nestjs/jwt";
@@ -19,7 +18,7 @@ import { JwtModule } from "@nestjs/jwt";
     JwtModule,
   ],
   controllers: [LidController],
-  providers: [LidService, LidResolver],
+  providers: [LidService],
   exports: [LidService],
 })
 export class LidModule {}

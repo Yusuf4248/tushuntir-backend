@@ -13,7 +13,6 @@ import { Lesson } from "../../lessons/entities/lesson.entity";
 export enum AttendanceStatus {
   CAME = "came",
   DID_NOT_CAME = "did not came",
-  PENDING = "pending",
   LATE = "late",
 }
 

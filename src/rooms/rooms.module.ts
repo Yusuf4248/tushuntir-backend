@@ -5,7 +5,6 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { Room } from "./entities/room.entity";
 import { Branch } from "../branches/entities/branch.entity";
 import { BranchesModule } from "../branches/branches.module";
-import { RoomResolver } from "./rooms.resolver";
 import { Exam } from "../exams/entities/exam.entity";
 import { JwtModule } from "@nestjs/jwt";
 
@@ -16,7 +15,7 @@ import { JwtModule } from "@nestjs/jwt";
     JwtModule,
   ],
   controllers: [RoomsController],
-  providers: [RoomsService, RoomResolver],
+  providers: [RoomsService],
   exports: [RoomsService],
 })
 export class RoomsModule {}

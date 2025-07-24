@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEnum, IsString } from "class-validator";
+import { IsDateString, IsEnum, IsOptional, IsString } from "class-validator";
 import { LessonStatus } from "../entities/lesson.entity";
 
 export class UpdateLessonStatusDto {
@@ -10,4 +10,12 @@ export class UpdateLessonStatusDto {
   @ApiProperty({ example: "Completed successfully" })
   @IsString()
   note: string;
+
+  @ApiProperty({
+    example: "2025-06-01",
+    description: "Dars sanasi (optional)",
+  })
+  @IsDateString()
+  @IsOptional()
+  date?: Date;
 }

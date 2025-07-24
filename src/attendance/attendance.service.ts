@@ -12,6 +12,7 @@ import { StudentService } from "../student/student.service";
 import { LessonsService } from "../lessons/lessons.service";
 import { Student } from "../student/entities/student.entities";
 import { Lesson } from "../lessons/entities/lesson.entity";
+import { GroupService } from "../group/group.service";
 
 @Injectable()
 export class AttendanceService {
@@ -19,7 +20,8 @@ export class AttendanceService {
     @InjectRepository(Attendance)
     private readonly attendanceRepo: Repository<Attendance>,
     private readonly studentService: StudentService,
-    private readonly lessonService: LessonsService
+    private readonly lessonService: LessonsService,
+    private readonly groupService: GroupService
   ) {}
   async create(createAttendanceDto: CreateAttendanceDto) {
     const { lessonId, studentId } = createAttendanceDto;
@@ -108,6 +110,20 @@ export class AttendanceService {
     return {
       message: `${id}-attandance deleted!`,
       success: true,
+    };
+  }
+
+  async getStudentAllAttendances(studentId: number, groupId: number) {
+    const { student } = await this.studentService.findOne(studentId);
+    const { group } = await this.groupService.findOne(groupId);
+    const attendances = await this.attendanceRepo.find({
+      where: { student, lesson: { group } },
+      relations: ["lesson"],
+    });
+    return {
+      message: `All attendances for student ${studentId} in group ${groupId}`,
+      success: true,
+      attendances,
     };
   }
 }

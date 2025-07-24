@@ -104,6 +104,6 @@ export class LessonsController {
     @Param("id", ParseIntPipe) id: number,
     @Body() body: UpdateLessonStatusDto
   ) {
-    return this.lessonsService.updateLessonStatus(id, body.status, body.note);
+    return this.lessonsService.updateLessonStatus(id, body);
   }
 }

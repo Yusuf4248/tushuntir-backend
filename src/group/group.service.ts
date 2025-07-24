@@ -94,16 +94,12 @@ export class GroupService {
     if (!group) {
       throw new NotFoundException(`Group ID-${id} not found`);
     }
-    const { lessons } = await this.lessonService.findGroupAllLessons(id);
-    const students = await this.groupStudentService.findByGroup(id);
-    const teachers = await this.groupTeacherService.findByGroup(id);
+    const room = group.lessons[0]?.room;
     return {
       message: `Group ID-${id}`,
       success: true,
       group,
-      lessons,
-      students,
-      teachers,
+      room,
     };
   }
 

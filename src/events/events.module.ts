@@ -5,7 +5,6 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { Event } from "./entities/event.entity";
 import { Branch } from "../branches/entities/branch.entity";
 import { BranchesModule } from "../branches/branches.module";
-import { EventsResolver } from "./events.resolver";
 import { Student } from "../student/entities/student.entities";
 import { JwtModule } from "@nestjs/jwt";
 
@@ -16,7 +15,7 @@ import { JwtModule } from "@nestjs/jwt";
     JwtModule,
   ],
   controllers: [EventsController],
-  providers: [EventsService, EventsResolver],
+  providers: [EventsService],
   exports: [EventsService],
 })
 export class EventsModule {}

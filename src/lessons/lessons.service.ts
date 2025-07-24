@@ -16,6 +16,7 @@ import { Group } from "../group/entities/group.entity";
 import { Room } from "../rooms/entities/room.entity";
 import { GroupStudent } from "../group-students/entities/group-student.entity";
 import { GroupTeacher } from "../group-teachers/entities/group-teacher.entity";
+import { UpdateLessonStatusDto } from "./dto/update-lesson-status.dto";
 
 @Injectable()
 export class LessonsService {
@@ -91,7 +92,11 @@ export class LessonsService {
       throw new NotFoundException(`Group ID-${groupId} not found`);
     }
 
-    const startDateString = `${group.start_date}T${group.start_time.length === 5 ? group.start_time + ":00" : group.start_time}`;
+    const startDateString = `${group.start_date}T${
+      group.start_time.length === 5
+        ? group.start_time + ":00"
+        : group.start_time
+    }`;
     const start_time = new Date(startDateString);
 
     if (isNaN(start_time.getTime())) {
@@ -99,8 +104,9 @@ export class LessonsService {
     }
 
     const end_time = new Date(
-      start_time.getTime() + group.course.lesson_duration * 1000 * 60
+      start_time.getTime() + group.course.lesson_duration * 60 * 1000
     );
+
     await this.groupRepo.update(
       { id: groupId },
       {
@@ -115,13 +121,15 @@ export class LessonsService {
       where: { id: groupId },
       relations: ["course"],
     });
+
     const room = await this.roomRepo.findOne({ where: { id: roomId } });
-    const totalLessons =
-      group!.course.lessons_in_a_month * group!.course.lessons_in_a_week;
+    if (!room) {
+      throw new NotFoundException(`Room ID-${roomId} not found`);
+    }
 
     const lessons: Lesson[] = [];
 
-    for (let i = 0; i < totalLessons; i++) {
+    for (let i = 0; i < lessonDates.length; i++) {
       const date = lessonDates[i];
 
       const lesson = await this.lessonRepo.save({
@@ -138,56 +146,44 @@ export class LessonsService {
     return lessons;
   }
 
-  async generateLessonDates(groupId: number) {
+  async generateLessonDates(groupId: number): Promise<Date[]> {
     const group = await this.groupRepo.findOne({
       where: { id: groupId },
       relations: ["course"],
     });
+
     if (!group) {
       throw new NotFoundException(`Group ID-${groupId} not found`);
     }
 
     const lessonDates: Date[] = [];
-    const totalLessons =
+    const totalLessons: number =
       group.course.lessons_in_a_month * group.course.duration;
 
     let currentDate = new Date(group.start_date);
-    let weeklyLessonCount = 0;
-    if (group.course.lessons_in_a_week == 5) {
+    const lessonsInWeek = group.course.lessons_in_a_week;
+
+    if (lessonsInWeek === 5) {
+      // Har kuni Dushanba - Juma oraliqda dars
       while (lessonDates.length < totalLessons) {
-        const dayOfWeek = currentDate.getDay(); // 0 = Yakshanba, 6 = Shanba
-
-        // Dushanba - Juma kunlari (1-5)
-        if (dayOfWeek >= 1 && dayOfWeek <= 5) {
-          if (weeklyLessonCount < group.course.lessons_in_a_week) {
-            lessonDates.push(new Date(currentDate));
-            weeklyLessonCount++;
-          }
+        const day = currentDate.getDay();
+        if (day >= 1 && day <= 5) {
+          lessonDates.push(new Date(currentDate));
         }
-
-        // Har hafta oxiri - Yakshanba (0) da reset boladi
-        if (dayOfWeek === 0) {
-          weeklyLessonCount = 0;
-        }
-
         currentDate = addDays(currentDate, 1);
       }
     } else {
+      // Juft yoki toq kunlar bo‘yicha dars (2 kun ketma-ket emas)
       const firstDay = currentDate.getDay();
-
-      // Juft kunlar: 1 (Dushanba), 3 (Chorshanba), 5 (Juma)
-      // Toq kunlar: 2 (Seshanba), 4 (Payshanba), 6 (Shanba)
-      const isEven = [1, 3, 5].includes(firstDay); // Juft kun yoki yo'qligi aniqlash
-      const validDays = isEven ? [1, 3, 5] : [2, 4, 6];
+      const isEven = [1, 3, 5].includes(firstDay); // Dushanba, Chorshanba, Juma
+      const validDays = isEven ? [1, 3, 5] : [2, 4, 6]; // juft yoki toq kunlar
 
       let lastLessonDate: Date | null = null;
 
       while (lessonDates.length < totalLessons) {
-        const dayOfWeek = currentDate.getDay();
+        const day = currentDate.getDay();
 
-        // Faqat kerakli (juft yoki toq) kunlardagina dars bo‘ladi
-        if (validDays.includes(dayOfWeek)) {
-          // 2 kun ketma-ket bo‘lmasligi kerak
+        if (validDays.includes(day)) {
           const isConsecutive =
             lastLessonDate &&
             (currentDate.getTime() - lastLessonDate.getTime()) /
@@ -197,13 +193,7 @@ export class LessonsService {
           if (!isConsecutive) {
             lessonDates.push(new Date(currentDate));
             lastLessonDate = new Date(currentDate);
-            weeklyLessonCount++;
           }
-        }
-
-        // Yakshanba kelganda haftalik hisobni nolga tushiramiz
-        if (dayOfWeek === 0) {
-          weeklyLessonCount = 0;
         }
 
         currentDate = addDays(currentDate, 1);
@@ -213,16 +203,155 @@ export class LessonsService {
     return lessonDates;
   }
 
-  async updateLessonStatus(id: number, status: LessonStatus, note: string) {
-    await this.findOne(id);
-    await this.lessonRepo.update(id, { status, notes: note });
-    const { lesson } = await this.findOne(id);
-    await this.shiftLessons(lesson.group.id, id);
-    return {
-      message: "Lesson status updated!",
-      success: true,
-      lesson: lesson,
-    };
+  async generateNextLessonDate(lastDate: Date): Promise<Date> {
+    if (!lastDate || isNaN(lastDate.getTime())) {
+      throw new BadRequestException("Invalid last lesson date");
+    }
+
+    const lesson = await this.lessonRepo.findOne({
+      where: { date: lastDate },
+      relations: ["group", "group.course"],
+    });
+
+    if (!lesson) {
+      throw new NotFoundException("Lesson not found for the given date");
+    }
+
+    const lessonsInWeek = lesson.group.course.lessons_in_a_week;
+
+    const currentDate = new Date(lastDate);
+    let nextDate = new Date(currentDate);
+
+    if (lessonsInWeek === 5) {
+      // Har kuni (Dushanba - Juma)
+      const currentDay = currentDate.getDay(); // 1 - Dushanba, 5 - Juma
+      if (currentDay >= 1 && currentDay <= 4) {
+        // Haftaning ish kuni → ertasi ish kuni
+        nextDate.setDate(currentDate.getDate() + 1);
+      } else if (currentDay === 5) {
+        // Juma → Dushanba (2 kun o'tkazib)
+        nextDate.setDate(currentDate.getDate() + 3);
+      } else if (currentDay === 6) {
+        // Shanba → Dushanba
+        nextDate.setDate(currentDate.getDate() + 2);
+      } else if (currentDay === 0) {
+        // Yakshanba → Dushanba
+        nextDate.setDate(currentDate.getDate() + 1);
+      }
+    } else if (lessonsInWeek === 3) {
+      // Dars kunlari: Dush-Chor-Juma yoki Ses-Pays-Shan
+      const day = currentDate.getDay(); // 0 = Yakshanba, 1 = Dushanba ...
+
+      let schedule: number[];
+
+      if ([1, 3, 5].includes(day)) {
+        schedule = [1, 3, 5]; // Dush - Chor - Juma
+      } else {
+        schedule = [2, 4, 6]; // Ses - Pays - Shan
+      }
+
+      const next = schedule.find((d) => d > day);
+      if (next) {
+        const diff = next - day;
+        nextDate.setDate(currentDate.getDate() + diff);
+      } else {
+        // Agar bu hafta oxiri bo‘lsa → keyingi haftaning birinchi dars kuni
+        const daysUntilNext = 7 - day + schedule[0];
+        nextDate.setDate(currentDate.getDate() + daysUntilNext);
+      }
+    } else {
+      throw new BadRequestException("Unsupported number of lessons in a week");
+    }
+
+    return nextDate;
+  }
+
+  async updateLessonStatus(id: number, body: UpdateLessonStatusDto) {
+    const { status, note, date } = body;
+
+    const oldLessonRecord = await this.findOne(id);
+    if (!oldLessonRecord.lesson) {
+      throw new NotFoundException(`Lesson with ID ${id} not found`);
+    }
+
+    const groupId = oldLessonRecord.lesson.group.id;
+
+    const group = await this.groupRepo.findOne({ where: { id: groupId } });
+
+    if (date) {
+      const parsedDate = new Date(date);
+      if (isNaN(parsedDate.getTime())) {
+        throw new BadRequestException("Invalid date format");
+      }
+
+      if (parsedDate < new Date()) {
+        throw new BadRequestException("Date cannot be in the past");
+      }
+
+      //  Shu sana uchun lesson mavjudligini tekshirish
+      const isLessonExist = await this.lessonRepo.findOne({
+        where: { date: parsedDate },
+      });
+      if (isLessonExist) {
+        throw new BadRequestException(
+          `A lesson already exists on ${parsedDate.toISOString().split("T")[0]}`
+        );
+      }
+      // Eski lessonni update qilish
+      const updatedLesson = await this.lessonRepo.update(id, {
+        status,
+        notes: note,
+      });
+
+      //  Yangi lesson yaratish (agar kerak bo‘lsa qo‘shimcha maydonlar qo‘shing)
+      const newLesson = this.lessonRepo.create({
+        title: oldLessonRecord.lesson.title,
+        notes: oldLessonRecord.lesson.notes,
+        group: { ...group },
+        date: parsedDate,
+        status: LessonStatus.NEW,
+        room: oldLessonRecord.lesson.room,
+      });
+      await this.lessonRepo.save(newLesson);
+
+      return {
+        message: "Lesson updated and new lesson created on given date!",
+        success: true,
+        newLesson,
+      };
+    } else {
+      // ❗Eski lessonni update qilish
+      await this.lessonRepo.update(id, { status, notes: note });
+
+      // ❗Gruppa darslarini surish
+      await this.shiftLessons(groupId, id);
+
+      // ✅ Oxirgi darsni topamiz
+      const lastLesson = await this.lessonRepo.findOne({
+        where: { group: { id: groupId } },
+        order: { date: "DESC" },
+      });
+
+      // ✅ Yangi sanani hisoblaymiz
+      const nextDate = await this.generateNextLessonDate(lastLesson!.date);
+
+      // ✅ Yangi lesson yaratamiz
+      const newLesson = this.lessonRepo.create({
+        title: lastLesson!.title,
+        notes: lastLesson!.notes,
+        group: { ...group },
+        date: nextDate,
+        status: LessonStatus.NEW,
+        room: oldLessonRecord.lesson.room,
+      });
+      await this.lessonRepo.save(newLesson);
+
+      return {
+        message: "Lesson updated and new lesson created with next week date!",
+        success: true,
+        newLesson,
+      };
+    }
   }
 
   async shiftLessons(groupId: number, canceledLessonId: number): Promise<void> {
@@ -333,7 +462,7 @@ export class LessonsService {
     };
   }
 
-  async startLessonForGroup(lessonId: number) {
-    const lesson = await this.findOne(lessonId);
-  }
+  // async startLessonForGroup(lessonId: number) {
+  //   const lesson = await this.findOne(lessonId);
+  // }
 }

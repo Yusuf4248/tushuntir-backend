@@ -164,7 +164,7 @@ export class GroupTeachersService {
       where: { id: teacherId },
     });
     if (!teacher) {
-      throw new NotFoundException(`Student with ID ${teacherId} not found`);
+      throw new NotFoundException(`Teacher with ID ${teacherId} not found`);
     }
 
     return await this.groupTeacherRepository.find({
