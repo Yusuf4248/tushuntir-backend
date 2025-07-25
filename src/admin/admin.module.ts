@@ -6,10 +6,13 @@ import { Admin } from "./entities/admin.entity";
 import { Branch } from "../branches/entities/branch.entity";
 import { BranchesModule } from "../branches/branches.module";
 import { JwtModule } from "@nestjs/jwt";
+import { Teacher } from "../teacher/entities/teacher.entity";
+import { Lid } from "../lid/entities/lid.entity";
+import { Student } from "../student/entities/student.entities";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Admin, Branch]),
+    TypeOrmModule.forFeature([Admin, Branch, Teacher, Lid, Student]),
     BranchesModule,
     JwtModule,
   ],
