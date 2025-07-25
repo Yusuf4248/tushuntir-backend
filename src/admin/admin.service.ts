@@ -13,12 +13,20 @@ import { BranchesService } from "../branches/branches.service";
 import { UpdateAdminStatusDto } from "./dto/update-admin-status.dto";
 import { Branch } from "../branches/entities/branch.entity";
 import * as bcrypt from "bcrypt";
+import { Teacher } from "../teacher/entities/teacher.entity";
+import { Student } from "../student/entities/student.entities";
+import { Lid } from "../lid/entities/lid.entity";
 
 @Injectable()
 export class AdminService {
   constructor(
     @InjectRepository(Admin) private readonly adminRepo: Repository<Admin>,
-    @InjectRepository(Admin) private readonly branchRepo: Repository<Branch>,
+    @InjectRepository(Branch) private readonly branchRepo: Repository<Branch>,
+    @InjectRepository(Teacher)
+    private readonly teacherRepo: Repository<Teacher>,
+    @InjectRepository(Student)
+    private readonly studentRepo: Repository<Student>,
+    @InjectRepository(Lid) private readonly lidRepo: Repository<Lid>,
     private readonly branchService: BranchesService
   ) {}
   async create(createAdminDto: CreateAdminDto) {
@@ -166,5 +174,20 @@ export class AdminService {
       success: true,
       admin,
     };
+  }
+
+  async getProfile(id: number, role: string) {
+    switch (role) {
+      case "admin":
+        return this.adminRepo.findOne({ where: { id } });
+      case "teacher":
+        return this.teacherRepo.findOne({ where: { id } });
+      case "student":
+        return this.studentRepo.findOne({ where: { id } });
+      case "lid":
+        return this.lidRepo.findOne({ where: { id } });
+      default:
+        throw new NotFoundException("Role noto'g'ri");
+    }
   }
 }

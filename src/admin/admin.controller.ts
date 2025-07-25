@@ -6,8 +6,8 @@ import {
   Patch,
   Param,
   Delete,
-  ParseIntPipe,
   UseGuards,
+  Req,
 } from "@nestjs/common";
 import { AdminService } from "./admin.service";
 import { CreateAdminDto } from "./dto/create-admin.dto";
@@ -141,5 +141,14 @@ export class AdminController {
   @Patch(":id/branch/:branchId")
   addBranch(@Param("id") id: string, @Param("branchId") branchId: string) {
     return this.adminService.addBranch(+branchId, +id);
+  }
+
+  @Get()
+  @UseGuards(AuthGuard)
+  async getProfile(@Req() req: Request) {
+    const user = (req as any).user;
+    const { id, role } = user;
+
+    return this.adminService.getProfile(id, role);
   }
 }
