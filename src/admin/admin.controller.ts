@@ -143,8 +143,15 @@ export class AdminController {
     return this.adminService.addBranch(+branchId, +id);
   }
 
-  @Get()
+  @Get("profile")
   @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: "Admin profile" })
+  @ApiResponse({
+    status: 200,
+    description: "Success",
+  })
+  @ApiResponse({ status: 401, description: "Unauthorized" })
   async getProfile(@Req() req: Request) {
     const user = (req as any).user;
     const { id, role } = user;

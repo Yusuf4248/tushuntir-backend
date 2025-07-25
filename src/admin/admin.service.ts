@@ -179,11 +179,17 @@ export class AdminService {
   async getProfile(id: number, role: string) {
     switch (role) {
       case "admin":
-        return this.adminRepo.findOne({ where: { id } });
+        return this.adminRepo.findOne({ where: { id }, relations: ["branch"] });
       case "teacher":
-        return this.teacherRepo.findOne({ where: { id } });
+        return this.teacherRepo.findOne({
+          where: { id },
+          relations: ["branch", "exam"],
+        });
       case "student":
-        return this.studentRepo.findOne({ where: { id } });
+        return this.studentRepo.findOne({
+          where: { id },
+          relations: ["events"],
+        });
       case "lid":
         return this.lidRepo.findOne({ where: { id } });
       default:
