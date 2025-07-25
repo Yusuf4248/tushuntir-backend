@@ -304,7 +304,7 @@ export class LessonsService {
       });
 
       //  Yangi lesson yaratish (agar kerak bo‘lsa qo‘shimcha maydonlar qo‘shing)
-      const newLesson = this.lessonRepo.create({
+      const newLesson = this.lessonRepo.save({
         title: oldLessonRecord.lesson.title,
         notes: oldLessonRecord.lesson.notes,
         group: { ...group },
@@ -312,7 +312,6 @@ export class LessonsService {
         status: LessonStatus.NEW,
         room: oldLessonRecord.lesson.room,
       });
-      await this.lessonRepo.save(newLesson);
 
       return {
         message: "Lesson updated and new lesson created on given date!",
@@ -337,8 +336,8 @@ export class LessonsService {
 
       // ✅ Yangi lesson yaratamiz
       const newLesson = this.lessonRepo.create({
-        title: lastLesson!.title,
-        notes: lastLesson!.notes,
+        title: `Lesson ${this.extractLessonNumber(lastLesson!.title) + 1}`,
+        notes: `Lesson ${this.extractLessonNumber(lastLesson!.title) + 1} - Group ${group!.name}`,
         group: { ...group },
         date: nextDate,
         status: LessonStatus.NEW,
@@ -377,13 +376,6 @@ export class LessonsService {
       lesson.notes = `Lesson ${oldNumber - 1} - Group${groupName}`;
       await this.lessonRepo.save(lesson);
     }
-
-    // 4. Oxirgi darsdan 1 hafta keyin yangi lesson qo‘shamiz
-    // const lastLesson = laterLessons[laterLessons.length - 1];
-    // const newDate = new Date(lastLesson.date);
-    // newDate.setDate(newDate.getDate() + 7);
-
-    // const newNumber = this.extractLessonNumber(lastLesson.title) + 1;
   }
 
   private extractLessonNumber(text: string): number {
@@ -392,7 +384,7 @@ export class LessonsService {
   }
 
   async findAll(page: number, limit: number) {
-    const skip = (page - 1) * limit;
+    const skip = 100 * limit;
     const [lessons, total] = await this.lessonRepo.findAndCount({
       relations: ["group"],
       skip,
