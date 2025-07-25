@@ -87,15 +87,49 @@ export class TeacherService {
     };
   }
 
-  async update(id: number, updateTeacherDto: UpdateTeacherDto) {
-    await this.findOne(id);
-    await this.teacherRepo.update({ id }, updateTeacherDto);
+  // async update(id: number, updateTeacherDto: UpdateTeacherDto) {
+  //   await this.findOne(id);
+  //   await this.teacherRepo.update({ id }, updateTeacherDto);
 
-    const teacher = await this.findOne(id);
+  //   const teacher = await this.findOne(id);
+  //   return {
+  //     message: "Teacher data updated",
+  //     success: true,
+  //     teacher,
+  //   };
+  // }
+  async update(id: number, updateTeacherDto: UpdateTeacherDto) {
+    const teacher = await this.teacherRepo.findOne({
+      where: { id },
+      relations: ["branches"],
+    });
+
+    if (!teacher) {
+      throw new NotFoundException(`Teacher with id ${id} not found`);
+    }
+
+    const { branchIds, ...restDto } = updateTeacherDto as any;
+
+    await this.teacherRepo.update({ id }, restDto);
+
+    if (branchIds && Array.isArray(branchIds)) {
+      const branches = await this.branchRepo.findBy({
+        id: In(branchIds),
+      });
+
+      teacher.branches = branches;
+      await this.teacherRepo.save(teacher);
+    }
+
+    const updated = await this.teacherRepo.findOne({
+      where: { id },
+      relations: ["branches"],
+    });
+
     return {
       message: "Teacher data updated",
       success: true,
-      teacher,
+      teacher: updated,
     };
   }
 
