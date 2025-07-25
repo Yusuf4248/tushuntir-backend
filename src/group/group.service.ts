@@ -64,17 +64,19 @@ export class GroupService {
   async findAll(page: number, limit: number) {
     const skip = (page - 1) * limit;
     const [groups, total] = await this.groupRepo.findAndCount({
-      relations: ["course"],
+      relations: ["course", "lessons"],
       skip,
       take: limit,
       order: { id: "ASC" },
     });
+    const room = groups[0]?.lessons[0]?.room;
     return {
       success: true,
       total,
       page,
       limit,
       data: groups,
+      room,
     };
   }
 

@@ -4,18 +4,18 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from "@nestjs/common";
+import { Response } from "express";
+import { InjectRepository } from "@nestjs/typeorm";
+import { In, Repository } from "typeorm";
 import { CreateTeacherDto } from "./dto/create-teacher.dto";
 import { UpdateTeacherDto } from "./dto/update-teacher.dto";
-import { InjectRepository } from "@nestjs/typeorm";
 import { Teacher } from "./entities/teacher.entity";
-import { In, Repository } from "typeorm";
-import * as bcrypt from "bcrypt";
-import * as path from "path";
-import * as fs from "fs";
 import { ChangePasswordDto } from "../student/dto/change-password.dto";
 import { Branch } from "../branches/entities/branch.entity";
 import { FileService } from "../file/file.service";
-import { Response } from "express";
+import * as bcrypt from "bcrypt";
+import * as path from "path";
+import * as fs from "fs";
 
 @Injectable()
 export class TeacherService {
@@ -51,13 +51,19 @@ export class TeacherService {
     };
   }
 
-  async findAll() {
-    const teachers = await this.teacherRepo.find({
+  async findAll(page: number, limit: number) {
+    const [teachers, total] = await this.teacherRepo.findAndCount({
       relations: ["exam", "branches"],
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { id: "ASC" },
     });
     return {
       success: true,
-      teachers,
+      total,
+      data: teachers,
+      page,
+      limit,
     };
   }
 

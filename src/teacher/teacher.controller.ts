@@ -11,6 +11,7 @@ import {
   Res,
   UseInterceptors,
   UploadedFile,
+  Query,
 } from "@nestjs/common";
 import { TeacherService } from "./teacher.service";
 import { CreateTeacherDto } from "./dto/create-teacher.dto";
@@ -24,6 +25,7 @@ import {
   ApiParam,
   ApiBearerAuth,
   ApiConsumes,
+  ApiQuery,
 } from "@nestjs/swagger";
 import { Teacher } from "./entities/teacher.entity";
 import { Roles } from "../app.constants";
@@ -53,9 +55,11 @@ export class TeacherController {
   @Roles("superadmin", "admin")
   @Get()
   @ApiOperation({ summary: "Get all teachers" })
+  @ApiQuery({ name: "page", required: false, type: Number, example: 1 })
+  @ApiQuery({ name: "limit", required: false, type: Number, example: 10 })
   @ApiResponse({ status: 200, type: [Teacher] })
-  findAll() {
-    return this.teacherService.findAll();
+  findAll(@Query("page") page = 1, @Query("limit") limit = 10) {
+    return this.teacherService.findAll(Number(page), Number(limit));
   }
 
   @UseGuards(AuthGuard, RolesGuard, JwtSelfGuard)
