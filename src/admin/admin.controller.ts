@@ -146,7 +146,7 @@ export class AdminController {
   @Get("profile")
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: "Admin profile" })
+  @ApiOperation({ summary: "User profile" })
   @ApiResponse({
     status: 200,
     description: "Success",
