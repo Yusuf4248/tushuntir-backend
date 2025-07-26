@@ -9,7 +9,7 @@ import { CreateLessonDto } from "./dto/create-lesson.dto";
 import { UpdateLessonDto } from "./dto/update-lesson.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Lesson, LessonStatus } from "./entities/lesson.entity";
-import { MoreThan, Repository } from "typeorm";
+import { Between, MoreThan, Repository } from "typeorm";
 import { GroupService } from "../group/group.service";
 import { addDays, isAfter } from "date-fns";
 import { Group } from "../group/entities/group.entity";
@@ -298,15 +298,17 @@ export class LessonsService {
         );
       }
       // Eski lessonni update qilish
-      const updatedLesson = await this.lessonRepo.update(id, {
+      await this.lessonRepo.update(id, {
         status,
         notes: note,
       });
 
+      const lastLesson = await this.shiftLessons(groupId, id, parsedDate);
+
       //  Yangi lesson yaratish (agar kerak bo‘lsa qo‘shimcha maydonlar qo‘shing)
       const newLesson = this.lessonRepo.save({
-        title: oldLessonRecord.lesson.title,
-        notes: oldLessonRecord.lesson.notes,
+        title: `Lesson ${this.extractLessonNumber(lastLesson!.title) + 1}`,
+        notes: `Lesson ${this.extractLessonNumber(lastLesson!.title) + 1} - Group ${group!.name}`,
         group: { ...group },
         date: parsedDate,
         status: LessonStatus.NEW,
@@ -316,7 +318,7 @@ export class LessonsService {
       return {
         message: "Lesson updated and new lesson created on given date!",
         success: true,
-        newLesson,
+        newLesson: newLesson,
       };
     } else {
       // ❗Eski lessonni update qilish
@@ -353,28 +355,59 @@ export class LessonsService {
     }
   }
 
-  async shiftLessons(groupId: number, canceledLessonId: number): Promise<void> {
-    const canceledLesson = await this.lessonRepo.findOne({
-      where: { id: canceledLessonId, group: { id: groupId } },
-    });
-    if (!canceledLesson) throw new NotFoundException("Lesson not found");
+  async shiftLessons(
+    groupId: number,
+    canceledLessonId: number,
+    date: Date | null = null
+  ) {
+    if (date) {
+      const canceledLesson = await this.lessonRepo.findOne({
+        where: { id: canceledLessonId, group: { id: groupId } },
+      });
+      if (!canceledLesson) throw new NotFoundException("Lesson not found");
 
-    const laterLessons = await this.lessonRepo.find({
-      where: {
-        group: { id: groupId },
-        date: MoreThan(canceledLesson.date),
-      },
-      relations: ["group"],
-      order: { date: "ASC" },
-    });
+      const laterLessons = await this.lessonRepo.find({
+        where: {
+          group: { id: groupId },
+          date: Between(new Date(canceledLesson.date.getTime() + 1), date),
+        },
+        relations: ["group"],
+        order: { date: "ASC" },
+      });
 
-    // 3. Har bir lessonni 1 ta oldingi raqam bilan yangilaymiz
-    for (const lesson of laterLessons) {
-      const oldNumber = this.extractLessonNumber(lesson.title);
-      const groupName = lesson.group.name;
-      lesson.title = `Lesson ${oldNumber - 1}`;
-      lesson.notes = `Lesson ${oldNumber - 1} - Group${groupName}`;
-      await this.lessonRepo.save(lesson);
+      let lastUpdatedLesson: Lesson | null = null;
+
+      for (const lesson of laterLessons) {
+        const oldNumber = this.extractLessonNumber(lesson.title);
+        const groupName = lesson.group.name;
+        lesson.title = `Lesson ${oldNumber - 1}`;
+        lesson.notes = `Lesson ${oldNumber - 1} - Group${groupName}`;
+        lastUpdatedLesson = await this.lessonRepo.save(lesson);
+      }
+      return lastUpdatedLesson;
+    } else {
+      const canceledLesson = await this.lessonRepo.findOne({
+        where: { id: canceledLessonId, group: { id: groupId } },
+      });
+      if (!canceledLesson) throw new NotFoundException("Lesson not found");
+
+      const laterLessons = await this.lessonRepo.find({
+        where: {
+          group: { id: groupId },
+          date: MoreThan(canceledLesson.date),
+        },
+        relations: ["group"],
+        order: { date: "ASC" },
+      });
+
+      // 3. Har bir lessonni 1 ta oldingi raqam bilan yangilaymiz
+      for (const lesson of laterLessons) {
+        const oldNumber = this.extractLessonNumber(lesson.title);
+        const groupName = lesson.group.name;
+        lesson.title = `Lesson ${oldNumber - 1}`;
+        lesson.notes = `Lesson ${oldNumber - 1} - Group${groupName}`;
+        await this.lessonRepo.save(lesson);
+      }
     }
   }
 
@@ -404,7 +437,7 @@ export class LessonsService {
     const lessons = await this.lessonRepo.find({
       where: { group: { id: groupId } },
       relations: ["group", "room"],
-      order: { id: "ASC" },
+      order: { date: "ASC" },
     });
     return {
       success: true,
