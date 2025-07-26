@@ -22,6 +22,7 @@ import {
   ApiParam,
   ApiBody,
   ApiConsumes,
+  ApiQuery,
 } from "@nestjs/swagger";
 
 import { StudentService } from "./student.service";
@@ -33,8 +34,6 @@ import { AuthGuard } from "../common/guards/auth.guard";
 import { RolesGuard } from "../common/guards/role.guard";
 import { JwtSelfGuard } from "../common/guards/jwt-self.guard";
 import { Roles } from "../app.constants";
-import { Homework } from "../homeworks/entities/homework.entity";
-import { HomeworkStatus } from "../homework-submission/entities/homework-submission.entity";
 import { Response } from "express";
 
 @ApiTags("Students")
@@ -58,8 +57,10 @@ export class StudentController {
   @Get()
   @ApiOperation({ summary: "Barcha studentlarni olish (adminlar uchun)" })
   @ApiResponse({ status: 200, description: "Barcha studentlar ro'yxati" })
-  findAll() {
-    return this.studentService.findAll();
+  @ApiQuery({ name: "page", required: false, type: Number, example: 1 })
+  @ApiQuery({ name: "limit", required: false, type: Number, example: 10 })
+  findAll(@Query("page") page: number, @Query("limit") limit: number) {
+    return this.studentService.findAll(page, limit);
   }
 
   @UseGuards(AuthGuard, RolesGuard, JwtSelfGuard)

@@ -30,6 +30,7 @@ export class Attendance {
   @ApiProperty({ type: () => Lesson, description: "Dars jadvali obyekti" })
   @ManyToOne(() => Lesson, (lesson) => lesson.attendance, {
     eager: false,
+    onDelete: "CASCADE",
   })
   lesson: Lesson;
 

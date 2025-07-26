@@ -97,7 +97,7 @@ export class Group {
   @ApiProperty({ type: () => Exam })
   exams: Exam[];
 
-  @OneToMany(() => Lesson, (lesson) => lesson.group)
+  @OneToMany(() => Lesson, (lesson) => lesson.group, { onDelete: "CASCADE" })
   @ApiProperty({ type: () => Lesson })
   lessons: Lesson[];
 }

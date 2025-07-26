@@ -62,7 +62,10 @@ export class Lesson {
     nullable: true,
     description: "Dars tegishli bo'lgan guruh",
   })
-  @ManyToOne(() => Group, (group) => group.lessons, { nullable: true })
+  @ManyToOne(() => Group, (group) => group.lessons, {
+    nullable: true,
+    onDelete: "CASCADE",
+  })
   group: Group;
 
   @ApiProperty({
@@ -81,6 +84,7 @@ export class Lesson {
 
   @OneToMany(() => Attendance, (attendance) => attendance.lesson, {
     nullable: true,
+    onDelete: "CASCADE",
   })
   attendance: Attendance[];
 

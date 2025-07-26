@@ -70,13 +70,19 @@ export class StudentService {
     };
   }
 
-  async findAll() {
-    const students = await this.studentRepo.find({
+  async findAll(page: number, limit: number) {
+    const [students, total] = await this.studentRepo.findAndCount({
       relations: ["events"],
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { id: "ASC" },
     });
     return {
       success: true,
-      students,
+      data: students,
+      total,
+      page,
+      limit,
     };
   }
 
