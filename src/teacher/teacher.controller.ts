@@ -111,10 +111,56 @@ export class TeacherController {
   @Roles("superadmin", "admin", "teacher")
   @Post(":id/avatar")
   @UseInterceptors(FileInterceptor("file"))
-  @ApiOperation({ summary: "teacher avatarini yuklash" })
-  @ApiParam({ name: "id", type: Number, example: 1 })
+  @ApiOperation({ summary: "Teacher avatarini yuklash" })
+  @ApiParam({
+    name: "id",
+    type: Number,
+    example: 1,
+    description: "O'qituvchi ID raqami",
+  })
   @ApiConsumes("multipart/form-data")
-  @ApiResponse({ status: 200, description: "Avatar muvaffaqiyatli yuklandi" })
+  @ApiBody({
+    description: "Avatar faylni multipart/form-data formatida yuboring",
+    required: true,
+    schema: {
+      type: "object",
+      properties: {
+        file: {
+          type: "string",
+          format: "binary",
+          description: "Yuklanayotgan avatar fayl (.jpg, .png, ...)",
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: "✅ Avatar muvaffaqiyatli yuklandi",
+    schema: {
+      type: "object",
+      properties: {
+        success: { type: "boolean", example: true },
+        message: { type: "string", example: "Avatar uploaded successfully" },
+        data: {
+          type: "object",
+          properties: {
+            avatarUrl: {
+              type: "string",
+              example: "https://example.com/uploads/avatar_123.jpg",
+            },
+          },
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: "❌ Xatolik: Fayl yuborilmagan yoki noto'g'ri formatda",
+  })
+  @ApiResponse({
+    status: 403,
+    description: "❌ Ruxsat yo'q (faqat superadmin, admin, teacher)",
+  })
   async uploadAvatar(
     @Param("id", ParseIntPipe) id: number,
     @UploadedFile() file: Express.Multer.File
