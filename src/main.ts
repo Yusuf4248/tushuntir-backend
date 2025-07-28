@@ -6,12 +6,17 @@ import * as cookieParser from "cookie-parser";
 import { WinstonModule } from "nest-winston";
 import { winstonConfig } from "./common/logger/winston.logger";
 import { AllExceptionFilter } from "./common/errors/error.handling";
+import { join } from "path";
+import { NestExpressApplication } from "@nestjs/platform-express";
 
 async function start() {
   try {
     const PORT = process.env.PORT || 3030;
-    const app = await NestFactory.create(AppModule, {
+    const app = await NestFactory.create<NestExpressApplication>(AppModule, {
       logger: WinstonModule.createLogger(winstonConfig),
+    });
+    app.useStaticAssets(join(__dirname, "..", "static"), {
+      prefix: "/static/",
     });
     app.use(cookieParser());
     app.useGlobalPipes(

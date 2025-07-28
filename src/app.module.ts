@@ -25,14 +25,19 @@ import { FileModule } from "./file/file.module";
 import { LessonsModule } from "./lessons/lessons.module";
 import { GroupTeachersModule } from "./group-teachers/group-teachers.module";
 import { GroupStudentsModule } from "./group-students/group-students.module";
+import { ServeStaticModule } from "@nestjs/serve-static";
+import { join } from "path";
 
 @Module({
   imports: [
     ConfigModule.forRoot({ envFilePath: ".env", isGlobal: true }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, "..", "static"),
+    }),
     TypeOrmModule.forRoot({
       type: "postgres",
       host: process.env.PG_HOST,
-      port: Number(process.env.PG_POTR),
+      port: Number(process.env.PG_PORT),
       username: process.env.PG_USER,
       password: process.env.PG_PASSWORD,
       database: process.env.PG_DB,
