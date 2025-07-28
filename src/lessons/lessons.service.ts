@@ -417,7 +417,7 @@ export class LessonsService {
   }
 
   async findAll(page: number, limit: number) {
-    const skip = 100 * limit;
+    const skip = (page - 1) * limit;
     const [lessons, total] = await this.lessonRepo.findAndCount({
       relations: ["group"],
       skip,

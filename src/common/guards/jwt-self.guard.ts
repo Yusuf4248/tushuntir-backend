@@ -14,7 +14,8 @@ export class JwtSelfGuard implements CanActivate {
     if (user.role == "admin" || user.role == "superadmin") {
       return true;
     }
-    if (+user.id == +req.params.id) {
+    const id = +req.params.id;
+    if (+user.id !== +id) {
       throw new ForbiddenException("Ruxsat etilmagan foydalanuvchi!");
     }
     return true;

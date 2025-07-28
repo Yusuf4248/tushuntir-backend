@@ -41,6 +41,9 @@ export class Teacher {
   @Column({ type: "varchar", unique: true })
   phone: string;
 
+  @Column({ type: "int", array: true, nullable: true })
+  branchId: number[];
+
   @ApiProperty({
     example: "main teacher",
     enum: ["assistant teacher", "main teacher"],

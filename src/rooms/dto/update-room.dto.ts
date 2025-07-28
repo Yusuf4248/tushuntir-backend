@@ -1,4 +1,41 @@
-import { PartialType } from "@nestjs/swagger";
-import { CreateRoomDto } from "./create-room.dto";
+import {
+  IsInt,
+  IsPositive,
+  IsString,
+  MinLength,
+  IsOptional,
+} from "class-validator";
+import { ApiProperty } from "@nestjs/swagger";
 
-export class UpdateRoomDto extends PartialType(CreateRoomDto) {}
+export class UpdateRoomDto {
+  @ApiProperty({
+    example: 1,
+    description: "Filial ID (branchId), o'zgartirish uchun ixtiyoriy",
+    required: false,
+  })
+  @IsOptional()
+  @IsInt({ message: "branchId butun son bo'lishi kerak" })
+  @IsPositive({ message: "branchId musbat bo'lishi kerak" })
+  branchId?: number;
+
+  @ApiProperty({
+    example: "Room A",
+    description: "Xona nomi, o'zgartirish uchun ixtiyoriy",
+    required: false,
+  })
+  @IsOptional()
+  @IsString({ message: "name matn bo'lishi kerak" })
+  @MinLength(2, { message: "name kamida 2 ta belgidan iborat bo'lishi kerak" })
+  name?: string;
+
+  @ApiProperty({
+    example: 25,
+    description:
+      "Xona sig'imi (nechta odam sig'adi), o'zgartirish uchun ixtiyoriy",
+    required: false,
+  })
+  @IsOptional()
+  @IsInt({ message: "capacity butun son bo'lishi kerak" })
+  @IsPositive({ message: "capacity musbat son bo'lishi kerak" })
+  capacity?: number;
+}

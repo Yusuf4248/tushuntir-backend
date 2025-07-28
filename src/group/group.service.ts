@@ -64,19 +64,17 @@ export class GroupService {
   async findAll(page: number, limit: number) {
     const skip = (page - 1) * limit;
     const [groups, total] = await this.groupRepo.findAndCount({
-      relations: ["course", "lessons"],
+      relations: ["course", "lessons.room"],
       skip,
       take: limit,
       order: { id: "ASC" },
     });
-    const room = groups[0]?.lessons[0]?.room;
     return {
       success: true,
       total,
       page,
       limit,
       data: groups,
-      room,
     };
   }
 
@@ -87,7 +85,7 @@ export class GroupService {
       );
     const group = await this.groupRepo.findOne({
       where: { id },
-      relations: ["course", "lessons"],
+      relations: ["course", "lessons.room"],
     });
     if (!group) {
       throw new NotFoundException(`Group ID-${id} not found`);

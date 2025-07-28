@@ -87,17 +87,6 @@ export class TeacherService {
     };
   }
 
-  // async update(id: number, updateTeacherDto: UpdateTeacherDto) {
-  //   await this.findOne(id);
-  //   await this.teacherRepo.update({ id }, updateTeacherDto);
-
-  //   const teacher = await this.findOne(id);
-  //   return {
-  //     message: "Teacher data updated",
-  //     success: true,
-  //     teacher,
-  //   };
-  // }
   async update(id: number, updateTeacherDto: UpdateTeacherDto) {
     const teacher = await this.teacherRepo.findOne({
       where: { id },
@@ -108,23 +97,30 @@ export class TeacherService {
       throw new NotFoundException(`Teacher with id ${id} not found`);
     }
 
-    const { branchIds, ...restDto } = updateTeacherDto as any;
+    // DTO dan branchId va qolgan fieldlarni ajratib olamiz
+    const { branchId, ...restDto } = updateTeacherDto;
 
-    await this.teacherRepo.update({ id }, restDto);
+    // Qolgan fieldlarni yangilaymiz
+    Object.assign(teacher, restDto);
 
-    if (branchIds && Array.isArray(branchIds)) {
+    // Branchlar bilan bog‘liq aloqani yangilaymiz
+    if (branchId) {
+      if (!Array.isArray(branchId)) {
+        throw new BadRequestException("branchId must be an array");
+      }
+
       const branches = await this.branchRepo.findBy({
-        id: In(branchIds),
+        id: In(branchId),
       });
 
       teacher.branches = branches;
-      await this.teacherRepo.save(teacher);
+    } else {
+      // Agar branchId yo‘q bo‘lsa, mavjud aloqalarni tozalaymiz
+      teacher.branches = [];
     }
 
-    const updated = await this.teacherRepo.findOne({
-      where: { id },
-      relations: ["branches"],
-    });
+    // O'zgarishlarni saqlaymiz
+    const updated = await this.teacherRepo.save(teacher);
 
     return {
       message: "Teacher data updated",

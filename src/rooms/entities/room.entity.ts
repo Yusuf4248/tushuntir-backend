@@ -36,10 +36,17 @@ export class Room {
   capacity: number;
 
   @ApiProperty({
+    example: 1,
+    description: "Xonaga tegishli filialning ID raqami",
+  })
+  @Column({ nullable: true })
+  branchId: number;
+
+  @ApiProperty({
     type: () => Branch,
     description: "Xonaga tegishli filial (branch)",
   })
-  @ManyToOne(() => Branch, (branch) => branch.room)
+  @ManyToOne(() => Branch, (branch) => branch.room, { eager: false })
   branch: Branch;
 
   @OneToMany(() => Exam, (exam) => exam.room)

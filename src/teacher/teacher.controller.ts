@@ -155,38 +155,16 @@ export class TeacherController {
   })
   @ApiResponse({
     status: 400,
-    description: "❌ Xatolik: Fayl yuborilmagan yoki noto'g'ri formatda",
+    description: "Xatolik: Fayl yuborilmagan yoki noto'g'ri formatda",
   })
   @ApiResponse({
     status: 403,
-    description: "❌ Ruxsat yo'q (faqat superadmin, admin, teacher)",
+    description: "Ruxsat yo'q (faqat superadmin, admin, teacher)",
   })
   async uploadAvatar(
     @Param("id", ParseIntPipe) id: number,
     @UploadedFile() file: Express.Multer.File
   ) {
     return this.teacherService.uploadAvatar(id, file);
-  }
-
-  @Get(":id/avatar/view")
-  @UseGuards(AuthGuard, RolesGuard)
-  @Roles("superadmin", "admin", "teacher")
-  @ApiOperation({ summary: "Studentning rasm faylini ko'rish" })
-  @ApiParam({
-    name: "id",
-    type: Number,
-    example: 1,
-    description: "Student ID raqami",
-  })
-  @ApiResponse({
-    status: 200,
-    description: "Rasm muvaffaqiyatli yuborildi (image/png yoki image/jpeg)",
-  })
-  @ApiResponse({ status: 404, description: "Student yoki avatar topilmadi" })
-  async viewAvatar(
-    @Param("id", ParseIntPipe) id: number,
-    @Res() res: Response
-  ) {
-    return this.teacherService.viewAvatar(+id, res);
   }
 }

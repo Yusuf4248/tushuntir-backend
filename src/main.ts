@@ -62,8 +62,19 @@ async function start() {
         "JWT-auth"
       )
       .build();
-    const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup("api/docs", app, document);
+    const document = SwaggerModule.createDocument(app, config, {
+      extraModels: [],
+    });
+    SwaggerModule.setup("api/docs", app, document, {
+      customCss: `
+    .swagger-ui .topbar { display: none !important; }
+  `,
+      customSiteTitle: "ERP Project API Docs",
+      swaggerOptions: {
+        docExpansion: "list",
+        operationsSorter: "alpha",
+      },
+    });
     await app.listen(PORT, () => {
       console.log(`Server started at http://localhost:${PORT}/api`);
     });
