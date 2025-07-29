@@ -7,11 +7,13 @@ import { Student } from "../student/entities/student.entities";
 import { Group } from "../group/entities/group.entity";
 import { JwtModule } from "@nestjs/jwt";
 import { AttendanceModule } from "../attendance/attendance.module";
+import { LessonsModule } from "../lessons/lessons.module";
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([GroupStudent, Student, Group]),
     forwardRef(() => AttendanceModule),
+    LessonsModule,
     JwtModule,
   ],
   controllers: [GroupStudentsController],

@@ -183,6 +183,16 @@ export class AttendanceService {
       throw new BadRequestException("Attendance for this lesson was recorded.");
     }
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const lessonDate = new Date(lesson.date);
+    lessonDate.setHours(0, 0, 0, 0);
+    if (lessonDate.getTime() !== today.getTime()) {
+      throw new BadRequestException(
+        "Attendance can only be updated for today's lesson."
+      );
+    }
+
     lesson.status = LessonStatus.IN_PROGRESS;
     lesson.title = dto.lessonTitle;
     await this.lessonService.save(lesson);
@@ -190,7 +200,7 @@ export class AttendanceService {
     // Faol studentlarni olish
     const activeStudents =
       await this.groupStudentService.findActiveStudentsInGroup(lesson.group.id);
-    const studentIds = activeStudents.map((gs) => gs.student.id);
+    const studentIds = activeStudents.groupStudents.map((gs) => gs.student.id);
 
     const existingAttendances = await this.attendanceRepo.find({
       where: { lesson: { id: dto.lessonId }, student: { id: In(studentIds) } },

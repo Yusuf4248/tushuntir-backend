@@ -73,7 +73,7 @@ export class GroupStudentsController {
   }
 
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles("admin", "superadmin")
+  @Roles("admin", "superadmin", "teacher", "student")
   @Get(":id")
   @ApiOperation({
     summary: "Get a specific group-student relationship",
@@ -176,7 +176,7 @@ export class GroupStudentsController {
   }
 
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles("admin", "superadmin")
+  @Roles("admin", "superadmin", "student")
   @Get("by-student/:studentId")
   @ApiOperation({ summary: "Get all groups of a student" })
   @ApiParam({ name: "studentId", type: Number })
@@ -192,7 +192,7 @@ export class GroupStudentsController {
   }
 
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles("admin", "superadmin")
+  @Roles("admin", "superadmin", "teacher")
   @Get("active-in-group/:groupId")
   @ApiOperation({ summary: "Get active students in a group" })
   @ApiParam({ name: "groupId", type: Number })
@@ -203,7 +203,7 @@ export class GroupStudentsController {
   })
   async findActiveStudentsInGroup(
     @Param("groupId", ParseIntPipe) groupId: number
-  ): Promise<GroupStudent[]> {
+  ) {
     return this.groupStudentsService.findActiveStudentsInGroup(groupId);
   }
 

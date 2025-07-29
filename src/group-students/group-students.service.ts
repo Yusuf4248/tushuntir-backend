@@ -14,6 +14,8 @@ import { Group } from "../group/entities/group.entity";
 import { Student } from "../student/entities/student.entities";
 import { AttendanceService } from "../attendance/attendance.service";
 import { Attendance } from "../attendance/entities/attendance.entity";
+import { LessonsService } from "../lessons/lessons.service";
+import { LessonStatus } from "../lessons/entities/lesson.entity";
 
 @Injectable()
 export class GroupStudentsService {
@@ -25,7 +27,8 @@ export class GroupStudentsService {
     @InjectRepository(Student)
     private readonly studentRepository: Repository<Student>,
     @Inject(forwardRef(() => AttendanceService))
-    private attendanceService: AttendanceService
+    private attendanceService: AttendanceService,
+    private readonly lessonService: LessonsService
   ) {}
 
   async create(createGroupStudentDto: CreateGroupStudentDto) {
@@ -207,15 +210,31 @@ export class GroupStudentsService {
     });
   }
 
-  async findActiveStudentsInGroup(groupId: number): Promise<GroupStudent[]> {
+  async findActiveStudentsInGroup(groupId: number) {
     const group = await this.groupRepository.findOne({
       where: { id: groupId },
+      relations: ["lessons"],
     });
     if (!group) {
       throw new NotFoundException(`Group with ID ${groupId} not found`);
     }
 
-    return await this.groupStudentRepository.find({
+    const { lesson } = await this.lessonService.findOne(group.lessons[0].id);
+    if (lesson.status !== LessonStatus.NEW) {
+      throw new BadRequestException("Attendance for this lesson was recorded.");
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const lessonDate = new Date(lesson.date);
+    lessonDate.setHours(0, 0, 0, 0);
+    if (lessonDate.getTime() !== today.getTime()) {
+      throw new BadRequestException(
+        "Attendance can only be updated for today's lesson."
+      );
+    }
+
+    const groupStudents = await this.groupStudentRepository.find({
       where: {
         group: { id: groupId },
         status: true,
@@ -223,6 +242,10 @@ export class GroupStudentsService {
       relations: ["student"],
       order: { id: "ASC" },
     });
+
+    const isAttended = lesson.status !== LessonStatus.NEW;
+
+    return { success: true, groupStudents, isAttended };
   }
 
   async deactivateStudent(id: number): Promise<GroupStudent> {
