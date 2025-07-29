@@ -103,7 +103,7 @@ export class GroupService {
       relations: ["room"],
     });
     if (!lesson) {
-      throw new NotFoundException(`No lessons found for Group ID-${id}`);
+      return { message: `No lessons found for Group ID-${id}` };
     }
 
     if (lesson.status !== LessonStatus.NEW) {

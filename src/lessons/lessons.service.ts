@@ -49,21 +49,21 @@ export class LessonsService {
     });
 
     const newEndDate = lesson.date;
-    if (newEndDate && isAfter(new Date(newEndDate), new Date(group.end_date))) {
-      group.end_date = newEndDate;
-      await this.groupRepo.save(group);
+    if (newEndDate && isAfter(new Date(newEndDate), new Date(group!.end_date))) {
+      group!.end_date = newEndDate;
+      await this.groupRepo.save(group!);
 
       await this.groupStudentRepo
         .createQueryBuilder()
         .update()
         .set({ end_date: newEndDate })
-        .where("group_id = :groupId", { groupId: group.id })
+        .where("group_id = :groupId", { groupId: group!.id })
         .execute();
       await this.groupTeacherRepo
         .createQueryBuilder()
         .update()
         .set({ end_date: newEndDate })
-        .where("group_id = :groupId", { groupId: group.id })
+        .where("group_id = :groupId", { groupId: group!.id })
         .execute();
     }
 
