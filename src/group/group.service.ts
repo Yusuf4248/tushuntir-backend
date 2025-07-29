@@ -12,13 +12,15 @@ import { Group } from "./entities/group.entity";
 import { QueryFailedError, Repository } from "typeorm";
 import { CoursesService } from "../courses/courses.service";
 import { LessonsService } from "../lessons/lessons.service";
+import { Lesson, LessonStatus } from "../lessons/entities/lesson.entity";
 
 @Injectable()
 export class GroupService {
   constructor(
     @InjectRepository(Group) private readonly groupRepo: Repository<Group>,
     private readonly lessonService: LessonsService,
-    private readonly courseService: CoursesService
+    private readonly courseService: CoursesService,
+    @InjectRepository(Lesson) private readonly lessonRepo: Repository<Lesson>
   ) {}
   async create(createGroupDto: CreateGroupDto) {
     const { course } = await this.courseService.findOne(
@@ -90,12 +92,31 @@ export class GroupService {
     if (!group) {
       throw new NotFoundException(`Group ID-${id} not found`);
     }
-    const room = group.lessons[0]?.room;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const lesson = await this.lessonRepo.findOne({
+      where: {
+        date: today,
+        group: { id },
+      },
+      relations: ["room"],
+    });
+    if (!lesson) {
+      throw new NotFoundException(`No lessons found for Group ID-${id}`);
+    }
+
+    if (lesson.status !== LessonStatus.NEW) {
+      throw new BadRequestException("Attendance for this lesson was recorded.");
+    }
+    const room = lesson.room;
+    const isAttended = lesson.status !== LessonStatus.NEW;
     return {
       message: `Group ID-${id}`,
       success: true,
       group,
       room,
+      isAttended,
     };
   }
 

@@ -15,6 +15,7 @@ import { LessonsModule } from "../lessons/lessons.module";
 import { LessonsService } from "../lessons/lessons.service";
 import { GroupTeachersModule } from "../group-teachers/group-teachers.module";
 import { GroupStudentsModule } from "../group-students/group-students.module";
+import { Lesson } from "../lessons/entities/lesson.entity";
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { GroupStudentsModule } from "../group-students/group-students.module";
       Exam,
       GroupTeacher,
       GroupStudent,
+      Lesson,
     ]),
     CoursesModule,
     forwardRef(() => LessonsModule),
