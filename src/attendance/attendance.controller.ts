@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  BadRequestException,
 } from "@nestjs/common";
 import { AttendanceService } from "./attendance.service";
 import { CreateAttendanceDto } from "./dto/create-attendance.dto";
@@ -16,10 +17,12 @@ import {
   ApiOperation,
   ApiResponse,
   ApiBearerAuth,
+  ApiBody,
 } from "@nestjs/swagger";
 import { Roles } from "../app.constants";
 import { AuthGuard } from "../common/guards/auth.guard";
 import { RolesGuard } from "../common/guards/role.guard";
+import { UpdateLessonAttendancesDto } from "./dto/update-lesson-attendances-dto";
 
 @ApiTags("Attendance")
 @ApiBearerAuth("JWT-auth")
@@ -77,5 +80,27 @@ export class AttendanceController {
   @ApiResponse({ status: 404, description: "Yozuv topilmadi" })
   remove(@Param("id") id: string) {
     return this.attendanceService.remove(+id);
+  }
+
+  @ApiOperation({
+    summary: "Update attendance for a group of students in a lesson",
+  })
+  @ApiBody({ type: UpdateLessonAttendancesDto })
+  @ApiResponse({
+    status: 200,
+    description: "Attendance updated successfully",
+    schema: { example: { message: "Attendance updated successfully" } },
+  })
+  @ApiResponse({
+    status: 400,
+    description: "Bad request, e.g., lesson status is not NEW",
+  })
+  @Patch("bulk-update")
+  async updateAttendanceForGroup(@Body() dto: UpdateLessonAttendancesDto) {
+    try {
+      return await this.attendanceService.updateAttendanceForGroup(dto);
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 }

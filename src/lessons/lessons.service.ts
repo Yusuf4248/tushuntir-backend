@@ -486,4 +486,7 @@ export class LessonsService {
       message: `${id}-lesson data deleted`,
     };
   }
+  async save(lesson: Lesson) {
+    return await this.lessonRepo.save(lesson);
+  }
 }

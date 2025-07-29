@@ -5,7 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { MoreThanOrEqual } from "typeorm";
+import { In, MoreThanOrEqual } from "typeorm";
 import * as dayjs from "dayjs";
 import { CreateAttendanceDto } from "./dto/create-attendance.dto";
 import { UpdateAttendanceDto } from "./dto/update-attendance.dto";
@@ -15,9 +15,10 @@ import { Repository } from "typeorm";
 import { StudentService } from "../student/student.service";
 import { LessonsService } from "../lessons/lessons.service";
 import { Student } from "../student/entities/student.entities";
-import { Lesson } from "../lessons/entities/lesson.entity";
+import { Lesson, LessonStatus } from "../lessons/entities/lesson.entity";
 import { GroupService } from "../group/group.service";
 import { GroupStudentsService } from "../group-students/group-students.service";
+import { UpdateLessonAttendancesDto } from "./dto/update-lesson-attendances-dto";
 
 @Injectable()
 export class AttendanceService {
@@ -159,5 +160,58 @@ export class AttendanceService {
     const savedAttendances =
       await this.attendanceRepo.save(attendancesToCreate);
     return savedAttendances;
+  }
+
+  async getAttendancesByLesson(lessonId: number) {
+    const { lesson } = await this.lessonService.findOne(lessonId);
+    const attendances = await this.attendanceRepo.find({
+      where: { lesson },
+      relations: ["student"],
+      order: { date: "ASC" },
+    });
+
+    return {
+      message: `Attendances for lesson ${lessonId}`,
+      success: true,
+      attendances,
+    };
+  }
+
+  async updateAttendanceForGroup(dto: UpdateLessonAttendancesDto) {
+    const { lesson } = await this.lessonService.findOne(dto.lessonId);
+    if (lesson.status !== LessonStatus.NEW) {
+      throw new BadRequestException("Attendance for this lesson was recorded.");
+    }
+
+    lesson.status = LessonStatus.IN_PROGRESS;
+    lesson.title = dto.lessonTitle;
+    await this.lessonService.save(lesson);
+
+    // Faol studentlarni olish
+    const activeStudents =
+      await this.groupStudentService.findActiveStudentsInGroup(lesson.group.id);
+    const studentIds = activeStudents.map((gs) => gs.student.id);
+
+    const existingAttendances = await this.attendanceRepo.find({
+      where: { lesson: { id: dto.lessonId }, student: { id: In(studentIds) } },
+      relations: ["student"],
+    });
+
+    const attendanceUpdates = dto.students
+      .filter((studentDto) => studentIds.includes(studentDto.studentId))
+      .map((studentDto) => {
+        const existingAttendance = existingAttendances.find(
+          (attendance) => attendance.student.id === studentDto.studentId
+        );
+        if (existingAttendance) {
+          existingAttendance.status = studentDto.status;
+          return existingAttendance;
+        }
+        return null;
+      })
+      .filter((attendance) => attendance !== null);
+
+    await this.attendanceRepo.save(attendanceUpdates);
+    return { message: "Attendance updated successfully" };
   }
 }

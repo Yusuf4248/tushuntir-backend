@@ -192,7 +192,7 @@ export class TeacherService {
 
       return {
         message: "Avatar muvaffaqiyatli yuklandi",
-        data: updated.avatar_url,
+        data: `https://erp-edu.uz/static/teacher/${updated.avatar_url}`,
       };
     } catch (error) {
       console.error(error);
