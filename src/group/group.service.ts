@@ -102,21 +102,24 @@ export class GroupService {
       },
       relations: ["room"],
     });
+    let str = ``;
     if (!lesson) {
-      return { message: `No lessons found for Group ID-${id}` };
+      // return { message: `No lessons found for Group ID-${id}` };
+      str = `No lessons found for Group ID-${id}`;
     }
 
-    if (lesson.status !== LessonStatus.NEW) {
+    if (lesson!.status !== LessonStatus.NEW) {
       throw new BadRequestException("Attendance for this lesson was recorded.");
     }
-    const room = lesson.room;
-    const isAttended = lesson.status !== LessonStatus.NEW;
+    const room = lesson!.room;
+    const isAttended = lesson!.status !== LessonStatus.NEW;
     return {
       message: `Group ID-${id}`,
       success: true,
       group,
       room,
       isAttended,
+      str,
     };
   }
 
