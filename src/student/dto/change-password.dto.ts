@@ -9,6 +9,10 @@ export class ChangePasswordDto {
   @IsNotEmpty({ message: "Old password should not be empty" })
   old_password: string;
 
+  @ApiProperty({
+    example: "OldP@ssw0rd123",
+    description: "Old (current) password of the user",
+  })
   @IsNotEmpty()
   @MinLength(8, { message: "Password must be at least 8 characters long" })
   password: string;

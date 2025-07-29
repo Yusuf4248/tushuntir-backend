@@ -8,6 +8,8 @@ import {
   Delete,
   UseGuards,
   BadRequestException,
+  NotFoundException,
+  ParseIntPipe,
 } from "@nestjs/common";
 import { AttendanceService } from "./attendance.service";
 import { CreateAttendanceDto } from "./dto/create-attendance.dto";
@@ -18,6 +20,7 @@ import {
   ApiResponse,
   ApiBearerAuth,
   ApiBody,
+  ApiParam,
 } from "@nestjs/swagger";
 import { Roles } from "../app.constants";
 import { AuthGuard } from "../common/guards/auth.guard";
@@ -102,5 +105,68 @@ export class AttendanceController {
     } catch (error) {
       throw new BadRequestException(error.message);
     }
+  }
+
+  @Get("check-lesson/:lessonId")
+  @ApiOperation({
+    summary: "Check if today's attendance is already taken for a lesson",
+    description:
+      "Returns lesson info and group students if attendance has not been taken. Returns status message if attendance already exists or lesson is not today.",
+  })
+  @ApiParam({
+    name: "lessonId",
+    type: Number,
+    example: 42,
+    description: "ID of the lesson you want to check attendance for",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Attendance status returned successfully",
+    schema: {
+      oneOf: [
+        {
+          example: {
+            isAttended: false,
+            groupStudents: [
+              {
+                id: 1,
+                full_name: "John Doe",
+                phone: "+998901234567",
+              },
+              {
+                id: 2,
+                full_name: "Jane Smith",
+                phone: "+998901112233",
+              },
+            ],
+            lessonInfo: {
+              title: "NodeJS #12",
+              start_time: "10:00",
+              end_time: "12:00",
+              groupName: "Backend Evening Group",
+            },
+          },
+        },
+        {
+          example: {
+            isAttended: true,
+            message: "Attendance for this lesson has already been taken.",
+          },
+        },
+      ],
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: "Attendance is only allowed for today's lesson",
+    type: BadRequestException,
+  })
+  @ApiResponse({
+    status: 404,
+    description: "Lesson not found",
+    type: NotFoundException,
+  })
+  async isLessonAttended(@Param("lessonId", ParseIntPipe) lessonId: number) {
+    return this.attendanceService.isLessonAttended(lessonId);
   }
 }
