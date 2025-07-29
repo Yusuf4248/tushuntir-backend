@@ -15,7 +15,7 @@ import { Student } from "../student/entities/student.entities";
 import { AttendanceService } from "../attendance/attendance.service";
 import { Attendance } from "../attendance/entities/attendance.entity";
 import { LessonsService } from "../lessons/lessons.service";
-import { LessonStatus } from "../lessons/entities/lesson.entity";
+import { Lesson, LessonStatus } from "../lessons/entities/lesson.entity";
 
 @Injectable()
 export class GroupStudentsService {
@@ -28,7 +28,9 @@ export class GroupStudentsService {
     private readonly studentRepository: Repository<Student>,
     @Inject(forwardRef(() => AttendanceService))
     private attendanceService: AttendanceService,
-    private readonly lessonService: LessonsService
+    private readonly lessonService: LessonsService,
+    @InjectRepository(Lesson)
+    private readonly lessonRepository: Repository<Lesson>
   ) {}
 
   async create(createGroupStudentDto: CreateGroupStudentDto) {
@@ -219,7 +221,14 @@ export class GroupStudentsService {
       throw new NotFoundException(`Group with ID ${groupId} not found`);
     }
 
-    const { lesson } = await this.lessonService.findOne(group.lessons[0].id);
+    const today1 = new Date();
+    today1.setHours(0, 0, 0, 0);
+    const lesson = await this.lessonRepository.findOne({
+      where: { date: today1, group: { id: group.id } },
+    });
+    if (!lesson) {
+      throw new NotFoundException(`No lesson found for group ${groupId} today`);
+    }
     if (lesson.status !== LessonStatus.NEW) {
       throw new BadRequestException("Attendance for this lesson was recorded.");
     }
