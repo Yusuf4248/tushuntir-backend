@@ -169,4 +169,54 @@ export class AttendanceController {
   async isLessonAttended(@Param("lessonId", ParseIntPipe) lessonId: number) {
     return this.attendanceService.isLessonAttended(lessonId);
   }
+
+  @Get("student/:studentId/group/:groupId")
+  @ApiOperation({ summary: "Get all attendances of a student in a group" })
+  @ApiParam({
+    name: "studentId",
+    type: Number,
+    description: "ID of the student",
+  })
+  @ApiParam({ name: "groupId", type: Number, description: "ID of the group" })
+  @ApiResponse({ status: 200, description: "List of attendances" })
+  async getStudentAllAttendances(
+    @Param("studentId", ParseIntPipe) studentId: number,
+    @Param("groupId", ParseIntPipe) groupId: number
+  ) {
+    return this.attendanceService.getStudentAllAttendances(studentId, groupId);
+  }
+
+  @Get("group-student/:groupStudentId/create-attendances")
+  @ApiOperation({
+    summary: "Create today's attendances for group-student lessons",
+  })
+  @ApiParam({
+    name: "groupStudentId",
+    type: Number,
+    description: "ID of the GroupStudent entity (student + group)",
+  })
+  @ApiResponse({
+    status: 201,
+    description: "Attendances successfully created for all relevant lessons",
+  })
+  async createAllAttendancesForGroupStudent(
+    @Param("groupStudentId", ParseIntPipe) groupStudentId: number
+  ) {
+    return this.attendanceService.createAllAttendancesForGroupStudent(
+      groupStudentId
+    );
+  }
+
+  @Get("lesson/:lessonId")
+  @ApiOperation({ summary: "Get all attendances by lesson ID" })
+  @ApiParam({ name: "lessonId", type: Number, description: "ID of the lesson" })
+  @ApiResponse({
+    status: 200,
+    description: "List of student attendances for the lesson",
+  })
+  async getAttendancesByLesson(
+    @Param("lessonId", ParseIntPipe) lessonId: number
+  ) {
+    return this.attendanceService.getAttendancesByLesson(lessonId);
+  }
 }

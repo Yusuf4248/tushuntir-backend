@@ -190,7 +190,7 @@ export class GroupStudentsService {
     const groupStudents: GroupStudent[] =
       await this.groupStudentRepository.find({
         where: { group: { id: groupId } },
-        relations: ["student"],
+        relations: ["student", "student.attendance"],
         order: { id: "ASC" },
       });
     return groupStudents;
