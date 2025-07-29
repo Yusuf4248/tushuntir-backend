@@ -5,7 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { In, MoreThanOrEqual } from "typeorm";
+import { DeepPartial, In, MoreThanOrEqual } from "typeorm";
 import * as dayjs from "dayjs";
 import { CreateAttendanceDto } from "./dto/create-attendance.dto";
 import { UpdateAttendanceDto } from "./dto/update-attendance.dto";
@@ -19,6 +19,7 @@ import { Lesson, LessonStatus } from "../lessons/entities/lesson.entity";
 import { GroupService } from "../group/group.service";
 import { GroupStudentsService } from "../group-students/group-students.service";
 import { UpdateLessonAttendancesDto } from "./dto/update-lesson-attendances-dto";
+import { title } from "process";
 
 @Injectable()
 export class AttendanceService {
@@ -181,78 +182,125 @@ export class AttendanceService {
   }
 
   async updateAttendanceForGroup(dto: UpdateLessonAttendancesDto) {
-    const { lesson } = await this.lessonService.findOne(dto.lessonId);
-    if (lesson.status !== LessonStatus.NEW) {
-      throw new BadRequestException("Attendance for this lesson was recorded.");
+    // 1. Find lesson
+    const lesson = await this.lessonRepo.findOne({
+      where: { id: dto.lessonId },
+      relations: ["group"],
+    });
+
+    if (!lesson) {
+      throw new NotFoundException("Lesson not found");
     }
 
+    // 2. Has the attendance already been recorded?
+    if (lesson.status !== LessonStatus.NEW) {
+      throw new BadRequestException(
+        "Attendance for this class has already been recorded."
+      );
+    }
+
+    // 3. Date check (is it today?)
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const lessonDate = new Date(lesson.date);
     lessonDate.setHours(0, 0, 0, 0);
+
     if (lessonDate.getTime() !== today.getTime()) {
       throw new BadRequestException(
-        "Attendance can only be updated for today's lesson."
+        "Attendance can only be held for today's lesson."
       );
     }
 
+    // 4. Lesson update (title and status)
     lesson.status = LessonStatus.IN_PROGRESS;
     lesson.title = dto.lessonTitle;
-    await this.lessonService.save(lesson);
+    await this.lessonRepo.save(lesson);
 
-    // Faol studentlarni olish
-    const activeStudents =
+    // 5. Get active students
+    const activeGroupData =
       await this.groupStudentService.findActiveStudentsInGroup(lesson.group.id);
-    const studentIds = activeStudents.groupStudents.map((gs) => gs.student.id);
+    const activeStudentIds = activeGroupData.groupStudents.map(
+      (gs) => gs.student.id
+    );
 
+    // 6. Retrieve existing attendance records
     const existingAttendances = await this.attendanceRepo.find({
-      where: { lesson: { id: dto.lessonId }, student: { id: In(studentIds) } },
+      where: {
+        lesson: { id: dto.lessonId },
+        student: { id: In(activeStudentIds) },
+      },
       relations: ["student"],
     });
 
-    const attendanceUpdates = dto.students
-      .filter((studentDto) => studentIds.includes(studentDto.studentId))
+    // 7. Update only relevant students according to DTO
+    const updatedAttendances = dto.students
+      .filter((studentDto) => activeStudentIds.includes(studentDto.studentId))
       .map((studentDto) => {
-        const existingAttendance = existingAttendances.find(
-          (attendance) => attendance.student.id === studentDto.studentId
+        const attendance = existingAttendances.find(
+          (a) => a.student.id === studentDto.studentId
         );
-        if (existingAttendance) {
-          existingAttendance.status = studentDto.status;
-          return existingAttendance;
+        if (attendance) {
+          attendance.status = studentDto.status;
+          return attendance;
         }
         return null;
       })
-      .filter((attendance) => attendance !== null);
+      .filter(Boolean); // removes nulls
 
-    await this.attendanceRepo.save(attendanceUpdates);
+    await this.attendanceRepo.save(
+      updatedAttendances.filter(Boolean) as DeepPartial<Attendance>[]
+    );
+
     return { message: "Attendance updated successfully" };
   }
 
-  async isLessonAttended(date: Date) {
-    // date yoki lessonId dan bittasi berilishi kerak
-    let isAttended = false;
+  async isLessonAttended(lessonId: number) {
+    const lesson = await this.lessonRepo.findOne({
+      where: { id: lessonId },
+      relations: ["group"],
+    });
+
+    if (!lesson) {
+      throw new NotFoundException("Lesson not found");
+    }
+
+    // Is lesson today?
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const lesson = await this.lessonRepo.findOne({
-      where: {
-        date: today,
-      },
-    });
-    if (!lesson) {
-      return { message: "No lesson fount for today" };
+
+    const lessonDate = new Date(lesson.date);
+    lessonDate.setHours(0, 0, 0, 0);
+
+    const isToday = lessonDate.getTime() === today.getTime();
+    if (!isToday) {
+      throw new BadRequestException(
+        "Attendance is only possible for today's class."
+      );
     }
-    if (lesson.status !== LessonStatus.NEW) {
-      // shu yerda guruhdagi studentlar va qoshimcha malumotlar berib yuborilishi kerak
+
+    if (lesson.status === LessonStatus.NEW) {
+      // If lesson haven't attended yet
       const groupStudents =
         await this.groupStudentService.findActiveStudentsInGroup(
           lesson.group.id
         );
+
       return {
         isAttended: false,
         groupStudents,
+        lessonInfo: {
+          title: lesson.title,
+          start_time: lesson.group.start_time,
+          end_time: lesson.group.end_time,
+          groupName: lesson.group.name,
+        },
       };
     } else {
-      throw new BadRequestException("Attendance for this lesson was recorded.");
+      // If lesson already attended
+      return {
+        isAttended: true,
+        message: "Attendance for this lesson has already been taken.",
+      };
     }
   }
 }
