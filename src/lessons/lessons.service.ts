@@ -49,7 +49,10 @@ export class LessonsService {
     });
 
     const newEndDate = lesson.date;
-    if (newEndDate && isAfter(new Date(newEndDate), new Date(group!.end_date))) {
+    if (
+      newEndDate &&
+      isAfter(new Date(newEndDate), new Date(group!.end_date))
+    ) {
       group!.end_date = newEndDate;
       await this.groupRepo.save(group!);
 

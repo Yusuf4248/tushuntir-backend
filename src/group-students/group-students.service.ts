@@ -193,7 +193,6 @@ export class GroupStudentsService {
         relations: ["student"],
         order: { id: "ASC" },
       });
-    console.log(groupStudents);
     return groupStudents;
   }
 

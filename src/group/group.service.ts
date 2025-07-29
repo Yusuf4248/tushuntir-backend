@@ -92,34 +92,12 @@ export class GroupService {
     if (!group) {
       throw new NotFoundException(`Group ID-${id} not found`);
     }
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const lesson = await this.lessonRepo.findOne({
-      where: {
-        date: today,
-        group: { id },
-      },
-      relations: ["room"],
-    });
-    let str = ``;
-    if (!lesson) {
-      // return { message: `No lessons found for Group ID-${id}` };
-      str = `No lessons found for Group ID-${id}`;
-    }
-
-    if (lesson!.status !== LessonStatus.NEW) {
-      throw new BadRequestException("Attendance for this lesson was recorded.");
-    }
-    const room = lesson!.room;
-    const isAttended = lesson!.status !== LessonStatus.NEW;
+    const room = group.lessons[0].room;
     return {
       message: `Group ID-${id}`,
       success: true,
       group,
       room,
-      isAttended,
-      str,
     };
   }
 
