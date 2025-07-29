@@ -27,8 +27,11 @@ export class AttendanceService {
     private readonly attendanceRepo: Repository<Attendance>,
     @InjectRepository(Lesson)
     private readonly lessonRepo: Repository<Lesson>,
+    @Inject(forwardRef(() => StudentService))
     private readonly studentService: StudentService,
+    @Inject(forwardRef(() => LessonsService))
     private readonly lessonService: LessonsService,
+    @Inject(forwardRef(() => GroupService))
     private readonly groupService: GroupService,
     @Inject(forwardRef(() => GroupStudentsService))
     private groupStudentService: GroupStudentsService
@@ -223,5 +226,33 @@ export class AttendanceService {
 
     await this.attendanceRepo.save(attendanceUpdates);
     return { message: "Attendance updated successfully" };
+  }
+
+  async isLessonAttended(date: Date) {
+    // date yoki lessonId dan bittasi berilishi kerak
+    let isAttended = false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const lesson = await this.lessonRepo.findOne({
+      where: {
+        date: today,
+      },
+    });
+    if (!lesson) {
+      return { message: "No lesson fount for today" };
+    }
+    if (lesson.status !== LessonStatus.NEW) {
+      // shu yerda guruhdagi studentlar va qoshimcha malumotlar berib yuborilishi kerak
+      const groupStudents =
+        await this.groupStudentService.findActiveStudentsInGroup(
+          lesson.group.id
+        );
+      return {
+        isAttended: false,
+        groupStudents,
+      };
+    } else {
+      throw new BadRequestException("Attendance for this lesson was recorded.");
+    }
   }
 }

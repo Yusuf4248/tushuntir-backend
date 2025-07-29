@@ -25,7 +25,7 @@ export class RoomsService {
       ...createRoomDto,
     });
     return {
-      message: "New branch created!",
+      message: "New room created!",
       success: true,
       newRoom,
     };

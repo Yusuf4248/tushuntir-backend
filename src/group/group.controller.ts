@@ -92,4 +92,59 @@ export class GroupController {
   async getGroupByName(@Param("groupName") groupName: string) {
     return this.groupService.getGroupByName(groupName);
   }
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles("teacher")
+  @Get(":id/teacher")
+  @ApiOperation({
+    summary: "Get group details for a teacher by ID",
+    description:
+      "Retrieves detailed information about a group, including its teachers, students, and lessons, for a specific group ID.",
+  })
+  @ApiParam({
+    name: "id",
+    description: "ID of the group",
+    example: 1,
+    type: Number,
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Group details retrieved successfully",
+  })
+  @ApiResponse({
+    status: 400,
+    description: "Bad Request - Invalid group ID",
+    schema: {
+      example: {
+        message: "ID must be a positive integer",
+        error: "Bad Request",
+        statusCode: 400,
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: "Group not found",
+    schema: {
+      example: {
+        message: "Group ID-1 not found",
+        error: "Not Found",
+        statusCode: 404,
+      },
+    },
+  })
+  @ApiResponse({
+    status: 500,
+    description: "Internal server error",
+    schema: {
+      example: {
+        message: "Internal server error",
+        error: "Internal Server Error",
+        statusCode: 500,
+      },
+    },
+  })
+  async findOneGroupForTeacher(@Param("id", ParseIntPipe) id: number) {
+    return this.groupService.findOneGroupForTeacher(id);
+  }
 }

@@ -15,8 +15,8 @@ import { Lesson } from "../lessons/entities/lesson.entity";
   imports: [
     TypeOrmModule.forFeature([Attendance, Student, Lesson]),
     forwardRef(() => GroupStudentsModule),
-    StudentModule,
-    LessonsModule,
+    forwardRef(() => StudentModule),
+    forwardRef(() => LessonsModule),
     forwardRef(() => GroupModule),
     JwtModule,
   ],

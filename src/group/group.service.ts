@@ -1,6 +1,8 @@
 import {
   BadRequestException,
   ConflictException,
+  forwardRef,
+  Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -12,15 +14,20 @@ import { Group } from "./entities/group.entity";
 import { QueryFailedError, Repository } from "typeorm";
 import { CoursesService } from "../courses/courses.service";
 import { LessonsService } from "../lessons/lessons.service";
-import { Lesson, LessonStatus } from "../lessons/entities/lesson.entity";
+import { GroupStudentsService } from "../group-students/group-students.service";
+import { GroupTeachersService } from "../group-teachers/group-teachers.service";
 
 @Injectable()
 export class GroupService {
   constructor(
     @InjectRepository(Group) private readonly groupRepo: Repository<Group>,
+    @Inject(forwardRef(() => LessonsService))
     private readonly lessonService: LessonsService,
     private readonly courseService: CoursesService,
-    @InjectRepository(Lesson) private readonly lessonRepo: Repository<Lesson>
+    @Inject(forwardRef(() => GroupStudentsService))
+    private readonly groupStudentsService: GroupStudentsService,
+    @Inject(forwardRef(() => GroupTeachersService))
+    private readonly groupTeachersService: GroupTeachersService
   ) {}
   async create(createGroupDto: CreateGroupDto) {
     const { course } = await this.courseService.findOne(
@@ -87,7 +94,7 @@ export class GroupService {
       );
     const group = await this.groupRepo.findOne({
       where: { id },
-      relations: ["course", "lessons.room"],
+      relations: ["course", "lessons"],
     });
     if (!group) {
       throw new NotFoundException(`Group ID-${id} not found`);
@@ -136,5 +143,21 @@ export class GroupService {
       );
     }
     return group;
+  }
+
+  async findOneGroupForTeacher(id: number) {
+    const group = await this.findOne(id);
+    const groupTeachers = await this.groupTeachersService.findByGroup(id);
+    const groupStudents = await this.groupStudentsService.findByGroup(id);
+    const { lessons } = await this.lessonService.findGroupAllLessons(id);
+
+    return {
+      message: `${id}-group`,
+      group: group.group,
+      room: group.room,
+      groupTeachers,
+      groupStudents,
+      lessons,
+    };
   }
 }

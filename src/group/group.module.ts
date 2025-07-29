@@ -3,7 +3,6 @@ import { GroupService } from "./group.service";
 import { GroupController } from "./group.controller";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { Group } from "./entities/group.entity";
-import { Course } from "../courses/entities/course.entity";
 import { CoursesModule } from "../courses/courses.module";
 import { Homework } from "../homeworks/entities/homework.entity";
 import { Payment } from "../payments/entities/payment.entity";
@@ -12,7 +11,6 @@ import { JwtModule } from "@nestjs/jwt";
 import { GroupTeacher } from "../group-teachers/entities/group-teacher.entity";
 import { GroupStudent } from "../group-students/entities/group-student.entity";
 import { LessonsModule } from "../lessons/lessons.module";
-import { LessonsService } from "../lessons/lessons.service";
 import { GroupTeachersModule } from "../group-teachers/group-teachers.module";
 import { GroupStudentsModule } from "../group-students/group-students.module";
 import { Lesson } from "../lessons/entities/lesson.entity";
@@ -29,6 +27,8 @@ import { Lesson } from "../lessons/entities/lesson.entity";
       Lesson,
     ]),
     CoursesModule,
+    forwardRef(() => GroupTeachersModule),
+    forwardRef(() => GroupStudentsModule),
     forwardRef(() => LessonsModule),
     JwtModule,
   ],
