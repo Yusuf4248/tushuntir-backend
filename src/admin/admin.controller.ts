@@ -154,7 +154,9 @@ export class AdminController {
   @ApiResponse({ status: 401, description: "Unauthorized" })
   async getProfile(@Req() req: Request) {
     const user = (req as any).user;
+    console.log(user);
     const { id, role } = user;
+    console.log(id, role);
 
     return this.adminService.getProfile(id, role);
   }

@@ -62,10 +62,6 @@ export class AttendanceService {
   }
 
   async findOne(id: number) {
-    if (!Number.isInteger(Number(id)) || Number(id) <= 0)
-      throw new BadRequestException(
-        "ID must be integer and must be greater than zero"
-      );
     const attandance = await this.attendanceRepo.findOne({
       where: { id },
       relations: ["student", "lesson"],
@@ -131,8 +127,11 @@ export class AttendanceService {
     const { student } = await this.studentService.findOne(studentId);
     const { group } = await this.groupService.findOne(groupId);
     const attendances = await this.attendanceRepo.find({
-      where: { student, lesson: { group } },
-      relations: ["lesson"],
+      where: {
+        student: { id: student.id },
+        lesson: { group: { id: group.id } },
+      },
+      relations: ["lesson", "lesson.group", "student"],
     });
     return {
       message: `All attendances for student ${studentId} in group ${groupId}`,
@@ -182,6 +181,9 @@ export class AttendanceService {
   }
 
   async updateAttendanceForGroup(dto: UpdateLessonAttendancesDto) {
+    console.log("1234");
+    if (isNaN(dto.lessonId))
+      throw new BadRequestException("lessonId must be a number");
     // 1. Find lesson
     const lesson = await this.lessonRepo.findOne({
       where: { id: dto.lessonId },
@@ -219,7 +221,7 @@ export class AttendanceService {
     // 5. Get active students
     const activeGroupData =
       await this.groupStudentService.findActiveStudentsInGroup(lesson.group.id);
-    const activeStudentIds = activeGroupData.groupStudents.map(
+    const activeStudentIds: number[] = activeGroupData.groupStudents.map(
       (gs) => gs.student.id
     );
 

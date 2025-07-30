@@ -71,9 +71,8 @@ export class AdminService {
 
   async findOne(id: number) {
     if (!Number.isInteger(Number(id)) || Number(id) <= 0)
-      throw new BadRequestException(
-        "ID must be integer and must be greater than zero"
-      );
+      throw new BadRequestException();
+    // "ID must be integer and must be greater than zero"
     const admin = await this.adminRepo.findOne({
       where: { id },
       relations: ["branch"],
@@ -179,7 +178,10 @@ export class AdminService {
   async getProfile(id: number, role: string) {
     switch (role) {
       case "admin":
-        return this.adminRepo.findOne({ where: { id }, relations: ["branch"] });
+        return await this.adminRepo.findOne({
+          where: { id },
+          relations: ["branch"],
+        });
       case "teacher":
         return this.teacherRepo.findOne({
           where: { id },

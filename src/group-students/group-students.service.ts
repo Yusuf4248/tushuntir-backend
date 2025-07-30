@@ -16,6 +16,9 @@ import { AttendanceService } from "../attendance/attendance.service";
 import { Attendance } from "../attendance/entities/attendance.entity";
 import { LessonsService } from "../lessons/lessons.service";
 import { Lesson, LessonStatus } from "../lessons/entities/lesson.entity";
+import * as dayjs from "dayjs";
+import * as utc from "dayjs/plugin/utc";
+import * as timezone from "dayjs/plugin/timezone";
 
 @Injectable()
 export class GroupStudentsService {
@@ -220,26 +223,22 @@ export class GroupStudentsService {
       throw new NotFoundException(`Group with ID ${groupId} not found`);
     }
 
-    const today1 = new Date();
-    today1.setHours(0, 0, 0, 0);
+    dayjs.extend(utc);
+    dayjs.extend(timezone);
+    const today = dayjs()
+      .tz("Asia/Tashkent")
+      .startOf("day")
+      .add(5, "hour")
+      .toDate();
     const lesson = await this.lessonRepository.findOne({
-      where: { date: today1, group: { id: group.id } },
+      where: { date: today, group: { id: group.id } },
     });
+
     if (!lesson) {
       throw new NotFoundException(`No lesson found for group ${groupId} today`);
     }
     if (lesson.status !== LessonStatus.NEW) {
       throw new BadRequestException("Attendance for this lesson was recorded.");
-    }
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const lessonDate = new Date(lesson.date);
-    lessonDate.setHours(0, 0, 0, 0);
-    if (lessonDate.getTime() !== today.getTime()) {
-      throw new BadRequestException(
-        "Attendance can only be updated for today's lesson."
-      );
     }
 
     const groupStudents = await this.groupStudentRepository.find({

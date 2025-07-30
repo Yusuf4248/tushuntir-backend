@@ -11,48 +11,48 @@ import { ApiProperty } from "@nestjs/swagger";
 import { AttendanceStatus } from "../entities/attendance.entity";
 
 export class StudentAttendanceDto {
-  @IsNotEmpty({ message: "Student ID is required" })
-  @IsInt({ message: "Student ID must be an integer" })
+  @IsNotEmpty({ message: "O'quvchi ID’si talab qilinadi" })
+  @IsInt({ message: "O'quvchi ID’si butun son bo'lishi kerak" })
   @ApiProperty({
     example: 1,
-    description: "The unique identifier of the student",
+    description: "O'quvchining noyob identifikatori",
   })
   studentId: number;
 
-  @IsNotEmpty({ message: "Status is required" })
-  @IsEnum(AttendanceStatus, { message: "Invalid attendance status" })
+  @IsNotEmpty({ message: "Holati talab qilinadi" })
+  @IsEnum(AttendanceStatus, { message: "Noto'g'ri davomat holati" })
   @ApiProperty({
     enum: AttendanceStatus,
     example: AttendanceStatus.CAME,
-    description: "The attendance status of the student",
+    description: "O'quvchining davomat holati",
   })
   status: AttendanceStatus;
 }
 
 export class UpdateLessonAttendancesDto {
-  @IsNotEmpty({ message: "Lesson title is required" })
-  @IsString({ message: "Lesson title must be a string" })
+  @IsNotEmpty({ message: "Dars sarlavhasi talab qilinadi" })
+  @IsString({ message: "Dars sarlavhasi satr bo'lishi kerak" })
   @ApiProperty({
-    example: "Math Lesson",
-    description: "The title of the lesson",
+    example: "Matematika darsi",
+    description: "Darsning sarlavhasi",
   })
   lessonTitle: string;
 
-  @IsNotEmpty({ message: "Lesson ID is required" })
-  @IsInt({ message: "Lesson ID must be an integer" })
+  @IsNotEmpty({ message: "Dars ID’si talab qilinadi" })
+  @IsInt({ message: "Dars ID’si butun son bo'lishi kerak" })
   @ApiProperty({
     example: 101,
-    description: "The unique identifier of the lesson",
+    description: "Darsning noyob identifikatori",
   })
   lessonId: number;
 
-  @IsNotEmpty({ message: "Students array is required" })
-  @IsArray({ message: "Students must be an array" })
+  @IsNotEmpty({ message: "O'quvchilar massivi talab qilinadi" })
+  @IsArray({ message: "O'quvchilar massiv bo'lishi kerak" })
   @ValidateNested({ each: true })
   @Type(() => StudentAttendanceDto)
   @ApiProperty({
     type: [StudentAttendanceDto],
-    description: "Array of student attendance records",
+    description: "O'quvchilarning davomat yozuvlari massivi",
   })
   students: StudentAttendanceDto[];
 }

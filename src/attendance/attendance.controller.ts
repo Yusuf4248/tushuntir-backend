@@ -85,26 +85,83 @@ export class AttendanceController {
     return this.attendanceService.remove(+id);
   }
 
+  // @Patch("bulk-update")
+  // @ApiOperation({
+  //   summary: "Update attendance for a group of students in a lesson",
+  // })
+  // @ApiBody({ type: UpdateLessonAttendancesDto })
+  // @ApiResponse({
+  //   status: 200,
+  //   description: "Attendance updated successfully",
+  //   schema: { example: { message: "Attendance updated successfully" } },
+  // })
+  // @ApiResponse({
+  //   status: 400,
+  //   description: "Bad request, e.g., lesson status is not NEW",
+  // })
+  // async updateAttendanceForGroup(@Body() dto: UpdateLessonAttendancesDto) {
+  //   try {
+  //     return await this.attendanceService.updateAttendanceForGroup(dto);
+  //   } catch (error) {
+  //     throw new BadRequestException(error.message);
+  //   }
+  // }
+
+  @Post("bulk-update")
   @ApiOperation({
-    summary: "Update attendance for a group of students in a lesson",
+    summary: "Dars davomatini ommaviy yangilash",
+    description:
+      "Bir darsdagi bir nechta o'quvchilar uchun davomat yozuvlarini yangilaydi.",
   })
-  @ApiBody({ type: UpdateLessonAttendancesDto })
+  @ApiBody({
+    type: UpdateLessonAttendancesDto,
+    description: "Dars uchun davomat ma’lumotlari",
+  })
   @ApiResponse({
     status: 200,
-    description: "Attendance updated successfully",
-    schema: { example: { message: "Attendance updated successfully" } },
+    description: "Davomat muvaffaqiyatli yangilandi",
+    schema: {
+      example: {
+        message: "Davomat muvaffaqiyatli yangilandi",
+        success: true,
+        data: {
+          lessonId: 101,
+          lessonTitle: "Matematika darsi",
+          students: [
+            { studentId: 1, status: "came" },
+            { studentId: 2, status: "did not came" },
+          ],
+        },
+      },
+    },
   })
   @ApiResponse({
     status: 400,
-    description: "Bad request, e.g., lesson status is not NEW",
+    description: "Noto'g'ri so'rov - Xato kiritilgan ma’lumotlar",
+    schema: {
+      example: {
+        statusCode: 400,
+        message: [
+          "property lessonTitle should not exist",
+          "property students should not exist",
+        ],
+        error: "Bad Request",
+      },
+    },
   })
-  @Patch("bulk-update")
-  async updateAttendanceForGroup(@Body() dto: UpdateLessonAttendancesDto) {
-    try {
-      return await this.attendanceService.updateAttendanceForGroup(dto);
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
+  @ApiResponse({
+    status: 500,
+    description: "Ichki server xatosi",
+    schema: {
+      example: {
+        message: "Ichki server xatosi",
+        error: "Internal Server Error",
+        statusCode: 500,
+      },
+    },
+  })
+  async bulkUpdate(@Body() updateDto: UpdateLessonAttendancesDto) {
+    return this.attendanceService.updateAttendanceForGroup(updateDto);
   }
 
   @Get("check-lesson/:lessonId")
@@ -184,27 +241,6 @@ export class AttendanceController {
     @Param("groupId", ParseIntPipe) groupId: number
   ) {
     return this.attendanceService.getStudentAllAttendances(studentId, groupId);
-  }
-
-  @Get("group-student/:groupStudentId/create-attendances")
-  @ApiOperation({
-    summary: "Create today's attendances for group-student lessons",
-  })
-  @ApiParam({
-    name: "groupStudentId",
-    type: Number,
-    description: "ID of the GroupStudent entity (student + group)",
-  })
-  @ApiResponse({
-    status: 201,
-    description: "Attendances successfully created for all relevant lessons",
-  })
-  async createAllAttendancesForGroupStudent(
-    @Param("groupStudentId", ParseIntPipe) groupStudentId: number
-  ) {
-    return this.attendanceService.createAllAttendancesForGroupStudent(
-      groupStudentId
-    );
   }
 
   @Get("lesson/:lessonId")
