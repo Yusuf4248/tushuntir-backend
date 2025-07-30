@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   Req,
+  UnauthorizedException,
 } from "@nestjs/common";
 import { AdminService } from "./admin.service";
 import { CreateAdminDto } from "./dto/create-admin.dto";
@@ -27,12 +28,28 @@ import { AuthGuard } from "../common/guards/auth.guard";
 import { RolesGuard } from "../common/guards/role.guard";
 import { Roles } from "../app.constants";
 import { JwtSelfGuard } from "../common/guards/jwt-self.guard";
+import { Request } from "express";
+import { ProfileGuard } from "../common/guards/profile.guard";
 
 @ApiTags("Admin")
 @ApiBearerAuth("JWT-auth")
 @Controller("admin")
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
+
+  @Get("profile")
+  @UseGuards(ProfileGuard)
+  @ApiOperation({ summary: "Universal user profile" })
+  @ApiResponse({ status: 200, description: "User profile info" })
+  @ApiResponse({ status: 401, description: "Unauthorized" })
+  async getProfile(@Req() req: any) {
+    console.log("123");
+    const user = req.user;
+    if (!user || !user.id || !user.role) {
+      throw new UnauthorizedException("User info not found in token");
+    }
+    return this.adminService.getUniversalProfile(user.id, user.role);
+  }
 
   @UseGuards(SuperAdminGuard)
   @Post()
@@ -141,23 +158,5 @@ export class AdminController {
   @Patch(":id/branch/:branchId")
   addBranch(@Param("id") id: string, @Param("branchId") branchId: string) {
     return this.adminService.addBranch(+branchId, +id);
-  }
-
-  @Get("profile")
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: "User profile" })
-  @ApiResponse({
-    status: 200,
-    description: "Success",
-  })
-  @ApiResponse({ status: 401, description: "Unauthorized" })
-  async getProfile(@Req() req: Request) {
-    const user = (req as any).user;
-    console.log(user);
-    const { id, role } = user;
-    console.log(id, role);
-
-    return this.adminService.getProfile(id, role);
   }
 }

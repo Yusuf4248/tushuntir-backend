@@ -19,7 +19,10 @@ export class AuthGuard implements CanActivate {
     const token = authHeader.split(" ")[1];
 
     const decoded = this.jwtService.decode(token);
-    const role = decoded.role;
+    if (!decoded || typeof decoded !== "object" || !("role" in decoded)) {
+      throw new UnauthorizedException("Role not found in token");
+    }
+    const role = (decoded as any).role;
 
     if (!role) {
       throw new UnauthorizedException("Role not found");
@@ -30,6 +33,7 @@ export class AuthGuard implements CanActivate {
     try {
       const payload = await this.jwtService.verifyAsync(token, { secret });
       (req as any).user = payload;
+      console.log(payload);
       return true;
     } catch (error) {
       throw new UnauthorizedException("The token is invalid");

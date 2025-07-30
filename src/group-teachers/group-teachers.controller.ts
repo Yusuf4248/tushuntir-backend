@@ -8,6 +8,8 @@ import {
   Delete,
   ParseIntPipe,
   UseGuards,
+  Req,
+  UnauthorizedException,
 } from "@nestjs/common";
 import {
   ApiTags,
@@ -23,12 +25,30 @@ import { GroupTeacher } from "./entities/group-teacher.entity";
 import { Roles } from "../app.constants";
 import { AuthGuard } from "../common/guards/auth.guard";
 import { RolesGuard } from "../common/guards/role.guard";
+import { User } from "../common/guards/decode.guard";
 
 @ApiBearerAuth("JWT-auth")
 @ApiTags("Group-Teachers")
 @Controller("group-teachers")
 export class GroupTeachersController {
   constructor(private readonly groupTeachersService: GroupTeachersService) {}
+
+  @Get("my-groups")
+  @UseGuards(AuthGuard)
+  async getMyGroups(@Req() req: any) {
+    try {
+      const user = req.user;
+      console.log("123");
+      if (!user || !user.id || user.role !== "teacher") {
+        throw new UnauthorizedException(
+          "Only teachers can access their groups"
+        );
+      }
+      return this.groupTeachersService.findByTeacher(user.id);
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles("admin", "superadmin")

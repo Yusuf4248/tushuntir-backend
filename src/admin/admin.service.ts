@@ -16,6 +16,7 @@ import * as bcrypt from "bcrypt";
 import { Teacher } from "../teacher/entities/teacher.entity";
 import { Student } from "../student/entities/student.entities";
 import { Lid } from "../lid/entities/lid.entity";
+import { Request } from "express";
 
 @Injectable()
 export class AdminService {
@@ -175,7 +176,7 @@ export class AdminService {
     };
   }
 
-  async getProfile(id: number, role: string) {
+  async getUniversalProfile(id: number, role: string) {
     switch (role) {
       case "admin":
         return await this.adminRepo.findOne({
@@ -185,7 +186,7 @@ export class AdminService {
       case "teacher":
         return this.teacherRepo.findOne({
           where: { id },
-          relations: ["branch", "exam"],
+          relations: ["branches", "exam"],
         });
       case "student":
         return this.studentRepo.findOne({

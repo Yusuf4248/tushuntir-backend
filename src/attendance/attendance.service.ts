@@ -39,6 +39,7 @@ export class AttendanceService {
     @Inject(forwardRef(() => GroupStudentsService))
     private groupStudentService: GroupStudentsService
   ) {}
+  
   async create(createAttendanceDto: CreateAttendanceDto) {
     const { lessonId, studentId } = createAttendanceDto;
     const { student } = await this.studentService.findOne(studentId);
@@ -183,7 +184,6 @@ export class AttendanceService {
   }
 
   async updateAttendanceForGroup(dto: UpdateLessonAttendancesDto) {
-    console.log("1234");
     if (isNaN(dto.lessonId))
       throw new BadRequestException("lessonId must be a number");
     // 1. Find lesson
@@ -255,58 +255,21 @@ export class AttendanceService {
       updatedAttendances.filter(Boolean) as DeepPartial<Attendance>[]
     );
 
-    return { message: "Attendance updated successfully" };
+    // 8. Fetch updated attendances to return
+    const resultAttendances = await this.attendanceRepo.find({
+      where: {
+        lesson: { id: dto.lessonId },
+        student: { id: In(updatedAttendances.map((a) => a!.student.id)) },
+      },
+      relations: ["student"],
+    });
+
+    return {
+      message: "Attendance updated successfully",
+      updatedAttendances: resultAttendances,
+    };
   }
 
-  // async isLessonAttended(lessonId: number) {
-  //   const lesson = await this.lessonRepo.findOne({
-  //     where: { id: lessonId },
-  //     relations: ["group"],
-  //   });
-
-  //   if (!lesson) {
-  //     throw new NotFoundException("Lesson not found");
-  //   }
-
-  //   // Is lesson today?
-  //   const today = new Date();
-  //   today.setHours(0, 0, 0, 0);
-
-  //   const lessonDate = new Date(lesson.date);
-  //   lessonDate.setHours(0, 0, 0, 0);
-
-  //   const isToday = lessonDate.getTime() === today.getTime();
-  //   if (!isToday) {
-  //     throw new BadRequestException(
-  //       "Attendance is only possible for today's class."
-  //     );
-  //   }
-
-  //   if (lesson.status === LessonStatus.NEW) {
-  //     // If lesson haven't attended yet
-  //     const groupStudents =
-  //       await this.groupStudentService.findActiveStudentsInGroup(
-  //         lesson.group.id
-  //       );
-
-  //     return {
-  //       isAttended: false,
-  //       groupStudents,
-  //       lessonInfo: {
-  //         title: lesson.title,
-  //         start_time: lesson.group.start_time,
-  //         end_time: lesson.group.end_time,
-  //         groupName: lesson.group.name,
-  //       },
-  //     };
-  //   } else {
-  //     // If lesson already attended
-  //     return {
-  //       isAttended: true,
-  //       message: "Attendance for this lesson has already been taken.",
-  //     };
-  //   }
-  // }
   async isLessonAttendedByDate(groupId: number, date: Date) {
     // date ni 00:00:00 qilib normalize qilamiz
     dayjs.extend(utc);
@@ -355,6 +318,7 @@ export class AttendanceService {
         isAttended: false,
         groupStudents,
         lessonInfo: {
+          id: lesson.id,
           title: lesson.title,
           start_time: lesson.group.start_time,
           end_time: lesson.group.end_time,
