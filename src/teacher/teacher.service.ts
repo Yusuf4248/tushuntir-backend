@@ -187,12 +187,13 @@ export class TeacherService {
       );
       const fileName = await this.fileService.saveFile(file, file_path);
 
-      (await teacher).teacher.avatar_url = fileName;
+      (await teacher).teacher.avatar_url =
+        `https://erp-edu.uz/static/teacher/${fileName}`;
       const updated = await this.teacherRepo.save((await teacher).teacher);
 
       return {
         message: "Avatar muvaffaqiyatli yuklandi",
-        data: `https://erp-edu.uz/static/teacher/${updated.avatar_url}`,
+        data: updated.avatar_url,
       };
     } catch (error) {
       console.error(error);

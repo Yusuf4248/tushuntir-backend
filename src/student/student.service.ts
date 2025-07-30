@@ -171,7 +171,7 @@ export class StudentService {
 
       const fileName = await this.fileService.saveFile(file, file_path);
 
-      student.avatar_url = fileName;
+      student.avatar_url = `https://erp-edu.uz/static/student/${fileName}`;
       const updated = await this.studentRepo.save(student);
 
       return {
