@@ -7,6 +7,8 @@ import {
 } from "@nestjs/common";
 import { DeepPartial, In, MoreThanOrEqual } from "typeorm";
 import * as dayjs from "dayjs";
+import * as utc from "dayjs/plugin/utc";
+import * as timezone from "dayjs/plugin/timezone";
 import { CreateAttendanceDto } from "./dto/create-attendance.dto";
 import { UpdateAttendanceDto } from "./dto/update-attendance.dto";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -256,17 +258,80 @@ export class AttendanceService {
     return { message: "Attendance updated successfully" };
   }
 
-  async isLessonAttended(lessonId: number) {
+  // async isLessonAttended(lessonId: number) {
+  //   const lesson = await this.lessonRepo.findOne({
+  //     where: { id: lessonId },
+  //     relations: ["group"],
+  //   });
+
+  //   if (!lesson) {
+  //     throw new NotFoundException("Lesson not found");
+  //   }
+
+  //   // Is lesson today?
+  //   const today = new Date();
+  //   today.setHours(0, 0, 0, 0);
+
+  //   const lessonDate = new Date(lesson.date);
+  //   lessonDate.setHours(0, 0, 0, 0);
+
+  //   const isToday = lessonDate.getTime() === today.getTime();
+  //   if (!isToday) {
+  //     throw new BadRequestException(
+  //       "Attendance is only possible for today's class."
+  //     );
+  //   }
+
+  //   if (lesson.status === LessonStatus.NEW) {
+  //     // If lesson haven't attended yet
+  //     const groupStudents =
+  //       await this.groupStudentService.findActiveStudentsInGroup(
+  //         lesson.group.id
+  //       );
+
+  //     return {
+  //       isAttended: false,
+  //       groupStudents,
+  //       lessonInfo: {
+  //         title: lesson.title,
+  //         start_time: lesson.group.start_time,
+  //         end_time: lesson.group.end_time,
+  //         groupName: lesson.group.name,
+  //       },
+  //     };
+  //   } else {
+  //     // If lesson already attended
+  //     return {
+  //       isAttended: true,
+  //       message: "Attendance for this lesson has already been taken.",
+  //     };
+  //   }
+  // }
+  async isLessonAttendedByDate(groupId: number, date: Date) {
+    // date ni 00:00:00 qilib normalize qilamiz
+    dayjs.extend(utc);
+    dayjs.extend(timezone);
+    const today1 = dayjs()
+      .tz("Asia/Tashkent")
+      .startOf("day")
+      .add(5, "hour")
+      .toDate();
+
+    // Shu sanaga va groupId ga mos darsni topamiz
     const lesson = await this.lessonRepo.findOne({
-      where: { id: lessonId },
+      where: {
+        group: { id: groupId },
+        date: today1,
+      },
       relations: ["group"],
     });
 
     if (!lesson) {
+      console.log("13");
       throw new NotFoundException("Lesson not found");
     }
 
-    // Is lesson today?
+    // Quyidagisi sizning eski logikangiz
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -281,7 +346,6 @@ export class AttendanceService {
     }
 
     if (lesson.status === LessonStatus.NEW) {
-      // If lesson haven't attended yet
       const groupStudents =
         await this.groupStudentService.findActiveStudentsInGroup(
           lesson.group.id
@@ -298,7 +362,6 @@ export class AttendanceService {
         },
       };
     } else {
-      // If lesson already attended
       return {
         isAttended: true,
         message: "Attendance for this lesson has already been taken.",

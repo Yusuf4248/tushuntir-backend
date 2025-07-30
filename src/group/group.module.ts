@@ -14,6 +14,7 @@ import { LessonsModule } from "../lessons/lessons.module";
 import { GroupTeachersModule } from "../group-teachers/group-teachers.module";
 import { GroupStudentsModule } from "../group-students/group-students.module";
 import { Lesson } from "../lessons/entities/lesson.entity";
+import { AttendanceModule } from "../attendance/attendance.module";
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { Lesson } from "../lessons/entities/lesson.entity";
       Lesson,
     ]),
     CoursesModule,
+    AttendanceModule,
     forwardRef(() => GroupTeachersModule),
     forwardRef(() => GroupStudentsModule),
     forwardRef(() => LessonsModule),

@@ -16,6 +16,7 @@ import { CoursesService } from "../courses/courses.service";
 import { LessonsService } from "../lessons/lessons.service";
 import { GroupStudentsService } from "../group-students/group-students.service";
 import { GroupTeachersService } from "../group-teachers/group-teachers.service";
+import { AttendanceService } from "../attendance/attendance.service";
 
 @Injectable()
 export class GroupService {
@@ -24,6 +25,7 @@ export class GroupService {
     @Inject(forwardRef(() => LessonsService))
     private readonly lessonService: LessonsService,
     private readonly courseService: CoursesService,
+    private readonly attendanceService: AttendanceService,
     @Inject(forwardRef(() => GroupStudentsService))
     private readonly groupStudentsService: GroupStudentsService,
     @Inject(forwardRef(() => GroupTeachersService))
@@ -150,6 +152,11 @@ export class GroupService {
     const groupTeachers = await this.groupTeachersService.findByGroup(id);
     const groupStudents = await this.groupStudentsService.findByGroup(id);
     const { lessons } = await this.lessonService.findGroupAllLessons(id);
+    const newDate = new Date();
+    const data = await this.attendanceService.isLessonAttendedByDate(
+      id,
+      newDate
+    );
 
     return {
       message: `${id}-group`,
@@ -158,6 +165,7 @@ export class GroupService {
       groupTeachers,
       groupStudents,
       lessons,
+      data,
     };
   }
 }
