@@ -339,7 +339,7 @@ export class AdminService {
         const teacher = await this.teacherRepo.findOne({
           where: { email: parsedOtpPayload.email },
         });
-        admin!.password_hash = password;
+        teacher!.password = password;
         return {
           success: true,
           message: "Your password successfully changed!",
@@ -348,7 +348,7 @@ export class AdminService {
         const student = await this.studentRepo.findOne({
           where: { email: parsedOtpPayload.email },
         });
-        admin!.password_hash = password;
+        student!.password_hash = password;
         return {
           success: true,
           message: "Your password successfully changed!",
@@ -357,7 +357,7 @@ export class AdminService {
         const lid = await this.lidRepo.findOne({
           where: { email: parsedOtpPayload.email },
         });
-        admin!.password_hash = password;
+        lid!.password_hash = password;
         return {
           success: true,
           message: "Your password successfully changed!",
