@@ -136,8 +136,8 @@ export class LidService {
     };
   }
 
-  async generateNewOtp(email: string) {
-    const otp = otpGenerator.generate(4, {
+  async generateNewOtp(email: string, role: string = "user") {
+    const otp = otpGenerator.generate(6, {
       lowerCaseAlphabets: false,
       upperCaseAlphabets: false,
       specialChars: false,
@@ -149,6 +149,7 @@ export class LidService {
 
     const newOtp = await this.otpRepo.save({
       id: uuid.v4(),
+      role,
       otp,
       email,
       expiration_time,
@@ -158,6 +159,7 @@ export class LidService {
 
     const details = {
       timestamp: now,
+      role,
       email,
       otp_id: newOtp.id,
     };
@@ -193,7 +195,7 @@ export class LidService {
     if (otp.expiration_time < currentDate) {
       throw new BadRequestException("Bu otpni vaqti tugagan");
     }
-    if (otp.otp !== verifyOtpDto.otp) {
+    if (+otp.otp !== +verifyOtpDto.otp) {
       throw new BadRequestException("Otp mos emas");
     }
 

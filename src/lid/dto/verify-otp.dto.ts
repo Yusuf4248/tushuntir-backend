@@ -6,7 +6,7 @@ export class VerifyOtpDto {
 
   @IsNotEmpty()
   @IsString()
-  otp: string;
+  otp: number;
 
   @IsNotEmpty()
   @IsString()

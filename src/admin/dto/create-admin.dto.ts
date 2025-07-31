@@ -53,8 +53,6 @@ export class CreateAdminDto {
     description:
       "Filial IDsi (array ichida bo'lishi kerak misol uchun [1,2...])",
   })
-  @IsInt({ message: "branchId butun son bo'lishi kerak" })
-  @IsPositive({ message: "branchId musbat bo'lishi kerak" })
   @IsArray()
   @IsOptional()
   branchId?: number[];

@@ -1,8 +1,9 @@
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
-import { BadRequestException, ValidationPipe } from "@nestjs/common";
+import { ValidationPipe } from "@nestjs/common";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import * as cookieParser from "cookie-parser";
+import * as basicAuth from "express-basic-auth";
 import { WinstonModule } from "nest-winston";
 import { winstonConfig } from "./common/logger/winston.logger";
 import { AllExceptionFilter } from "./common/errors/error.handling";
@@ -51,6 +52,18 @@ async function start() {
       credentials: true,
       methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     });
+
+    app.use(
+      ["/api/docs", "/api/docs-json"],
+      basicAuth({
+        challenge: true,
+        users: {
+          [process.env.SWAGGER_USER || "admin"]:
+            process.env.SWAGGER_PASSWORD || "secret",
+        },
+      })
+    );
+
     const config = new DocumentBuilder()
       .setTitle("ERP PROJECT")
       .setDescription("ERP-REST-API")

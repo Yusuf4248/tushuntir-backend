@@ -12,11 +12,17 @@ import { ChangePasswordDto } from "../student/dto/change-password.dto";
 import { BranchesService } from "../branches/branches.service";
 import { UpdateAdminStatusDto } from "./dto/update-admin-status.dto";
 import { Branch } from "../branches/entities/branch.entity";
-import * as bcrypt from "bcrypt";
 import { Teacher } from "../teacher/entities/teacher.entity";
 import { Student } from "../student/entities/student.entities";
 import { Lid } from "../lid/entities/lid.entity";
-import { Request } from "express";
+import { LidService } from "../lid/lid.service";
+import { Otp } from "../lid/entities/otp.entity";
+import { OtpDto } from "./dto/otp.dto";
+import * as bcrypt from "bcrypt";
+import { NewPasswordDto } from "./dto/new-password.dto";
+import { ForgetPasswordDto } from "./dto/forget-password.dto";
+import { Request, Response } from "express";
+import { decode } from "../common/helpers/crypto";
 
 @Injectable()
 export class AdminService {
@@ -28,7 +34,9 @@ export class AdminService {
     @InjectRepository(Student)
     private readonly studentRepo: Repository<Student>,
     @InjectRepository(Lid) private readonly lidRepo: Repository<Lid>,
-    private readonly branchService: BranchesService
+    @InjectRepository(Otp) private readonly otpRepo: Repository<Otp>,
+    private readonly branchService: BranchesService,
+    private readonly lidService: LidService
   ) {}
   async create(createAdminDto: CreateAdminDto) {
     const hashshed_password = await bcrypt.hash(
@@ -197,6 +205,165 @@ export class AdminService {
         return this.lidRepo.findOne({ where: { id } });
       default:
         throw new NotFoundException("Role noto'g'ri");
+    }
+  }
+
+  async forgetPassword(forgetPasswordDto: ForgetPasswordDto, res: Response) {
+    var { email, role } = forgetPasswordDto;
+    let otp_data: any;
+    switch (role) {
+      case "admin":
+        const admin = await this.adminRepo.findOne({
+          where: { email },
+        });
+        if (!admin) {
+          throw new BadRequestException(`Admin with this ${email} not found`);
+        }
+        if (admin.is_creator == true) {
+          admin.password_hash = "NewPassword123!";
+          return {
+            success: true,
+            message: "Your password updated to NewPassword123!",
+          };
+        }
+        otp_data = await this.lidService.generateNewOtp(admin.email, role);
+        res.cookie("verification_key", otp_data.verification_key, {
+          maxAge: Number(process.env.COOKIE_REFRESH_TIME),
+          httpOnly: true,
+        });
+        return {
+          success: true,
+          message: otp_data.message,
+        };
+      case "teacher":
+        const teacher = await this.teacherRepo.findOne({
+          where: { email },
+        });
+        if (!teacher) {
+          throw new BadRequestException("Something went wrong");
+        }
+        otp_data = await this.lidService.generateNewOtp(teacher.email, role);
+        res.cookie("verification_key", otp_data.verification_key, {
+          maxAge: Number(process.env.COOKIE_REFRESH_TIME),
+          httpOnly: true,
+        });
+        return {
+          success: true,
+          message: otp_data.message,
+        };
+      case "student":
+        const student = await this.studentRepo.findOne({
+          where: { email },
+        });
+        if (!student) {
+          throw new BadRequestException("Something went wrong");
+        }
+        otp_data = await this.lidService.generateNewOtp(student.email, role);
+        res.cookie("verification_key", otp_data.verification_key, {
+          maxAge: Number(process.env.COOKIE_REFRESH_TIME),
+          httpOnly: true,
+        });
+        return {
+          success: true,
+          message: otp_data.message,
+        };
+      case "lid":
+        const lid = await this.lidRepo.findOne({
+          where: { email },
+        });
+        if (!lid) {
+          throw new BadRequestException("Something went wrong");
+        }
+        otp_data = await this.lidService.generateNewOtp(lid.email, role);
+        res.cookie("verification_key", otp_data.verification_key, {
+          maxAge: Number(process.env.COOKIE_REFRESH_TIME),
+          httpOnly: true,
+        });
+        return {
+          success: true,
+          message: otp_data.message,
+        };
+      default:
+        throw new NotFoundException("Role noto'g'ri");
+    }
+  }
+
+  async verifyOtp(verifyOtpDto: OtpDto, req: Request) {
+    const verificationKey = req.cookies.verification_key;
+    const decodedVerificationKey = await decode(verificationKey);
+    const parsedOtpPayload = JSON.parse(decodedVerificationKey);
+    const { otp } = verifyOtpDto;
+    const otp_details = await this.otpRepo.findOne({
+      order: { created_at: "DESC" },
+      where: { email: parsedOtpPayload.email },
+    });
+    if (!otp_details) {
+      throw new BadRequestException("To this email never send");
+    }
+    const currentDate = new Date();
+    if (otp_details.verified) {
+      throw new BadRequestException("This otp has been previously verified.");
+    }
+    if (otp_details.expiration_time < currentDate) {
+      throw new BadRequestException("This OTP has expired.");
+    }
+    if (+otp_details.otp !== otp) {
+      throw new BadRequestException("Invalid OTP");
+    }
+    await this.otpRepo.update({ id: otp_details.id }, { verified: true });
+
+    return {
+      message: "Congratulations, now enter new password",
+    };
+  }
+
+  async newPassword(dto: NewPasswordDto, req: Request) {
+    const { confirm_password, password } = dto;
+    if (confirm_password !== password) {
+      throw new BadRequestException("Passwords do not match");
+    }
+    const verificationKey = req.cookies.verification_key;
+    const decodedVerificationKey = await decode(verificationKey);
+    const parsedOtpPayload = JSON.parse(decodedVerificationKey);
+    switch (parsedOtpPayload.role) {
+      case "admin":
+        const admin = await this.adminRepo.findOne({
+          where: { email: parsedOtpPayload.email },
+        });
+        admin!.password_hash = password;
+        return {
+          success: true,
+          message: "Your password successfully changed!",
+        };
+      case "teacher":
+        const teacher = await this.teacherRepo.findOne({
+          where: { email: parsedOtpPayload.email },
+        });
+        admin!.password_hash = password;
+        return {
+          success: true,
+          message: "Your password successfully changed!",
+        };
+      case "student":
+        const student = await this.studentRepo.findOne({
+          where: { email: parsedOtpPayload.email },
+        });
+        admin!.password_hash = password;
+        return {
+          success: true,
+          message: "Your password successfully changed!",
+        };
+      case "lid":
+        const lid = await this.lidRepo.findOne({
+          where: { email: parsedOtpPayload.email },
+        });
+        admin!.password_hash = password;
+        return {
+          success: true,
+          message: "Your password successfully changed!",
+        };
+      default:
+        throw new BadRequestException("Something went wrong");
     }
   }
 }

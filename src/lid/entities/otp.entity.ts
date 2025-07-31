@@ -31,6 +31,13 @@ export class Otp {
   otp: string;
 
   @ApiProperty({
+    example: "admin",
+    description: "User's role",
+  })
+  @Column({ type: "varchar", nullable: true })
+  role: string;
+
+  @ApiProperty({
     example: "2025-06-02T12:00:00Z",
     description: "OTP amal qilish muddati (vaqti)",
   })
