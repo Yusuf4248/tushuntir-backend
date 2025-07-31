@@ -21,7 +21,6 @@ import { Lesson, LessonStatus } from "../lessons/entities/lesson.entity";
 import { GroupService } from "../group/group.service";
 import { GroupStudentsService } from "../group-students/group-students.service";
 import { UpdateLessonAttendancesDto } from "./dto/update-lesson-attendances-dto";
-import { title } from "process";
 
 @Injectable()
 export class AttendanceService {
@@ -39,7 +38,7 @@ export class AttendanceService {
     @Inject(forwardRef(() => GroupStudentsService))
     private groupStudentService: GroupStudentsService
   ) {}
-  
+
   async create(createAttendanceDto: CreateAttendanceDto) {
     const { lessonId, studentId } = createAttendanceDto;
     const { student } = await this.studentService.findOne(studentId);

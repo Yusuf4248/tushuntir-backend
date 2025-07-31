@@ -55,10 +55,6 @@ export class CreateStudentDto {
   @MinLength(8, { message: `Parol kamida 8 ta belgidan iborat bo'lishi kerak` })
   password_hash: string;
 
-  @IsString({ message: `Parol satr bo'lishi kerak` })
-  @MinLength(8, { message: `Parol kamida 8 ta belgidan iborat bo'lishi kerak` })
-  confirm_password: string;
-
   @ApiProperty({
     example: `male`,
     description: `Jinsi (male yoki female)`,

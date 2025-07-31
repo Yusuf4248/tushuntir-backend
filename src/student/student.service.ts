@@ -39,13 +39,7 @@ export class StudentService {
     private readonly fileService: FileService
   ) {}
   async create(createStudentDto: CreateStudentDto) {
-    const { password_hash, confirm_password, eventsId } = createStudentDto;
-
-    if (password_hash !== confirm_password) {
-      throw new BadRequestException(
-        "Password and confirmation password are not the same"
-      );
-    }
+    const { password_hash, eventsId } = createStudentDto;
 
     const hashed_password = await bcrypt.hash(password_hash, 7);
 

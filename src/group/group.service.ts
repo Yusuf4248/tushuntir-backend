@@ -149,6 +149,7 @@ export class GroupService {
 
   async findOneGroupForTeacher(id: number) {
     const group = await this.findOne(id);
+    await this.lessonService.completeExpiredLessons();
     const groupTeachers = await this.groupTeachersService.findByGroup(id);
     const groupStudents = await this.groupStudentsService.findByGroup(id);
     const { lessons } = await this.lessonService.findGroupAllLessons(id);

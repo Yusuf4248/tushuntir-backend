@@ -176,7 +176,7 @@ export class LessonsService {
         currentDate = addDays(currentDate, 1);
       }
     } else {
-      // Juft yoki toq kunlar bo‘yicha dars (2 kun ketma-ket emas)
+      // Juft yoki toq kunlar bo'yicha dars (2 kun ketma-ket emas)
       const firstDay = currentDate.getDay();
       const isEven = [1, 3, 5].includes(firstDay); // Dushanba, Chorshanba, Juma
       const validDays = isEven ? [1, 3, 5] : [2, 4, 6]; // juft yoki toq kunlar
@@ -258,7 +258,7 @@ export class LessonsService {
         const diff = next - day;
         nextDate.setDate(currentDate.getDate() + diff);
       } else {
-        // Agar bu hafta oxiri bo‘lsa → keyingi haftaning birinchi dars kuni
+        // Agar bu hafta oxiri bo'lsa → keyingi haftaning birinchi dars kuni
         const daysUntilNext = 7 - day + schedule[0];
         nextDate.setDate(currentDate.getDate() + daysUntilNext);
       }
@@ -308,7 +308,7 @@ export class LessonsService {
 
       const lastLesson = await this.shiftLessons(groupId, id, parsedDate);
 
-      //  Yangi lesson yaratish (agar kerak bo‘lsa qo‘shimcha maydonlar qo‘shing)
+      //  Yangi lesson yaratish (agar kerak bo'lsa qo'shimcha maydonlar qo'shing)
       const newLesson = this.lessonRepo.save({
         title: `Lesson ${this.extractLessonNumber(lastLesson!.title) + 1}`,
         notes: `Lesson ${this.extractLessonNumber(lastLesson!.title) + 1} - Group ${group!.name}`,
@@ -411,6 +411,108 @@ export class LessonsService {
         lesson.notes = `Lesson ${oldNumber - 1} - Group${groupName}`;
         await this.lessonRepo.save(lesson);
       }
+    }
+  }
+
+  // async completeExpiredLessons(): Promise<void> {
+  //   const now = new Date();
+  //   const today = new Date();
+  //   today.setHours(0, 0, 0, 0); // to get start of today
+
+  //   // IN_PROGRESS lessonlarni group bilan birga chaqiramiz
+  //   const inProgressLessons = await this.lessonRepo.find({
+  //     where: { status: LessonStatus.IN_PROGRESS },
+  //     relations: ["group"],
+  //   });
+
+  //   const lessonsToUpdate: Lesson[] = [];
+
+  //   for (const lesson of inProgressLessons) {
+  //     const lessonDate = new Date(lesson.date);
+  //     lessonDate.setHours(0, 0, 0, 0);
+
+  //     const isToday = lessonDate.getTime() === today.getTime();
+
+  //     if (isToday) {
+  //       // Faqat bugungi darslar uchun: end_time bilan solishtiramiz
+  //       const [endHour, endMinute] = lesson.group.end_time
+  //         .split(":")
+  //         .map(Number);
+
+  //       const lessonEndTime = new Date(lesson.date);
+  //       lessonEndTime.setHours(endHour, endMinute, 0, 0);
+
+  //       if (now > lessonEndTime) {
+  //         lesson.status = LessonStatus.COMPLETED;
+  //         lessonsToUpdate.push(lesson);
+  //       }
+  //     } else if (lesson.date < now) {
+  //       // Agar dars kechagi yoki undan oldin bo'lsa
+  //       lesson.status = LessonStatus.COMPLETED;
+  //       lessonsToUpdate.push(lesson);
+  //     }
+  //   }
+
+  //   if (lessonsToUpdate.length > 0) {
+  //     await this.lessonRepo.save(lessonsToUpdate);
+  //   }
+  // }
+
+  async completeExpiredLessons(): Promise<void> {
+    try {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+      const inProgressLessons = await this.lessonRepo
+        .createQueryBuilder("lesson")
+        .leftJoinAndSelect("lesson.group", "group")
+        .where("lesson.status = :status", { status: LessonStatus.IN_PROGRESS })
+        .andWhere("lesson.date <= :now", { now })
+        .getMany();
+
+      const lessonsToUpdate: Lesson[] = [];
+
+      for (const lesson of inProgressLessons) {
+        if (!lesson.date || !lesson.group?.end_time) {
+          console.warn(
+            `O'tkazib yuborildi: lesson ${lesson.id} — noto'g'ri data`
+          );
+          continue;
+        }
+
+        const lessonDate = new Date(lesson.date);
+        const isToday = lessonDate.toDateString() === today.toDateString();
+
+        if (isToday) {
+          const [endHour, endMinute] = lesson.group.end_time
+            .split(":")
+            .map((val) => {
+              const num = Number(val);
+              return isNaN(num) ? 0 : num;
+            });
+
+          const lessonEndTime = new Date(lesson.date);
+          lessonEndTime.setHours(endHour, endMinute, 0, 0);
+
+          if (now > lessonEndTime) {
+            lesson.status = LessonStatus.COMPLETED;
+            lessonsToUpdate.push(lesson);
+          }
+        } else if (lessonDate < today) {
+          lesson.status = LessonStatus.COMPLETED;
+          lessonsToUpdate.push(lesson);
+        }
+      }
+
+      if (lessonsToUpdate.length > 0) {
+        await this.lessonRepo.save(lessonsToUpdate, { chunk: 100 });
+        console.log(
+          `${lessonsToUpdate.length} ta dars holati COMPLETED qilindi`
+        );
+      }
+    } catch (error) {
+      console.error("Darslarni yakunlashda xatolik:", error);
+      throw new Error("Yakunlanmagan darslarni yangilab bo'lmadi");
     }
   }
 
