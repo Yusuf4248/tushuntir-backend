@@ -167,7 +167,7 @@ export class GroupTeachersService {
 
   async findByTeacher(teacherId: number): Promise<GroupTeacher[]> {
     const teacher = await this.groupTeacherRepository.findOne({
-      where: { id: teacherId },
+      where: { teacher: { id: teacherId } },
     });
     if (!teacher) {
       throw new NotFoundException(`Teacher with ID ${teacherId} not found`);

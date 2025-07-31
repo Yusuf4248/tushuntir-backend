@@ -25,7 +25,6 @@ import { GroupTeacher } from "./entities/group-teacher.entity";
 import { Roles } from "../app.constants";
 import { AuthGuard } from "../common/guards/auth.guard";
 import { RolesGuard } from "../common/guards/role.guard";
-import { User } from "../common/guards/decode.guard";
 
 @ApiBearerAuth("JWT-auth")
 @ApiTags("Group-Teachers")
