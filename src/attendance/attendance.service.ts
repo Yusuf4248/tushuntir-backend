@@ -232,9 +232,10 @@ export class AttendanceService {
     }
 
     // 4. Lesson update (title and status)
-    lesson.status = LessonStatus.IN_PROGRESS;
-    lesson.title = dto.lessonTitle;
-    await this.lessonRepo.save(lesson);
+    await this.lessonRepo.update(
+      { id: dto.lessonId },
+      { status: LessonStatus.IN_PROGRESS, title: dto.lessonTitle }
+    );
 
     // 5. Get active students
     const activeGroupData =

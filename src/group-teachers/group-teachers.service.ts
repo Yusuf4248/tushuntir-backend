@@ -111,11 +111,21 @@ export class GroupTeachersService {
     return this.groupTeacherRepository.save(groupTeacher);
   }
 
-  async remove(id: number): Promise<{ message: string }> {
-    const result = await this.groupTeacherRepository.delete(id);
+  async remove(
+    groupId: number,
+    teacherId: number
+  ): Promise<{ message: string }> {
+    const result = await this.groupTeacherRepository.delete({
+      group: { id: groupId },
+      teacher: { id: teacherId },
+    });
+
     if (result.affected === 0) {
-      throw new NotFoundException("GroupTeacher not found");
+      throw new NotFoundException(
+        `GroupTeacher with groupId=${groupId} and teacherId=${teacherId} not found`
+      );
     }
+
     return { message: "GroupTeacher deleted successfully" };
   }
 

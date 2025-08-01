@@ -95,7 +95,7 @@ export class GroupService {
       );
     const group = await this.groupRepo.findOne({
       where: { id },
-      relations: ["course", "lessons"],
+      relations: ["course", "lessons", "groupTeachers", "groupStudents"],
     });
     if (!group) {
       throw new NotFoundException(`Group ID-${id} not found`);

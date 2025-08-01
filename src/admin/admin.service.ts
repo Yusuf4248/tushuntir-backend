@@ -219,13 +219,6 @@ export class AdminService {
         if (!admin) {
           throw new BadRequestException(`Admin with this ${email} not found`);
         }
-        if (admin.is_creator == true) {
-          admin.password_hash = "NewPassword123!";
-          return {
-            success: true,
-            message: "Your password updated to NewPassword123!",
-          };
-        }
         otp_data = await this.lidService.generateNewOtp(admin.email, role);
         res.cookie("verification_key", otp_data.verification_key, {
           maxAge: Number(process.env.COOKIE_REFRESH_TIME),

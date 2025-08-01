@@ -19,6 +19,13 @@ async function start() {
     app.useStaticAssets(join(__dirname, "..", "static"), {
       prefix: "/static/",
     });
+    app.useStaticAssets(join(__dirname, "..", "media"), {
+      prefix: "/media",
+      setHeaders: (res, path, stat) => {
+        res.setHeader("Content-Type", "video/mp4");
+        res.setHeader("Content-Disposition", "inline");
+      },
+    });
     app.use(cookieParser());
     app.useGlobalPipes(
       new ValidationPipe({

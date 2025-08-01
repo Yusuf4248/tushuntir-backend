@@ -65,7 +65,7 @@ export class HomeworksController {
     @UploadedFile() file: Express.Multer.File,
     @Body("file_title") file_title: string
   ) {
-    return this.homeworksService.uploadMedia(id, file, file_title);
+    return this.homeworksService.uploadMedia  (id, file, file_title);
   }
 
   @UseGuards(AuthGuard, RolesGuard)

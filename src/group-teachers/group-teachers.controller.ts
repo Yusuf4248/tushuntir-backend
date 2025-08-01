@@ -17,6 +17,7 @@ import {
   ApiResponse,
   ApiParam,
   ApiBearerAuth,
+  ApiBody,
 } from "@nestjs/swagger";
 import { GroupTeachersService } from "./group-teachers.service";
 import { CreateGroupTeacherDto } from "./dto/create-group-teacher.dto";
@@ -109,10 +110,30 @@ export class GroupTeachersController {
   @Roles("admin", "superadmin")
   @Delete(":id")
   @ApiOperation({ summary: "Remove group-teacher assignment" })
-  @ApiParam({ name: "id", type: Number, description: "GroupTeacher ID" })
+  @ApiBody({
+    schema: {
+      type: "object",
+      properties: {
+        groupId: {
+          type: "integer",
+          example: 1,
+          description: "ID of the group",
+        },
+        teacherId: {
+          type: "integer",
+          example: 5,
+          description: "ID of the teacher",
+        },
+      },
+      required: ["groupId", "teacherId"],
+    },
+  })
   @ApiResponse({ status: 200, description: "Group-teacher assignment removed" })
-  remove(@Param("id") id: string) {
-    return this.groupTeachersService.remove(+id);
+  remove(
+    @Body("groupId", ParseIntPipe) groupId: number,
+    @Body("teacherId", ParseIntPipe) teacherId: number
+  ) {
+    return this.groupTeachersService.remove(groupId, teacherId);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
