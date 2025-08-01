@@ -323,7 +323,7 @@ export class AdminService {
         const admin = await this.adminRepo.findOne({
           where: { email: parsedOtpPayload.email },
         });
-        admin!.password_hash = password;
+        admin!.password_hash = await bcrypt.hash(password, 7);
         res.clearCookie("verification_key");
         return {
           success: true,
@@ -333,7 +333,7 @@ export class AdminService {
         const teacher = await this.teacherRepo.findOne({
           where: { email: parsedOtpPayload.email },
         });
-        teacher!.password = password;
+        teacher!.password = await bcrypt.hash(password, 7);
         res.clearCookie("verification_key");
         return {
           success: true,
@@ -343,7 +343,7 @@ export class AdminService {
         const student = await this.studentRepo.findOne({
           where: { email: parsedOtpPayload.email },
         });
-        student!.password_hash = password;
+        student!.password_hash = await bcrypt.hash(password, 7);
         res.clearCookie("verification_key");
         return {
           success: true,
@@ -353,7 +353,7 @@ export class AdminService {
         const lid = await this.lidRepo.findOne({
           where: { email: parsedOtpPayload.email },
         });
-        lid!.password_hash = password;
+        lid!.password_hash = await bcrypt.hash(password, 7);
         res.clearCookie("verification_key");
         return {
           success: true,

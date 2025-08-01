@@ -32,7 +32,7 @@ import { JwtSelfGuard } from "../common/guards/jwt-self.guard";
 import { ProfileGuard } from "../common/guards/profile.guard";
 import { OtpDto } from "./dto/otp.dto";
 import { ForgetPasswordDto } from "./dto/forget-password.dto";
-import { Response } from "express";
+import { Request, Response } from "express";
 import { NewPasswordDto } from "./dto/new-password.dto";
 
 @ApiTags("Admin")
@@ -71,7 +71,7 @@ export class AdminController {
   @ApiResponse({ status: 200, description: "OTP verified successfully" })
   @ApiResponse({ status: 400, description: "Invalid or expired OTP" })
   @ApiBody({ type: OtpDto })
-  async verifyOtp(@Req() req: any, @Body() verifyOtpDto: OtpDto) {
+  async verifyOtp(@Req() req: Request, @Body() verifyOtpDto: OtpDto) {
     return this.adminService.verifyOtp(verifyOtpDto, req);
   }
 
