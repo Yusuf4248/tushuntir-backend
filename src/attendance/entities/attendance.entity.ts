@@ -24,7 +24,9 @@ export class Attendance {
   id: number;
 
   @ApiProperty({ type: () => Student, description: "Talaba obyekti" })
-  @ManyToOne(() => Student, (student) => student.attendance)
+  @ManyToOne(() => Student, (student) => student.attendance, {
+    onDelete: "CASCADE",
+  })
   student: Student;
 
   @ApiProperty({ type: () => Lesson, description: "Dars jadvali obyekti" })

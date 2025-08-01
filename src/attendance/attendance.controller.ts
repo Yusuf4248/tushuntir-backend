@@ -7,8 +7,6 @@ import {
   Param,
   Delete,
   UseGuards,
-  BadRequestException,
-  NotFoundException,
   ParseIntPipe,
 } from "@nestjs/common";
 import { AttendanceService } from "./attendance.service";

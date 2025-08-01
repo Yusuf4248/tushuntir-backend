@@ -88,7 +88,6 @@ export class RoomsService {
       };
     } catch (error) {
       console.log(error);
-      console.log(updateRoomDto);
     }
   }
 
@@ -110,7 +109,6 @@ export class RoomsService {
           .relation(Room, "branch")
           .of(room)
           .set(null);
-        console.log(`Room ${room.id} uchun eski branch o'chirildi`);
       }
     } catch (error) {
       throw new Error(`Eski branch o'chirishda xatolik: ${error.message}`);
@@ -131,10 +129,6 @@ export class RoomsService {
         .relation(Room, "branch")
         .of(room)
         .set(newBranch);
-
-      console.log(
-        `Room ${room.id} uchun yangi branch ${newBranchId} qo'shildi`
-      );
     } catch (error) {
       throw new Error(`Yangi branch qo'shishda xatolik: ${error.message}`);
     }

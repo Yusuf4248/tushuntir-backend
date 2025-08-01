@@ -38,7 +38,6 @@ export class FileService {
       fs.writeFileSync(path.join(file_path, fileName), file.buffer);
       return fileName;
     } catch (error) {
-      console.log(error);
       throw new InternalServerErrorException({
         message: "file saqlashda xatolik yuz berdi",
       });

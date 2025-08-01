@@ -65,7 +65,6 @@ export class GroupService {
       ) {
         throw new ConflictException("Group name already exists");
       }
-      console.log(error);
       throw new InternalServerErrorException(
         "Unexpected error during group creation"
       );

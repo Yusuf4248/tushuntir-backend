@@ -473,13 +473,6 @@ export class LessonsService {
       const lessonsToUpdate: Lesson[] = [];
 
       for (const lesson of inProgressLessons) {
-        if (!lesson.date || !lesson.group?.end_time) {
-          console.warn(
-            `O'tkazib yuborildi: lesson ${lesson.id} — noto'g'ri data`
-          );
-          continue;
-        }
-
         const lessonDate = new Date(lesson.date);
         const isToday = lessonDate.toDateString() === today.toDateString();
 
@@ -506,9 +499,6 @@ export class LessonsService {
 
       if (lessonsToUpdate.length > 0) {
         await this.lessonRepo.save(lessonsToUpdate, { chunk: 100 });
-        console.log(
-          `${lessonsToUpdate.length} ta dars holati COMPLETED qilindi`
-        );
       }
     } catch (error) {
       console.error("Darslarni yakunlashda xatolik:", error);

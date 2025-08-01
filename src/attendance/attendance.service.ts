@@ -167,6 +167,23 @@ export class AttendanceService {
     return savedAttendances;
   }
 
+  async deleteAllAttendanceForGroupStudent(groupStudentId: number) {
+    const groupStudent = await this.groupStudentService.findOne(groupStudentId);
+    const today = dayjs().startOf("day").toDate();
+    const lessons = await this.lessonRepo.find({
+      where: {
+        group: { id: groupStudent.group.id },
+        date: MoreThanOrEqual(today),
+      },
+      order: { date: "ASC" },
+    });
+    await Promise.all(
+      lessons.map((lesson) =>
+        this.attendanceRepo.delete({ lesson: { id: lesson.id } })
+      )
+    );
+  }
+
   async getAttendancesByLesson(lessonId: number) {
     const { lesson } = await this.lessonService.findOne(lessonId);
     const attendances = await this.attendanceRepo.find({
@@ -221,7 +238,9 @@ export class AttendanceService {
 
     // 5. Get active students
     const activeGroupData =
-      await this.groupStudentService.findActiveStudentsInGroup(lesson.group.id);
+      await this.groupStudentService.findActiveStudentsInGroupForAttendance(
+        lesson.group.id
+      );
     const activeStudentIds: number[] = activeGroupData.groupStudents.map(
       (gs) => gs.student.id
     );
@@ -289,7 +308,6 @@ export class AttendanceService {
     });
 
     if (!lesson) {
-      console.log("13");
       throw new NotFoundException("Lesson not found");
     }
 

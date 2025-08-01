@@ -10,6 +10,7 @@ import {
   UseInterceptors,
   ParseIntPipe,
   UploadedFile,
+  Req,
 } from "@nestjs/common";
 import {
   ApiTags,
@@ -36,7 +37,7 @@ export class HomeworksController {
   constructor(private readonly homeworksService: HomeworksService) {}
 
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles("superadmin", "admin")
+  @Roles("teacher")
   @Post()
   @ApiOperation({ summary: "Create new homework" })
   @ApiResponse({
@@ -45,8 +46,9 @@ export class HomeworksController {
     type: Homework,
   })
   @ApiBody({ type: CreateHomeworkDto })
-  create(@Body() createHomeworkDto: CreateHomeworkDto) {
-    return this.homeworksService.create(createHomeworkDto);
+  create(@Body() createHomeworkDto: CreateHomeworkDto, @Req() req: any) {
+    const teacher = req.user;
+    return this.homeworksService.create(createHomeworkDto, teacher.id);
   }
 
   @Post("upload/:id")

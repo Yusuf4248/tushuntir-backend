@@ -317,7 +317,7 @@ export class AdminService {
     };
   }
 
-  async newPassword(dto: NewPasswordDto, req: Request) {
+  async newPassword(dto: NewPasswordDto, req: Request, res: Response) {
     const { confirm_password, password } = dto;
     if (confirm_password !== password) {
       throw new BadRequestException("Passwords do not match");
@@ -331,6 +331,7 @@ export class AdminService {
           where: { email: parsedOtpPayload.email },
         });
         admin!.password_hash = password;
+        res.clearCookie("verification_key");
         return {
           success: true,
           message: "Your password successfully changed!",
@@ -340,6 +341,7 @@ export class AdminService {
           where: { email: parsedOtpPayload.email },
         });
         teacher!.password = password;
+        res.clearCookie("verification_key");
         return {
           success: true,
           message: "Your password successfully changed!",
@@ -349,6 +351,7 @@ export class AdminService {
           where: { email: parsedOtpPayload.email },
         });
         student!.password_hash = password;
+        res.clearCookie("verification_key");
         return {
           success: true,
           message: "Your password successfully changed!",
@@ -358,6 +361,7 @@ export class AdminService {
           where: { email: parsedOtpPayload.email },
         });
         lid!.password_hash = password;
+        res.clearCookie("verification_key");
         return {
           success: true,
           message: "Your password successfully changed!",

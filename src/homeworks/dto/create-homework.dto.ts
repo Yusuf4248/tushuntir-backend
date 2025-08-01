@@ -11,14 +11,6 @@ export class CreateHomeworkDto {
   groupId: number;
 
   @ApiProperty({
-    example: 12,
-    description: "Ustozning IDsi",
-  })
-  @IsNumber()
-  @IsNotEmpty()
-  teacherId: number;
-
-  @ApiProperty({
     example: 1,
     description: "Dars IDsi",
   })

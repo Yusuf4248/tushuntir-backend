@@ -11,9 +11,9 @@ import { Repository } from "typeorm";
 import { GroupService } from "../group/group.service";
 import { TeacherService } from "../teacher/teacher.service";
 import { Media } from "../media/entities/media.entity";
-import * as path from "path";
 import { FileService } from "../file/file.service";
 import { LessonsService } from "../lessons/lessons.service";
+import * as path from "path";
 
 @Injectable()
 export class HomeworksService {
@@ -27,8 +27,8 @@ export class HomeworksService {
     private readonly fileService: FileService,
     private readonly lessonService: LessonsService
   ) {}
-  async create(createHomeworkDto: CreateHomeworkDto) {
-    const { teacherId, groupId, lessonId } = createHomeworkDto;
+  async create(createHomeworkDto: CreateHomeworkDto, teacherId: number) {
+    const { groupId, lessonId } = createHomeworkDto;
     const { lesson } = await this.lessonService.findOne(lessonId);
     const { group } = await this.groupService.findOne(groupId);
     const { teacher } = await this.teacherService.findOne(teacherId);

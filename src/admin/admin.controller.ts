@@ -47,7 +47,6 @@ export class AdminController {
   @ApiResponse({ status: 200, description: "User profile info" })
   @ApiResponse({ status: 401, description: "Unauthorized" })
   async getProfile(@Req() req: any) {
-    console.log("123");
     const user = req.user;
     if (!user || !user.id || !user.role) {
       throw new UnauthorizedException("User info not found in token");
@@ -87,8 +86,12 @@ export class AdminController {
     description: "Something went wrong or Passwords do not match",
   })
   @ApiBody({ type: NewPasswordDto })
-  async newPassword(@Req() req: any, @Body() dto: NewPasswordDto) {
-    return this.adminService.newPassword(dto, req);
+  async newPassword(
+    @Req() req: any,
+    @Res({ passthrough: true }) res: Response,
+    @Body() dto: NewPasswordDto
+  ) {
+    return this.adminService.newPassword(dto, req, res);
   }
 
   @UseGuards(SuperAdminGuard)

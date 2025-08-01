@@ -174,7 +174,7 @@ export class GroupStudentsService {
 
   async remove(id: number): Promise<{ message: string }> {
     const groupStudent = await this.findOne(id);
-
+    await this.attendanceService.deleteAllAttendanceForGroupStudent(id);
     await this.groupStudentRepository.remove(groupStudent);
 
     return {
@@ -215,6 +215,27 @@ export class GroupStudentsService {
   }
 
   async findActiveStudentsInGroup(groupId: number) {
+    const group = await this.groupRepository.findOne({
+      where: { id: groupId },
+      relations: ["lessons"],
+    });
+    if (!group) {
+      throw new NotFoundException(`Group with ID ${groupId} not found`);
+    }
+
+    const groupStudents = await this.groupStudentRepository.find({
+      where: {
+        group: { id: groupId },
+        status: true,
+      },
+      relations: ["student"],
+      order: { id: "ASC" },
+    });
+
+    return { success: true, groupStudents };
+  }
+
+  async findActiveStudentsInGroupForAttendance(groupId: number) {
     const group = await this.groupRepository.findOne({
       where: { id: groupId },
       relations: ["lessons"],

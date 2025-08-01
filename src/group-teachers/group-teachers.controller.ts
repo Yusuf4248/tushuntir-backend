@@ -37,7 +37,6 @@ export class GroupTeachersController {
   async getMyGroups(@Req() req: any) {
     try {
       const user = req.user;
-      console.log("123");
       if (!user || !user.id || user.role !== "teacher") {
         throw new UnauthorizedException(
           "Only teachers can access their groups"
