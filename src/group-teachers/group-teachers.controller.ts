@@ -108,7 +108,7 @@ export class GroupTeachersController {
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles("admin", "superadmin")
-  @Delete(":id")
+  @Delete("remove")
   @ApiOperation({ summary: "Remove group-teacher assignment" })
   @ApiBody({
     schema: {

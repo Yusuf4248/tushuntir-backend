@@ -312,7 +312,7 @@ export class AttendanceService {
       throw new NotFoundException("Lesson not found");
     }
 
-    // Quyidagisi sizning eski logikangiz
+    // Dars kuni bugunligini tekshiramiz
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
