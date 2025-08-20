@@ -187,7 +187,7 @@ export class AttendanceService {
   async getAttendancesByLesson(lessonId: number) {
     const { lesson } = await this.lessonService.findOne(lessonId);
     const attendances = await this.attendanceRepo.find({
-      where: { lesson },
+      where: { lesson: { id: lesson.id } },
       relations: ["student"],
       order: { date: "ASC" },
     });
@@ -199,29 +199,121 @@ export class AttendanceService {
     };
   }
 
+  // async updateAttendanceForGroup(dto: UpdateLessonAttendancesDto) {
+  //   if (isNaN(dto.lessonId))
+  //     throw new BadRequestException("lessonId must be a number");
+  //   // 1. Find lesson
+  //   const lesson = await this.lessonRepo.findOne({
+  //     where: { id: dto.lessonId },
+  //     relations: ["group"],
+  //   });
+
+  //   if (!lesson) {
+  //     throw new NotFoundException("Lesson not found");
+  //   }
+
+  //   // 2. Has the attendance already been recorded?
+  //   if (lesson.status !== LessonStatus.NEW) {
+  //     throw new BadRequestException(
+  //       "Attendance for this class has already been recorded."
+  //     );
+  //   }
+
+  //   // 3. Date check (is it today?)
+  //   const today = new Date();
+  //   today.setHours(0, 0, 0, 0);
+  //   const lessonDate = new Date(lesson.date);
+  //   lessonDate.setHours(0, 0, 0, 0);
+
+  //   if (lessonDate.getTime() !== today.getTime()) {
+  //     throw new BadRequestException(
+  //       "Attendance can only be held for today's lesson."
+  //     );
+  //   }
+
+  //   // 4. Lesson update (title and status)
+  //   await this.lessonRepo.update(
+  //     { id: dto.lessonId },
+  //     { status: LessonStatus.IN_PROGRESS, title: dto.lessonTitle }
+  //   );
+
+  //   // 5. Get active students
+  //   const activeGroupData =
+  //     await this.groupStudentService.findActiveStudentsInGroupForAttendance(
+  //       lesson.group.id
+  //     );
+  //   const activeStudentIds: number[] = activeGroupData.groupStudents.map(
+  //     (gs) => gs.student.id
+  //   );
+
+  //   // 6. Retrieve existing attendance records
+  //   const existingAttendances = await this.attendanceRepo.find({
+  //     where: {
+  //       lesson: { id: dto.lessonId },
+  //       student: { id: In(activeStudentIds) },
+  //     },
+  //     relations: ["student"],
+  //   });
+
+  //   // 7. Update only relevant students according to DTO
+  //   const updatedAttendances = dto.students
+  //     .filter((studentDto) => activeStudentIds.includes(studentDto.studentId))
+  //     .map((studentDto) => {
+  //       const attendance = existingAttendances.find(
+  //         (a) => a.student.id === studentDto.studentId
+  //       );
+  //       if (attendance) {
+  //         attendance.status = studentDto.status;
+  //         return attendance;
+  //       }
+  //       return null;
+  //     })
+  //     .filter(Boolean); // removes nulls
+
+  //   await this.attendanceRepo.save(
+  //     updatedAttendances.filter(Boolean) as DeepPartial<Attendance>[]
+  //   );
+
+  //   // 8. Fetch updated attendances to return
+  //   const resultAttendances = await this.attendanceRepo.find({
+  //     where: {
+  //       lesson: { id: dto.lessonId },
+  //       student: { id: In(updatedAttendances.map((a) => a!.student.id)) },
+  //     },
+  //     relations: ["student"],
+  //   });
+
+  //   return {
+  //     message: "Attendance updated successfully",
+  //     updatedAttendances: resultAttendances,
+  //   };
+  // }
+
   async updateAttendanceForGroup(dto: UpdateLessonAttendancesDto) {
-    if (isNaN(dto.lessonId))
+    if (isNaN(dto.lessonId)) {
       throw new BadRequestException("lessonId must be a number");
+    }
+
     // 1. Find lesson
     const lesson = await this.lessonRepo.findOne({
       where: { id: dto.lessonId },
       relations: ["group"],
     });
+    if (!lesson) throw new NotFoundException("Lesson not found");
 
-    if (!lesson) {
-      throw new NotFoundException("Lesson not found");
-    }
-
-    // 2. Has the attendance already been recorded?
-    if (lesson.status !== LessonStatus.NEW) {
+    // 2. Attendance already recorded?
+    if (lesson.status != "new") {
       throw new BadRequestException(
         "Attendance for this class has already been recorded."
       );
     }
 
     // 3. Date check (is it today?)
+    const now = new Date();
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+
     const lessonDate = new Date(lesson.date);
     lessonDate.setHours(0, 0, 0, 0);
 
@@ -231,22 +323,39 @@ export class AttendanceService {
       );
     }
 
-    // 4. Lesson update (title and status)
-    await this.lessonRepo.update(
-      { id: dto.lessonId },
-      { status: LessonStatus.IN_PROGRESS, title: dto.lessonTitle }
-    );
+    // 3.1. Start time check (attendance oldin bo‘lmasin)
+    if (lesson.group.start_time) {
+      const [hours, minutes] = lesson.group.start_time.split(":").map(Number);
+      const lessonStart = new Date();
+      lessonStart.setHours(hours, minutes, 0, 0);
 
-    // 5. Get active students
+      if (now < lessonStart) {
+        throw new BadRequestException(
+          `Attendance can only be recorded after the lesson starts at ${lesson.group.start_time}`
+        );
+      }
+    }
+
+    // 4. Lesson update
+    await this.lessonRepo.update(dto.lessonId, {
+      status: LessonStatus.IN_PROGRESS,
+      title: dto.lessonTitle,
+    });
+
+    // 5. Active students
     const activeGroupData =
       await this.groupStudentService.findActiveStudentsInGroupForAttendance(
         lesson.group.id
       );
-    const activeStudentIds: number[] = activeGroupData.groupStudents.map(
+    const activeStudentIds = activeGroupData.groupStudents.map(
       (gs) => gs.student.id
     );
 
-    // 6. Retrieve existing attendance records
+    if (!activeStudentIds.length) {
+      return { message: "No active students in this group" };
+    }
+
+    // 6. Existing attendances
     const existingAttendances = await this.attendanceRepo.find({
       where: {
         lesson: { id: dto.lessonId },
@@ -255,37 +364,24 @@ export class AttendanceService {
       relations: ["student"],
     });
 
-    // 7. Update only relevant students according to DTO
-    const updatedAttendances = dto.students
-      .filter((studentDto) => activeStudentIds.includes(studentDto.studentId))
-      .map((studentDto) => {
-        const attendance = existingAttendances.find(
-          (a) => a.student.id === studentDto.studentId
-        );
-        if (attendance) {
-          attendance.status = studentDto.status;
-          return attendance;
-        }
-        return null;
-      })
-      .filter(Boolean); // removes nulls
-
-    await this.attendanceRepo.save(
-      updatedAttendances.filter(Boolean) as DeepPartial<Attendance>[]
+    // 7. Update statuses
+    const studentStatusMap = new Map(
+      dto.students.map((s) => [Number(s.studentId), s.status])
     );
 
-    // 8. Fetch updated attendances to return
-    const resultAttendances = await this.attendanceRepo.find({
-      where: {
-        lesson: { id: dto.lessonId },
-        student: { id: In(updatedAttendances.map((a) => a!.student.id)) },
-      },
-      relations: ["student"],
-    });
+    for (const attendance of existingAttendances) {
+      const newStatus = studentStatusMap.get(attendance.student.id);
+      if (newStatus) {
+        attendance.status = newStatus;
+      }
+    }
 
+    await this.attendanceRepo.save(existingAttendances);
+
+    // 8. Return updated data
     return {
       message: "Attendance updated successfully",
-      updatedAttendances: resultAttendances,
+      updatedAttendances: existingAttendances,
     };
   }
 

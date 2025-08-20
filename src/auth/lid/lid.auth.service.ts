@@ -47,6 +47,7 @@ export class LidAuthService {
       throw new BadRequestException("Lid with this email already exists");
     }
     const lid = await this.lidService.create(createLidDto);
+     
     return {
       lid,
     };

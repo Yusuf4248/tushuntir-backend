@@ -73,10 +73,10 @@ export class StudentService {
     });
     return {
       success: true,
-      data: students,
       total,
       page,
       limit,
+      data: students,
     };
   }
 

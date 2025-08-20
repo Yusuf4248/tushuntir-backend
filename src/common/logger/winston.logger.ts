@@ -1,5 +1,4 @@
 import * as winston from "winston";
-import { utilities as nestWinstonModuleUtilities } from "nest-winston";
 
 export const winstonConfig = {
   transports: [
@@ -7,7 +6,6 @@ export const winstonConfig = {
       format: winston.format.combine(
         winston.format.colorize({ all: true }),
         winston.format.label({ label: "ERP" }),
-        // nestWinstonModuleUtilities.format.nestLike("Prismajon"),
         winston.format.timestamp(),
         winston.format.printf(({ level, message, label, timestamp }) => {
           return `${timestamp} [${label}] ${level}: ${message}`;

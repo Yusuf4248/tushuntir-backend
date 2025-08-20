@@ -26,7 +26,7 @@ export class Homework {
   })
   teacher: Teacher;
 
-  @ManyToOne(() => Group, (group) => group.homework)
+  @ManyToOne(() => Group, (group) => group.homework, { onDelete: "CASCADE" })
   @ApiProperty({ type: () => Group, description: "Guruh obyektiga bog'lanish" })
   group: Group;
 

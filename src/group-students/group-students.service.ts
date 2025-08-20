@@ -258,9 +258,6 @@ export class GroupStudentsService {
     if (!lesson) {
       throw new NotFoundException(`No lesson found for group ${groupId} today`);
     }
-    if (lesson.status !== LessonStatus.NEW) {
-      throw new BadRequestException("Attendance for this lesson was recorded.");
-    }
 
     const groupStudents = await this.groupStudentRepository.find({
       where: {

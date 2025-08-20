@@ -53,7 +53,7 @@ export class LidService {
   async findAll() {
     const lid = await this.lidRepo.find();
     return {
-      message: "Al lids",
+      message: "All lids",
       success: true,
       lid,
     };
