@@ -10,7 +10,7 @@ import { Teacher } from "../teacher/entities/teacher.entity";
 import { Lid } from "../lid/entities/lid.entity";
 import { Student } from "../student/entities/student.entities";
 import { LidModule } from "../lid/lid.module";
-import { Otp } from "../lid/entities/otp.entity";
+import { Otp } from "../otp/entities/otp.entity";
 
 @Module({
   imports: [

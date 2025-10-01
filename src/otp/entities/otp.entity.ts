@@ -20,7 +20,7 @@ export class Otp {
     example: "user@example.com",
     description: "Foydalanuvchining email manzili",
   })
-  @Column({ type: "varchar" })
+  @Column({ type: "varchar", default: "", nullable: true })
   email: string;
 
   @ApiProperty({
@@ -50,6 +50,13 @@ export class Otp {
   })
   @Column({ type: "boolean", default: false })
   verified: boolean;
+
+  @ApiProperty({
+    example: 1234567,
+    description: "Foydalanuvchining telegram id si",
+  })
+  @Column({ type: "bigint", default: 1, nullable: true })
+  telegram_id: number;
 
   @CreateDateColumn({ name: "created_at" })
   created_at: Date;

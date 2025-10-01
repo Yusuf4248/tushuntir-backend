@@ -27,10 +27,22 @@ import { GroupTeachersModule } from "./group-teachers/group-teachers.module";
 import { GroupStudentsModule } from "./group-students/group-students.module";
 import { ServeStaticModule } from "@nestjs/serve-static";
 import { join } from "path";
+import { BotModule } from "./bot/bot.module";
+import { TelegrafModule } from "nestjs-telegraf";
+import { BOT_NAME } from "./app.constants";
+import { OtpModule } from './otp/otp.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ envFilePath: ".env", isGlobal: true }),
+    // TelegrafModule.forRootAsync({
+    //   botName: BOT_NAME,
+    //   useFactory: () => ({
+    //     token: process.env.BOT_TOKEN!,
+    //     middlewares: [],
+    //     include: [BotModule],
+    //   }),
+    // }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, "..", "static"),
     }),
@@ -70,6 +82,8 @@ import { join } from "path";
     MediaModule,
     MailModule,
     FileModule,
+    // BotModule,
+    OtpModule,
   ],
   controllers: [],
   providers: [],

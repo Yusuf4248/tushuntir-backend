@@ -8,7 +8,6 @@ import {
   Delete,
   UseGuards,
   ParseIntPipe,
-  Res,
   UseInterceptors,
   UploadedFile,
   Query,
@@ -32,7 +31,6 @@ import { Roles } from "../app.constants";
 import { AuthGuard } from "../common/guards/auth.guard";
 import { RolesGuard } from "../common/guards/role.guard";
 import { JwtSelfGuard } from "../common/guards/jwt-self.guard";
-import { Response } from "express";
 import { FileInterceptor } from "@nestjs/platform-express";
 
 @ApiTags("Teacher")

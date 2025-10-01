@@ -21,8 +21,8 @@ import {
   ApiOkResponse,
   ApiBearerAuth,
 } from "@nestjs/swagger";
-import { LidEmailDto } from "./dto/email.dto";
-import { VerifyOtpDto } from "./dto/verify-otp.dto";
+import { LidEmailDto } from "../otp/dto/email.dto";
+import { VerifyOtpDto } from "../otp/dto/verify-otp.dto";
 import { RolesGuard } from "../common/guards/role.guard";
 import { AuthGuard } from "../common/guards/auth.guard";
 import { Roles } from "../app.constants";

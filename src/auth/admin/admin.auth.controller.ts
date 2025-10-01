@@ -56,7 +56,7 @@ export class AdminAuthController {
   }
 
   @Get("log-out")
-  @ApiBearerAuth() // Indicates that a JWT token is required
+  @ApiBearerAuth()
   @ApiOperation({
     summary: "Admin logout",
     description: "Logs out an admin by invalidating the refresh token.",

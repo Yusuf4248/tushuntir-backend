@@ -6,7 +6,7 @@ import { Lid } from "./entities/lid.entity";
 import { Group } from "../group/entities/group.entity";
 import { GroupModule } from "../group/group.module";
 import { Student } from "../student/entities/student.entities";
-import { Otp } from "./entities/otp.entity";
+import { Otp } from "../otp/entities/otp.entity";
 import { MailModule } from "../mail/mail.module";
 import { JwtModule } from "@nestjs/jwt";
 

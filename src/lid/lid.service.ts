@@ -14,10 +14,10 @@ import * as otpGenerator from "otp-generator";
 import * as uuid from "uuid";
 import { ChangePasswordDto } from "../student/dto/change-password.dto";
 import { AddMinutesToDate } from "../common/helpers/add-minute";
-import { Otp } from "./entities/otp.entity";
+import { Otp } from "../otp/entities/otp.entity";
 import { MailService } from "../mail/mail.service";
 import { decode, encode } from "../common/helpers/crypto";
-import { VerifyOtpDto } from "./dto/verify-otp.dto";
+import { VerifyOtpDto } from "../otp/dto/verify-otp.dto";
 
 @Injectable()
 export class LidService {

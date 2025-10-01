@@ -16,7 +16,7 @@ import { Teacher } from "../teacher/entities/teacher.entity";
 import { Student } from "../student/entities/student.entities";
 import { Lid } from "../lid/entities/lid.entity";
 import { LidService } from "../lid/lid.service";
-import { Otp } from "../lid/entities/otp.entity";
+import { Otp } from "../otp/entities/otp.entity";
 import { OtpDto } from "./dto/otp.dto";
 import * as bcrypt from "bcrypt";
 import { NewPasswordDto } from "./dto/new-password.dto";
