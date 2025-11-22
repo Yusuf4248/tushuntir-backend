@@ -27,11 +27,11 @@ export class LidAuthService {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
         secret: process.env.LID_ACCESS_TOKEN_KEY,
-        expiresIn: process.env.LID_ACCESS_TOKEN_TIME,
+        expiresIn: Number(process.env.LID_ACCESS_TOKEN_TIME),
       }),
       this.jwtService.signAsync(payload, {
         secret: process.env.LID_REFRESH_TOKEN_KEY,
-        expiresIn: process.env.LID_REFRESH_TOKEN_TIME,
+        expiresIn: Number(process.env.LID_REFRESH_TOKEN_TIME),
       }),
     ]);
 
@@ -47,7 +47,7 @@ export class LidAuthService {
       throw new BadRequestException("Lid with this email already exists");
     }
     const lid = await this.lidService.create(createLidDto);
-     
+
     return {
       lid,
     };

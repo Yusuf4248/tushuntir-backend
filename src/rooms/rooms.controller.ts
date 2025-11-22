@@ -78,4 +78,12 @@ export class RoomsController {
   remove(@Param("id") id: string) {
     return this.roomsService.remove(+id);
   }
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles("superadmin", "admin")
+  @Get("/schedule/:id")
+  @ApiOperation({ summary: "Get room schedule" })
+  roomSchedule(@Param("id") id: string) {
+    return this.roomsService.roomSchedule(+id);
+  }
 }

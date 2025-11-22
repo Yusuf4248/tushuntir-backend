@@ -48,7 +48,7 @@ export class RoomsService {
     }
     const room = await this.roomRepo.findOne({
       where: { id },
-      relations: ["branch"],
+      relations: ["branch", "lesson", "lesson.room", "lesson.group"],
     });
     if (!room) {
       throw new NotFoundException(`${id}-room not found`);
@@ -132,5 +132,49 @@ export class RoomsService {
     } catch (error) {
       throw new Error(`Yangi branch qo'shishda xatolik: ${error.message}`);
     }
+  }
+
+  async roomSchedule(roomId: number) {
+    //  Reuse your findOne() method to get the room and its lessons
+    const { room } = await this.findOne(roomId);
+
+    // Check if lessons exist
+    if (!room.lesson || room.lesson.length === 0) {
+      return {
+        message: "No lessons found for this room",
+        success: true,
+        data: [],
+      };
+    }
+
+    //  Sort by date first, then by group.start_time
+    const sortedLessons = room.lesson.sort((a, b) => {
+      const dateA = new Date(a.date).getTime();
+      const dateB = new Date(b.date).getTime();
+
+      // First compare by date
+      if (dateA !== dateB) return dateA - dateB;
+
+      // If dates are the same, compare by start_time (if available)
+      const timeA = a.group?.start_time ? a.group.start_time : "00:00";
+      const timeB = b.group?.start_time ? b.group.start_time : "00:00";
+
+      // Compare as times
+      return timeA.localeCompare(timeB);
+    });
+
+    // Return the sorted lessons
+    return {
+      message: "Room schedule retrieved successfully",
+      success: true,
+      data: sortedLessons.map((lesson) => ({
+        id: lesson.id,
+        date: lesson.date,
+        start_time: lesson.group?.start_time || null,
+        end_time: lesson.group?.end_time || null,
+        group: lesson.group || null,
+        room: lesson.room || null,
+      })),
+    };
   }
 }

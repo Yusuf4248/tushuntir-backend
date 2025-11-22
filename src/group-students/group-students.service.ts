@@ -6,7 +6,7 @@ import {
   forwardRef,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { In, Repository } from "typeorm";
+import { DataSource, In, Repository } from "typeorm";
 import { CreateGroupStudentDto } from "./dto/create-group-student.dto";
 import { UpdateGroupStudentDto } from "./dto/update-group-student.dto";
 import { GroupStudent } from "./entities/group-student.entity";
@@ -33,7 +33,8 @@ export class GroupStudentsService {
     private attendanceService: AttendanceService,
     private readonly lessonService: LessonsService,
     @InjectRepository(Lesson)
-    private readonly lessonRepository: Repository<Lesson>
+    private readonly lessonRepository: Repository<Lesson>,
+    private readonly dataSource: DataSource
   ) {}
 
   async create(createGroupStudentDto: CreateGroupStudentDto) {
@@ -41,11 +42,22 @@ export class GroupStudentsService {
 
     const group = await this.groupRepository.findOne({
       where: { id: groupId },
+      relations: ["lessons", "lessons.room"],
     });
     if (!group) {
       throw new NotFoundException(`Group with ID ${groupId} not found`);
     }
 
+    const room = group.lessons[0].room;
+    if (!room) {
+      throw new NotFoundException("Room not found for this group");
+    }
+
+    const existingStudents = await this.findByGroup(groupId);
+
+    if (+existingStudents.length + +studentId.length > room.capacity) {
+      throw new BadRequestException("Room capacity not enaugh");
+    }
     const students = await this.studentRepository.find({
       where: { id: In(studentId) },
     });

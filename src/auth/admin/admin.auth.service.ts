@@ -28,11 +28,11 @@ export class AdminAuthService {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
         secret: process.env.ADMIN_ACCESS_TOKEN_KEY,
-        expiresIn: process.env.ADMIN_ACCESS_TOKEN_TIME,
+        expiresIn: Number(process.env.ADMIN_ACCESS_TOKEN_TIME),
       }),
       this.jwtService.signAsync(payload, {
-        secret: process.env.ADMIN_REFRESH_TOKEN_KEY,
-        expiresIn: process.env.ADMIN_REFRESH_TOKEN_TIME,
+        secret: process.env.ADMIN_REFRESH_TOKEN_KEY!,
+        expiresIn: Number(process.env.ADMIN_REFRESH_TOKEN_TIME),
       }),
     ]);
 

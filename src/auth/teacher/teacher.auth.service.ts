@@ -27,11 +27,11 @@ export class TeacherAuthService {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
         secret: process.env.TEACHER_ACCESS_TOKEN_KEY,
-        expiresIn: process.env.TEACHER_ACCESS_TOKEN_TIME,
+        expiresIn: Number(process.env.TEACHER_ACCESS_TOKEN_TIME),
       }),
       this.jwtService.signAsync(payload, {
         secret: process.env.TEACHER_REFRESH_TOKEN_KEY,
-        expiresIn: process.env.TEACHER_REFRESH_TOKEN_TIME,
+        expiresIn: Number(process.env.TEACHER_REFRESH_TOKEN_TIME),
       }),
     ]);
 

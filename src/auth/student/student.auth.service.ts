@@ -26,11 +26,11 @@ export class StudentAuthService {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
         secret: process.env.STUDENT_ACCESS_TOKEN_KEY,
-        expiresIn: process.env.STUDENT_ACCESS_TOKEN_TIME,
+        expiresIn: Number(process.env.STUDENT_ACCESS_TOKEN_TIME),
       }),
       this.jwtService.signAsync(payload, {
         secret: process.env.STUDENT_REFRESH_TOKEN_KEY,
-        expiresIn: process.env.STUDENT_REFRESH_TOKEN_TIME,
+        expiresIn: Number(process.env.STUDENT_REFRESH_TOKEN_TIME),
       }),
     ]);
 
