@@ -7,24 +7,24 @@ import {
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { DataSource, In, Repository } from "typeorm";
-import { CreateGroupStudentDto } from "./dto/create-group-student.dto";
-import { UpdateGroupStudentDto } from "./dto/update-group-student.dto";
-import { GroupStudent } from "./entities/group-student.entity";
-import { SchoolClass } from "../modules/school/classes/entities/school-class.entity";
-import { Student } from "../student/entities/student.entities";
-import { AttendanceService } from "../attendance/attendance.service";
-import { Attendance } from "../attendance/entities/attendance.entity";
-import { LessonsService } from "../lessons/lessons.service";
-import { Lesson, LessonStatus } from "../lessons/entities/lesson.entity";
+import { CreateClassStudentDto } from "./dto/create-class-student.dto";
+import { UpdateClassStudentDto } from "./dto/update-class-student.dto";
+import { ClassStudent } from "./entities/class-student.entity";
+import { SchoolClass } from "../classes/entities/school-class.entity";
+import { Student } from "../../../student/entities/student.entities";
+import { AttendanceService } from "../../../attendance/attendance.service";
+import { Attendance } from "../../../attendance/entities/attendance.entity";
+import { LessonsService } from "../../../lessons/lessons.service";
+import { Lesson, LessonStatus } from "../../../lessons/entities/lesson.entity";
 import * as dayjs from "dayjs";
 import * as utc from "dayjs/plugin/utc";
 import * as timezone from "dayjs/plugin/timezone";
 
 @Injectable()
-export class GroupStudentsService {
+export class ClassStudentsService {
   constructor(
-    @InjectRepository(GroupStudent)
-    private readonly groupStudentRepository: Repository<GroupStudent>,
+    @InjectRepository(ClassStudent)
+    private readonly classStudentRepository: Repository<ClassStudent>,
     @InjectRepository(SchoolClass)
     private readonly classRepository: Repository<SchoolClass>,
     @InjectRepository(Student)
@@ -37,8 +37,8 @@ export class GroupStudentsService {
     private readonly dataSource: DataSource
   ) {}
 
-  async create(createGroupStudentDto: CreateGroupStudentDto) {
-    const { classId, studentId, status = true } = createGroupStudentDto;
+  async create(createClassStudentDto: CreateClassStudentDto) {
+    const { classId, studentId, status = true } = createClassStudentDto;
 
     const schoolClass = await this.classRepository.findOne({
       where: { id: classId },
@@ -67,14 +67,14 @@ export class GroupStudentsService {
     }
 
     const result: {
-      groupStudent: GroupStudent;
+      classStudent: ClassStudent;
       attendances: Attendance[];
     }[] = [];
 
-    const groupStudentsToSave: GroupStudent[] = [];
+    const classStudentsToSave: ClassStudent[] = [];
 
     for (const student of students) {
-      const existingRelation = await this.groupStudentRepository.findOne({
+      const existingRelation = await this.classStudentRepository.findOne({
         where: {
           schoolClass: { id: classId },
           student: { id: student.id },
@@ -87,64 +87,64 @@ export class GroupStudentsService {
         );
       }
 
-      const groupStudent = await this.groupStudentRepository.save({
+      const classStudent = await this.classStudentRepository.save({
         schoolClass,
         student,
         status,
         start_date: schoolClass.start_date,
         end_date: schoolClass.end_date,
       });
-      groupStudentsToSave.push(groupStudent);
+      classStudentsToSave.push(classStudent);
 
       const attendances =
-        await this.attendanceService.createAllAttendancesForGroupStudent(
-          groupStudent.id
+        await this.attendanceService.createAllAttendancesForClassStudent(
+          classStudent.id
         );
-      result.push({ groupStudent, attendances });
+      result.push({ classStudent, attendances });
     }
     return result;
   }
 
-  async findAll(): Promise<GroupStudent[]> {
-    return await this.groupStudentRepository.find({
+  async findAll(): Promise<ClassStudent[]> {
+    return await this.classStudentRepository.find({
       relations: ["schoolClass", "student"],
       order: { id: "ASC" },
     });
   }
 
-  async findOne(id: number): Promise<GroupStudent> {
-    const groupStudent = await this.groupStudentRepository.findOne({
+  async findOne(id: number): Promise<ClassStudent> {
+    const classStudent = await this.classStudentRepository.findOne({
       where: { id },
       relations: ["schoolClass", "student"],
     });
 
-    if (!groupStudent) {
+    if (!classStudent) {
       throw new NotFoundException(
-        `Group-student relationship with ID ${id} not found`
+        `Class-student relationship with ID ${id} not found`
       );
     }
 
-    return groupStudent;
+    return classStudent;
   }
 
   async update(
     id: number,
-    updateGroupStudentDto: UpdateGroupStudentDto
-  ): Promise<GroupStudent> {
-    const groupStudent = await this.findOne(id);
+    updateClassStudentDto: UpdateClassStudentDto
+  ): Promise<ClassStudent> {
+    const classStudent = await this.findOne(id);
 
-    const { classId, studentId } = updateGroupStudentDto;
+    const { classId, studentId } = updateClassStudentDto;
 
-    if (classId && classId !== groupStudent.schoolClass.id) {
+    if (classId && classId !== classStudent.schoolClass.id) {
       const schoolClass = await this.classRepository.findOne({
         where: { id: classId },
       });
       if (!schoolClass) {
         throw new NotFoundException(`Class with ID ${classId} not found`);
       }
-      const existingRelation = await this.groupStudentRepository.findOne({
+      const existingRelation = await this.classStudentRepository.findOne({
         where: {
-          schoolClass: { id: classId || groupStudent.schoolClass.id },
+          schoolClass: { id: classId || classStudent.schoolClass.id },
           student: { id: studentId },
         },
       });
@@ -154,10 +154,10 @@ export class GroupStudentsService {
           "Student is already assigned to this class"
         );
       }
-      groupStudent.schoolClass = schoolClass;
+      classStudent.schoolClass = schoolClass;
     }
 
-    if (studentId && studentId !== groupStudent.student.id) {
+    if (studentId && studentId !== classStudent.student.id) {
       const student = await this.studentRepository.findOne({
         where: { id: studentId },
       });
@@ -165,9 +165,9 @@ export class GroupStudentsService {
         throw new NotFoundException(`Student with ID ${studentId} not found`);
       }
 
-      const existingRelation = await this.groupStudentRepository.findOne({
+      const existingRelation = await this.classStudentRepository.findOne({
         where: {
-          schoolClass: { id: classId || groupStudent.schoolClass.id },
+          schoolClass: { id: classId || classStudent.schoolClass.id },
           student: { id: studentId },
         },
       });
@@ -178,23 +178,23 @@ export class GroupStudentsService {
         );
       }
 
-      groupStudent.student = student;
+      classStudent.student = student;
     }
 
-    return await this.groupStudentRepository.save(groupStudent);
+    return await this.classStudentRepository.save(classStudent);
   }
 
   async remove(id: number): Promise<{ message: string }> {
-    const groupStudent = await this.findOne(id);
-    await this.attendanceService.deleteAllAttendanceForGroupStudent(id);
-    await this.groupStudentRepository.remove(groupStudent);
+    const classStudent = await this.findOne(id);
+    await this.attendanceService.deleteAllAttendanceForClassStudent(id);
+    await this.classStudentRepository.remove(classStudent);
 
     return {
-      message: `Group-student relationship with ID ${id} has been deleted successfully`,
+      message: `Class-student relationship with ID ${id} has been deleted successfully`,
     };
   }
 
-  async findByClass(classId: number): Promise<GroupStudent[]> {
+  async findByClass(classId: number): Promise<ClassStudent[]> {
     const schoolClass = await this.classRepository.findOne({
       where: { id: classId },
     });
@@ -202,16 +202,16 @@ export class GroupStudentsService {
       throw new NotFoundException(`Class with ID ${classId} not found`);
     }
 
-    const groupStudents: GroupStudent[] =
-      await this.groupStudentRepository.find({
+    const classStudents: ClassStudent[] =
+      await this.classStudentRepository.find({
         where: { schoolClass: { id: classId } },
         relations: ["student", "student.attendance"],
         order: { id: "ASC" },
       });
-    return groupStudents;
+    return classStudents;
   }
 
-  async findByStudent(studentId: number): Promise<GroupStudent[]> {
+  async findByStudent(studentId: number): Promise<ClassStudent[]> {
     const student = await this.studentRepository.findOne({
       where: { id: studentId },
     });
@@ -219,7 +219,7 @@ export class GroupStudentsService {
       throw new NotFoundException(`Student with ID ${studentId} not found`);
     }
 
-    return await this.groupStudentRepository.find({
+    return await this.classStudentRepository.find({
       where: { student: { id: studentId } },
       relations: ["schoolClass"],
       order: { id: "ASC" },
@@ -235,7 +235,7 @@ export class GroupStudentsService {
       throw new NotFoundException(`Class with ID ${classId} not found`);
     }
 
-    const groupStudents = await this.groupStudentRepository.find({
+    const classStudents = await this.classStudentRepository.find({
       where: {
         schoolClass: { id: classId },
         status: true,
@@ -244,7 +244,7 @@ export class GroupStudentsService {
       order: { id: "ASC" },
     });
 
-    return { success: true, groupStudents };
+    return { success: true, classStudents };
   }
 
   async findActiveStudentsInClassForAttendance(classId: number) {
@@ -271,7 +271,7 @@ export class GroupStudentsService {
       throw new NotFoundException(`No lesson found for class ${classId} today`);
     }
 
-    const groupStudents = await this.groupStudentRepository.find({
+    const classStudents = await this.classStudentRepository.find({
       where: {
         schoolClass: { id: classId },
         status: true,
@@ -282,18 +282,18 @@ export class GroupStudentsService {
 
     const isAttended = lesson.status !== LessonStatus.NEW;
 
-    return { success: true, groupStudents, isAttended };
+    return { success: true, classStudents, isAttended };
   }
 
-  async deactivateStudent(id: number): Promise<GroupStudent> {
-    const groupStudent = await this.findOne(id);
-    groupStudent.status = false;
-    return await this.groupStudentRepository.save(groupStudent);
+  async deactivateStudent(id: number): Promise<ClassStudent> {
+    const classStudent = await this.findOne(id);
+    classStudent.status = false;
+    return await this.classStudentRepository.save(classStudent);
   }
 
-  async activateStudent(id: number): Promise<GroupStudent> {
-    const groupStudent = await this.findOne(id);
-    groupStudent.status = true;
-    return await this.groupStudentRepository.save(groupStudent);
+  async activateStudent(id: number): Promise<ClassStudent> {
+    const classStudent = await this.findOne(id);
+    classStudent.status = true;
+    return await this.classStudentRepository.save(classStudent);
   }
 }

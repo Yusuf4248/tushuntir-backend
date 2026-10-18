@@ -15,7 +15,7 @@ import { Homework } from "../../../../homeworks/entities/homework.entity";
 import { Exam } from "../../../../exams/entities/exam.entity";
 import { Lesson } from "../../../../lessons/entities/lesson.entity";
 import { GroupTeacher } from "../../../../group-teachers/entities/group-teacher.entity";
-import { GroupStudent } from "../../../../group-students/entities/group-student.entity";
+import { ClassStudent } from "../../class-students/entities/class-student.entity";
 
 export enum ClassStatus {
   NEW = "new",
@@ -79,11 +79,11 @@ export class SchoolClass {
   @ApiProperty({ type: () => GroupTeacher })
   groupTeachers: GroupTeacher[];
 
-  @OneToMany(() => GroupStudent, (groupStudent) => groupStudent.schoolClass, {
+  @OneToMany(() => ClassStudent, (classStudent) => classStudent.schoolClass, {
     onDelete: "CASCADE",
   })
-  @ApiProperty({ type: () => GroupStudent })
-  groupStudents: GroupStudent[];
+  @ApiProperty({ type: () => ClassStudent })
+  classStudents: ClassStudent[];
 
   @OneToMany(() => Homework, (homework) => homework.schoolClass)
   @ApiProperty({ type: () => Homework })

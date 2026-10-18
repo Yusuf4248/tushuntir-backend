@@ -8,13 +8,13 @@ import { StudentModule } from "../student/student.module";
 import { JwtModule } from "@nestjs/jwt";
 import { LessonsModule } from "../lessons/lessons.module";
 import { ClassesModule } from "../modules/school/classes/classes.module";
-import { GroupStudentsModule } from "../group-students/group-students.module";
+import { ClassStudentsModule } from "../modules/school/class-students/class-students.module";
 import { Lesson } from "../lessons/entities/lesson.entity";
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Attendance, Student, Lesson]),
-    forwardRef(() => GroupStudentsModule),
+    forwardRef(() => ClassStudentsModule),
     forwardRef(() => StudentModule),
     forwardRef(() => LessonsModule),
     forwardRef(() => ClassesModule),

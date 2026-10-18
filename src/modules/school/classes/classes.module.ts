@@ -8,10 +8,10 @@ import { Homework } from "../../../homeworks/entities/homework.entity";
 import { Exam } from "../../../exams/entities/exam.entity";
 import { JwtModule } from "@nestjs/jwt";
 import { GroupTeacher } from "../../../group-teachers/entities/group-teacher.entity";
-import { GroupStudent } from "../../../group-students/entities/group-student.entity";
+import { ClassStudent } from "../class-students/entities/class-student.entity";
 import { LessonsModule } from "../../../lessons/lessons.module";
 import { GroupTeachersModule } from "../../../group-teachers/group-teachers.module";
-import { GroupStudentsModule } from "../../../group-students/group-students.module";
+import { ClassStudentsModule } from "../class-students/class-students.module";
 import { Lesson } from "../../../lessons/entities/lesson.entity";
 import { AttendanceModule } from "../../../attendance/attendance.module";
 
@@ -22,13 +22,13 @@ import { AttendanceModule } from "../../../attendance/attendance.module";
       Homework,
       Exam,
       GroupTeacher,
-      GroupStudent,
+      ClassStudent,
       Lesson,
     ]),
     SubjectsModule,
     AttendanceModule,
     forwardRef(() => GroupTeachersModule),
-    forwardRef(() => GroupStudentsModule),
+    forwardRef(() => ClassStudentsModule),
     forwardRef(() => LessonsModule),
     JwtModule,
   ],

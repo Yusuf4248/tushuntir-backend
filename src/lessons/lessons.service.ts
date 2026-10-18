@@ -14,7 +14,7 @@ import { ClassesService } from "../modules/school/classes/classes.service";
 import { addDays, isAfter } from "date-fns";
 import { SchoolClass } from "../modules/school/classes/entities/school-class.entity";
 import { Room } from "../rooms/entities/room.entity";
-import { GroupStudent } from "../group-students/entities/group-student.entity";
+import { ClassStudent } from "../modules/school/class-students/entities/class-student.entity";
 import { GroupTeacher } from "../group-teachers/entities/group-teacher.entity";
 import { UpdateLessonStatusDto } from "./dto/update-lesson-status.dto";
 
@@ -26,8 +26,8 @@ export class LessonsService {
     private readonly classesService: ClassesService,
     @InjectRepository(SchoolClass) private readonly classRepo: Repository<SchoolClass>,
     @InjectRepository(Room) private readonly roomRepo: Repository<Room>,
-    @InjectRepository(GroupStudent)
-    private readonly groupStudentRepo: Repository<GroupStudent>,
+    @InjectRepository(ClassStudent)
+    private readonly classStudentRepo: Repository<ClassStudent>,
     @InjectRepository(GroupTeacher)
     private readonly groupTeacherRepo: Repository<GroupTeacher>
   ) {}
@@ -56,7 +56,7 @@ export class LessonsService {
       schoolClass!.end_date = newEndDate;
       await this.classRepo.save(schoolClass!);
 
-      await this.groupStudentRepo
+      await this.classStudentRepo
         .createQueryBuilder()
         .update()
         .set({ end_date: newEndDate })

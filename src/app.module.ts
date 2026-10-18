@@ -20,7 +20,7 @@ import { MailModule } from "./shared/mail/mail.module";
 import { FileModule } from "./shared/file/file.module";
 import { LessonsModule } from "./lessons/lessons.module";
 import { GroupTeachersModule } from "./group-teachers/group-teachers.module";
-import { GroupStudentsModule } from "./group-students/group-students.module";
+import { ClassStudentsModule } from "./modules/school/class-students/class-students.module";
 import { DataSource } from "typeorm";
 
 @Module({
@@ -46,7 +46,7 @@ import { DataSource } from "typeorm";
     ClassesModule,
     LessonsModule,
     GroupTeachersModule,
-    GroupStudentsModule,
+    ClassStudentsModule,
     AttendanceModule,
     HomeworksModule,
     HomeworkSubmissionModule,

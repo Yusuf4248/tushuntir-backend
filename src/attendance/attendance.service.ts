@@ -19,7 +19,7 @@ import { LessonsService } from "../lessons/lessons.service";
 import { Student } from "../student/entities/student.entities";
 import { Lesson, LessonStatus } from "../lessons/entities/lesson.entity";
 import { ClassesService } from "../modules/school/classes/classes.service";
-import { GroupStudentsService } from "../group-students/group-students.service";
+import { ClassStudentsService } from "../modules/school/class-students/class-students.service";
 import { UpdateLessonAttendancesDto } from "./dto/update-lesson-attendances-dto";
 
 @Injectable()
@@ -35,8 +35,8 @@ export class AttendanceService {
     private readonly lessonService: LessonsService,
     @Inject(forwardRef(() => ClassesService))
     private readonly classesService: ClassesService,
-    @Inject(forwardRef(() => GroupStudentsService))
-    private groupStudentService: GroupStudentsService
+    @Inject(forwardRef(() => ClassStudentsService))
+    private classStudentService: ClassStudentsService
   ) {}
 
   async create(createAttendanceDto: CreateAttendanceDto) {
@@ -142,12 +142,12 @@ export class AttendanceService {
     };
   }
 
-  async createAllAttendancesForGroupStudent(groupStudentId: number) {
-    const groupStudent = await this.groupStudentService.findOne(groupStudentId);
+  async createAllAttendancesForClassStudent(classStudentId: number) {
+    const classStudent = await this.classStudentService.findOne(classStudentId);
     const today = dayjs().startOf("day").toDate();
     const lessons = await this.lessonRepo.find({
       where: {
-        schoolClass: { id: groupStudent.schoolClass.id },
+        schoolClass: { id: classStudent.schoolClass.id },
         date: MoreThanOrEqual(today),
       },
       relations: ["schoolClass", "room"],
@@ -156,7 +156,7 @@ export class AttendanceService {
 
     const attendancesToCreate = lessons.map((lesson) =>
       this.attendanceRepo.create({
-        student: groupStudent.student,
+        student: classStudent.student,
         lesson,
         date: lesson.date,
         status: AttendanceStatus.PENDING,
@@ -167,12 +167,12 @@ export class AttendanceService {
     return savedAttendances;
   }
 
-  async deleteAllAttendanceForGroupStudent(groupStudentId: number) {
-    const groupStudent = await this.groupStudentService.findOne(groupStudentId);
+  async deleteAllAttendanceForClassStudent(classStudentId: number) {
+    const classStudent = await this.classStudentService.findOne(classStudentId);
     const today = dayjs().startOf("day").toDate();
     const lessons = await this.lessonRepo.find({
       where: {
-        schoolClass: { id: groupStudent.schoolClass.id },
+        schoolClass: { id: classStudent.schoolClass.id },
         date: MoreThanOrEqual(today),
       },
       order: { date: "ASC" },
@@ -239,10 +239,10 @@ export class AttendanceService {
 
   //   // 5. Get active students
   //   const activeClassData =
-  //     await this.groupStudentService.findActiveStudentsInClassForAttendance(
+  //     await this.classStudentService.findActiveStudentsInClassForAttendance(
   //       lesson.schoolClass.id
   //     );
-  //   const activeStudentIds: number[] = activeClassData.groupStudents.map(
+  //   const activeStudentIds: number[] = activeClassData.classStudents.map(
   //     (gs) => gs.student.id
   //   );
 
@@ -344,10 +344,10 @@ export class AttendanceService {
 
     // 5. Active students
     const activeClassData =
-      await this.groupStudentService.findActiveStudentsInClassForAttendance(
+      await this.classStudentService.findActiveStudentsInClassForAttendance(
         lesson.schoolClass.id
       );
-    const activeStudentIds = activeClassData.groupStudents.map(
+    const activeStudentIds = activeClassData.classStudents.map(
       (gs) => gs.student.id
     );
 
@@ -423,14 +423,14 @@ export class AttendanceService {
     }
 
     if (lesson.status === LessonStatus.NEW) {
-      const groupStudents =
-        await this.groupStudentService.findActiveStudentsInClass(
+      const classStudents =
+        await this.classStudentService.findActiveStudentsInClass(
           lesson.schoolClass.id
         );
 
       return {
         isAttended: false,
-        groupStudents,
+        classStudents,
         lessonInfo: {
           id: lesson.id,
           title: lesson.title,

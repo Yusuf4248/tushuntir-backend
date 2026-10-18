@@ -1,5 +1,6 @@
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { ApiProperty } from "@nestjs/swagger";
 import {
+  IsArray,
   IsBoolean,
   IsDateString,
   IsNotEmpty,
@@ -8,38 +9,36 @@ import {
 } from "class-validator";
 import { Type } from "class-transformer";
 
-export class UpdateGroupStudentDto {
-  @ApiPropertyOptional({
+export class CreateClassStudentDto {
+  @ApiProperty({
     example: 2,
     description: "Class ID",
     type: Number,
   })
   @IsNumber()
-  @IsOptional()
+  @IsNotEmpty()
   @Type(() => Number)
-  classId?: number;
+  classId: number;
 
   @ApiProperty({
-    example: 5,
+    example: [5],
     description: "Student ID",
     type: Number,
   })
-  @IsNumber()
+  @IsArray()
   @IsNotEmpty()
-  @IsOptional()
-  @Type(() => Number)
-  studentId?: number;
+  studentId: number[];
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     example: true,
     description: "Status of the student in the class (active/inactive)",
   })
   @IsBoolean()
   @IsOptional()
   @Type(() => Boolean)
-  status?: boolean;
+  status?: boolean = true;
 
-  @ApiPropertyOptional({ example: "2025-01-01" })
+  @ApiProperty({ example: "2025-01-01" })
   @IsDateString()
   @IsOptional()
   start_date?: string;

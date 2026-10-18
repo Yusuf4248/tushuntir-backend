@@ -21,142 +21,142 @@ import {
   ApiOkResponse,
   ApiBearerAuth,
 } from "@nestjs/swagger";
-import { GroupStudentsService } from "./group-students.service";
-import { CreateGroupStudentDto } from "./dto/create-group-student.dto";
-import { UpdateGroupStudentDto } from "./dto/update-group-student.dto";
-import { GroupStudent } from "./entities/group-student.entity";
-import { Roles } from "../app.constants";
-import { AuthGuard } from "../common/guards/auth.guard";
-import { RolesGuard } from "../common/guards/role.guard";
+import { ClassStudentsService } from "./class-students.service";
+import { CreateClassStudentDto } from "./dto/create-class-student.dto";
+import { UpdateClassStudentDto } from "./dto/update-class-student.dto";
+import { ClassStudent } from "./entities/class-student.entity";
+import { Roles } from "../../../app.constants";
+import { AuthGuard } from "../../../common/guards/auth.guard";
+import { RolesGuard } from "../../../common/guards/role.guard";
 
 @ApiBearerAuth("JWT-auth")
-@ApiTags("Group Students")
-@Controller("group-students")
-export class GroupStudentsController {
-  constructor(private readonly groupStudentsService: GroupStudentsService) {}
+@ApiTags("Class students")
+@Controller("class-students")
+export class ClassStudentsController {
+  constructor(private readonly classStudentsService: ClassStudentsService) {}
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles("admin", "superadmin")
   @Post()
   @ApiOperation({
-    summary: "Create a new group-student relationship",
+    summary: "Create a new class-student relationship",
     description: "Add a student to a class with specified status and period",
   })
   @ApiBody({
-    type: CreateGroupStudentDto,
+    type: CreateClassStudentDto,
     description: "Class student data to create",
   })
   @ApiCreatedResponse({
     description: "Class student relationship created successfully",
-    type: GroupStudent,
+    type: ClassStudent,
   })
   @ApiBadRequestResponse({
     description: "Invalid input data or validation error",
   })
-  create(@Body() createGroupStudentDto: CreateGroupStudentDto) {
-    return this.groupStudentsService.create(createGroupStudentDto);
+  create(@Body() createClassStudentDto: CreateClassStudentDto) {
+    return this.classStudentsService.create(createClassStudentDto);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles("admin", "superadmin")
   @Get()
   @ApiOperation({
-    summary: "Get all group-student relationships",
-    description: "Retrieve a list of all group-student relationships",
+    summary: "Get all class-student relationships",
+    description: "Retrieve a list of all class-student relationships",
   })
   @ApiOkResponse({
-    description: "List of group-student relationships retrieved successfully",
-    type: [GroupStudent],
+    description: "List of class-student relationships retrieved successfully",
+    type: [ClassStudent],
   })
   findAll() {
-    return this.groupStudentsService.findAll();
+    return this.classStudentsService.findAll();
   }
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles("admin", "superadmin", "teacher", "student")
   @Get(":id")
   @ApiOperation({
-    summary: "Get a specific group-student relationship",
-    description: "Retrieve a group-student relationship by its ID",
+    summary: "Get a specific class-student relationship",
+    description: "Retrieve a class-student relationship by its ID",
   })
   @ApiParam({
     name: "id",
     type: "number",
-    description: "The ID of the group-student relationship",
+    description: "The ID of the class-student relationship",
     example: 1,
   })
   @ApiOkResponse({
-    description: "Group-student relationship found successfully",
-    type: GroupStudent,
+    description: "Class-student relationship found successfully",
+    type: ClassStudent,
   })
   @ApiNotFoundResponse({
-    description: "Group-student relationship not found",
+    description: "Class-student relationship not found",
   })
   @ApiBadRequestResponse({
     description: "Invalid ID format",
   })
   findOne(@Param("id") id: string) {
-    return this.groupStudentsService.findOne(+id);
+    return this.classStudentsService.findOne(+id);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles("admin", "superadmin")
   @Patch(":id")
   @ApiOperation({
-    summary: "Update a group-student relationship",
-    description: "Update an existing group-student relationship by ID",
+    summary: "Update a class-student relationship",
+    description: "Update an existing class-student relationship by ID",
   })
   @ApiParam({
     name: "id",
     type: "number",
-    description: "The ID of the group-student relationship to update",
+    description: "The ID of the class-student relationship to update",
     example: 1,
   })
   @ApiBody({
-    type: UpdateGroupStudentDto,
+    type: UpdateClassStudentDto,
     description: "Class student data to update",
   })
   @ApiOkResponse({
-    description: "Group-student relationship updated successfully",
-    type: GroupStudent,
+    description: "Class-student relationship updated successfully",
+    type: ClassStudent,
   })
   @ApiNotFoundResponse({
-    description: "Group-student relationship not found",
+    description: "Class-student relationship not found",
   })
   @ApiBadRequestResponse({
     description: "Invalid input data or validation error",
   })
   update(
     @Param("id") id: string,
-    @Body() updateGroupStudentDto: UpdateGroupStudentDto
+    @Body() updateClassStudentDto: UpdateClassStudentDto
   ) {
-    return this.groupStudentsService.update(+id, updateGroupStudentDto);
+    return this.classStudentsService.update(+id, updateClassStudentDto);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles("admin", "superadmin")
   @Delete(":id")
   @ApiOperation({
-    summary: "Delete a group-student relationship",
+    summary: "Delete a class-student relationship",
     description: "Remove a student from a class by deleting the relationship",
   })
   @ApiParam({
     name: "id",
     type: "number",
-    description: "The ID of the group-student relationship to delete",
+    description: "The ID of the class-student relationship to delete",
     example: 1,
   })
   @ApiOkResponse({
-    description: "Group-student relationship deleted successfully",
+    description: "Class-student relationship deleted successfully",
   })
   @ApiNotFoundResponse({
-    description: "Group-student relationship not found",
+    description: "Class-student relationship not found",
   })
   @ApiBadRequestResponse({
     description: "Invalid ID format",
   })
   remove(@Param("id") id: string) {
-    return this.groupStudentsService.remove(+id);
+    return this.classStudentsService.remove(+id);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
@@ -167,12 +167,12 @@ export class GroupStudentsController {
   @ApiResponse({
     status: 200,
     description: "List of class students",
-    type: [GroupStudent],
+    type: [ClassStudent],
   })
   async findByClass(
     @Param("classId", ParseIntPipe) classId: number
-  ): Promise<GroupStudent[]> {
-    return this.groupStudentsService.findByClass(classId);
+  ): Promise<ClassStudent[]> {
+    return this.classStudentsService.findByClass(classId);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
@@ -183,12 +183,12 @@ export class GroupStudentsController {
   @ApiResponse({
     status: 200,
     description: "List of classes for student",
-    type: [GroupStudent],
+    type: [ClassStudent],
   })
   async findByStudent(
     @Param("studentId", ParseIntPipe) studentId: number
-  ): Promise<GroupStudent[]> {
-    return this.groupStudentsService.findByStudent(studentId);
+  ): Promise<ClassStudent[]> {
+    return this.classStudentsService.findByStudent(studentId);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
@@ -199,43 +199,43 @@ export class GroupStudentsController {
   @ApiResponse({
     status: 200,
     description: "List of active students",
-    type: [GroupStudent],
+    type: [ClassStudent],
   })
   async findActiveStudentsInClass(
     @Param("classId", ParseIntPipe) classId: number
   ) {
-    return this.groupStudentsService.findActiveStudentsInClass(classId);
+    return this.classStudentsService.findActiveStudentsInClass(classId);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles("admin", "superadmin")
   @Patch("deactivate/:id")
-  @ApiOperation({ summary: "Deactivate a group-student record" })
+  @ApiOperation({ summary: "Deactivate a class-student record" })
   @ApiParam({ name: "id", type: Number })
   @ApiResponse({
     status: 200,
     description: "Deactivated record",
-    type: GroupStudent,
+    type: ClassStudent,
   })
   async deactivateStudent(
     @Param("id", ParseIntPipe) id: number
-  ): Promise<GroupStudent> {
-    return this.groupStudentsService.deactivateStudent(id);
+  ): Promise<ClassStudent> {
+    return this.classStudentsService.deactivateStudent(id);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles("admin", "superadmin")
   @Patch("activate/:id")
-  @ApiOperation({ summary: "Activate a group-student record" })
+  @ApiOperation({ summary: "Activate a class-student record" })
   @ApiParam({ name: "id", type: Number })
   @ApiResponse({
     status: 200,
     description: "Activated record",
-    type: GroupStudent,
+    type: ClassStudent,
   })
   async activateStudent(
     @Param("id", ParseIntPipe) id: number
-  ): Promise<GroupStudent> {
-    return this.groupStudentsService.activateStudent(id);
+  ): Promise<ClassStudent> {
+    return this.classStudentsService.activateStudent(id);
   }
 }

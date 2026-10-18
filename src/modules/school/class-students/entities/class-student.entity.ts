@@ -6,24 +6,24 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { SchoolClass } from "../../modules/school/classes/entities/school-class.entity";
-import { Student } from "../../student/entities/student.entities";
+import { SchoolClass } from "../../classes/entities/school-class.entity";
+import { Student } from "../../../../student/entities/student.entities";
 
-@Entity("group-students")
-export class GroupStudent {
+@Entity("class_students")
+export class ClassStudent {
   @ApiProperty({ example: 1, description: "Unique identifier" })
   @PrimaryGeneratedColumn()
   id: number;
 
   @ApiProperty({ example: 2, description: "Class ID", type: () => SchoolClass })
-  @ManyToOne(() => SchoolClass, (schoolClass) => schoolClass.groupStudents, {
+  @ManyToOne(() => SchoolClass, (schoolClass) => schoolClass.classStudents, {
     onDelete: "CASCADE",
   })
   @JoinColumn({ name: "class_id" })
   schoolClass: SchoolClass;
 
   @ApiProperty({ example: 5, description: "Student ID", type: () => Student })
-  @ManyToOne(() => Student, (student) => student.groupStudents, {
+  @ManyToOne(() => Student, (student) => student.classStudents, {
     onDelete: "CASCADE",
   })
   student: Student;

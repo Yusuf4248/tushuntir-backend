@@ -11,7 +11,7 @@ import { FileModule } from "../shared/file/file.module";
 import { JwtModule } from "@nestjs/jwt";
 import { Homework } from "../homeworks/entities/homework.entity";
 import { Media } from "../media/entities/media.entity";
-import { GroupStudent } from "../group-students/entities/group-student.entity";
+import { ClassStudent } from "../modules/school/class-students/entities/class-student.entity";
 
 @Module({
   imports: [
@@ -24,7 +24,7 @@ import { GroupStudent } from "../group-students/entities/group-student.entity";
       Homework,
       Media,
       HomeworkSubmission,
-      GroupStudent,
+      ClassStudent,
     ]),
     FileModule,
     JwtModule,

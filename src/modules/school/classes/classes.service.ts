@@ -14,7 +14,7 @@ import { SchoolClass } from "./entities/school-class.entity";
 import { QueryFailedError, Repository } from "typeorm";
 import { SubjectsService } from "../subjects/subjects.service";
 import { LessonsService } from "../../../lessons/lessons.service";
-import { GroupStudentsService } from "../../../group-students/group-students.service";
+import { ClassStudentsService } from "../class-students/class-students.service";
 import { GroupTeachersService } from "../../../group-teachers/group-teachers.service";
 import { AttendanceService } from "../../../attendance/attendance.service";
 
@@ -26,8 +26,8 @@ export class ClassesService {
     private readonly lessonService: LessonsService,
     private readonly subjectService: SubjectsService,
     private readonly attendanceService: AttendanceService,
-    @Inject(forwardRef(() => GroupStudentsService))
-    private readonly groupStudentsService: GroupStudentsService,
+    @Inject(forwardRef(() => ClassStudentsService))
+    private readonly classStudentsService: ClassStudentsService,
     @Inject(forwardRef(() => GroupTeachersService))
     private readonly groupTeachersService: GroupTeachersService
   ) {}
@@ -95,7 +95,7 @@ export class ClassesService {
       );
     const schoolClass = await this.classRepo.findOne({
       where: { id },
-      relations: ["subject", "lessons", "groupTeachers", "groupStudents"],
+      relations: ["subject", "lessons", "groupTeachers", "classStudents"],
     });
     if (!schoolClass) {
       throw new NotFoundException(`Class ID-${id} not found`);
@@ -150,7 +150,7 @@ export class ClassesService {
     const schoolClass = await this.findOne(id);
     await this.lessonService.completeExpiredLessons();
     const groupTeachers = await this.groupTeachersService.findByClass(id);
-    const groupStudents = await this.groupStudentsService.findByClass(id);
+    const classStudents = await this.classStudentsService.findByClass(id);
     const { lessons } = await this.lessonService.findClassAllLessons(id);
     const newDate = new Date();
     const data = await this.attendanceService.isLessonAttendedByDate(
@@ -163,7 +163,7 @@ export class ClassesService {
       schoolClass: schoolClass.schoolClass,
       room: schoolClass.room,
       groupTeachers,
-      groupStudents,
+      classStudents,
       lessons,
       data,
     };

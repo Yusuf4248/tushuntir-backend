@@ -11,7 +11,7 @@ import { Attendance } from "../../attendance/entities/attendance.entity";
 import { HomeworkSubmission } from "../../homework-submission/entities/homework-submission.entity";
 import { Grade } from "../../grades/entities/grade.entity";
 import { ExamResult } from "../../exam-results/entities/exam-result.entity";
-import { GroupStudent } from "../../group-students/entities/group-student.entity";
+import { ClassStudent } from "../../modules/school/class-students/entities/class-student.entity";
 
 @Entity("student")
 export class Student {
@@ -94,8 +94,8 @@ export class Student {
   @OneToMany(() => Attendance, (attendance) => attendance.student)
   attendance: Attendance[];
 
-  @OneToMany(() => GroupStudent, (groupStudent) => groupStudent.student)
-  groupStudents: GroupStudent[];
+  @OneToMany(() => ClassStudent, (classStudent) => classStudent.student)
+  classStudents: ClassStudent[];
 
   @OneToMany(
     () => HomeworkSubmission,
