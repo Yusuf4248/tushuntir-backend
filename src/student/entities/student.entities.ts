@@ -10,7 +10,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { Attendance } from "../../attendance/entities/attendance.entity";
 import { HomeworkSubmission } from "../../modules/homework/homework-submissions/entities/homework-submission.entity";
 import { Grade } from "../../grades/entities/grade.entity";
-import { ExamResult } from "../../exam-results/entities/exam-result.entity";
+import { ExamResult } from "../../modules/assessment/exam-results/entities/exam-result.entity";
 import { ClassStudent } from "../../modules/school/class-students/entities/class-student.entity";
 
 @Entity("student")

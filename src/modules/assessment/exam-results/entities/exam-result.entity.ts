@@ -7,11 +7,11 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { ExamSession } from "../../modules/assessment/exam-sessions/entities/exam-session.entity";
-import { Student } from "../../student/entities/student.entities";
+import { ExamSession } from "../../exam-sessions/entities/exam-session.entity";
+import { Student } from "../../../../student/entities/student.entities";
 import { ApiProperty } from "@nestjs/swagger";
 
-@Entity("exam-results")
+@Entity("exam_results")
 export class ExamResult {
   @ApiProperty({ example: 1 })
   @PrimaryGeneratedColumn()
