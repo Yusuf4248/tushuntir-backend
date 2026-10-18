@@ -8,11 +8,11 @@ import { JwtModule } from "@nestjs/jwt";
 import { ClassesModule } from "../modules/school/classes/classes.module";
 import { Room } from "../rooms/entities/room.entity";
 import { ClassStudent } from "../modules/school/class-students/entities/class-student.entity";
-import { GroupTeacher } from "../group-teachers/entities/group-teacher.entity";
+import { TeacherAssignment } from "../modules/school/teacher-assignments/entities/teacher-assignment.entity";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Lesson, SchoolClass, Room, ClassStudent, GroupTeacher]),
+    TypeOrmModule.forFeature([Lesson, SchoolClass, Room, ClassStudent, TeacherAssignment]),
     JwtModule,
     forwardRef(() => ClassesModule),
   ],

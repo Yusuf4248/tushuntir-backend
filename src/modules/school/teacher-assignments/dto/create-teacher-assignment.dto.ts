@@ -8,7 +8,7 @@ import {
   IsOptional,
 } from "class-validator";
 
-export class CreateGroupTeacherDto {
+export class CreateTeacherAssignmentDto {
   @ApiProperty({ example: 2, description: "Class ID" })
   @IsNumber()
   @IsNotEmpty()

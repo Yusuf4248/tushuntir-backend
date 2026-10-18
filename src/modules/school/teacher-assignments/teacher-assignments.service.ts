@@ -5,17 +5,17 @@ import {
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { GroupTeacher } from "./entities/group-teacher.entity";
-import { CreateGroupTeacherDto } from "./dto/create-group-teacher.dto";
-import { UpdateGroupTeacherDto } from "./dto/update-group-teacher.dto";
-import { SchoolClass } from "../modules/school/classes/entities/school-class.entity";
-import { Teacher } from "../teacher/entities/teacher.entity";
+import { TeacherAssignment } from "./entities/teacher-assignment.entity";
+import { CreateTeacherAssignmentDto } from "./dto/create-teacher-assignment.dto";
+import { UpdateTeacherAssignmentDto } from "./dto/update-teacher-assignment.dto";
+import { SchoolClass } from "../classes/entities/school-class.entity";
+import { Teacher } from "../../../teacher/entities/teacher.entity";
 
 @Injectable()
-export class GroupTeachersService {
+export class TeacherAssignmentsService {
   constructor(
-    @InjectRepository(GroupTeacher)
-    private readonly groupTeacherRepository: Repository<GroupTeacher>,
+    @InjectRepository(TeacherAssignment)
+    private readonly teacherAssignmentRepository: Repository<TeacherAssignment>,
     @InjectRepository(SchoolClass)
     private readonly classRepository: Repository<SchoolClass>,
     @InjectRepository(Teacher)
@@ -23,23 +23,23 @@ export class GroupTeachersService {
   ) {}
 
   async create(
-    createGroupTeacherDto: CreateGroupTeacherDto
-  ): Promise<GroupTeacher[]> {
-    const { classId, teacherId, status, start_date } = createGroupTeacherDto;
+    createTeacherAssignmentDto: CreateTeacherAssignmentDto
+  ): Promise<TeacherAssignment[]> {
+    const { classId, teacherId, status, start_date } = createTeacherAssignmentDto;
 
     const schoolClass = await this.classRepository.findOne({
       where: { id: classId },
     });
     if (!schoolClass) throw new NotFoundException("Class not found");
 
-    const results: GroupTeacher[] = [];
+    const results: TeacherAssignment[] = [];
 
     for (const id of teacherId) {
       const teacher = await this.teacherRepository.findOne({ where: { id } });
       if (!teacher)
         throw new NotFoundException(`Teacher with ID ${id} not found`);
 
-      const existingRelation = await this.groupTeacherRepository.findOne({
+      const existingRelation = await this.teacherAssignmentRepository.findOne({
         where: { schoolClass: { id: classId }, teacher: { id } },
       });
 
@@ -49,7 +49,7 @@ export class GroupTeachersService {
         );
       }
 
-      const newRelation = this.groupTeacherRepository.create({
+      const newRelation = this.teacherAssignmentRepository.create({
         schoolClass,
         teacher,
         status: status ?? true,
@@ -57,15 +57,15 @@ export class GroupTeachersService {
         end_date: schoolClass.end_date,
       });
 
-      const saved = await this.groupTeacherRepository.save(newRelation);
+      const saved = await this.teacherAssignmentRepository.save(newRelation);
       results.push(saved);
     }
 
     return results;
   }
 
-  findAll(): Promise<GroupTeacher[]> {
-    return this.groupTeacherRepository.find({
+  findAll(): Promise<TeacherAssignment[]> {
+    return this.teacherAssignmentRepository.find({
       relations: ["schoolClass", "teacher"],
       order: {
         id: "ASC",
@@ -73,31 +73,31 @@ export class GroupTeachersService {
     });
   }
 
-  async findOne(id: number): Promise<GroupTeacher> {
-    const groupTeacher = await this.groupTeacherRepository.findOne({
+  async findOne(id: number): Promise<TeacherAssignment> {
+    const teacherAssignment = await this.teacherAssignmentRepository.findOne({
       where: { id },
       relations: ["schoolClass", "teacher"],
       order: {
         id: "ASC",
       },
     });
-    if (!groupTeacher) throw new NotFoundException("GroupTeacher not found");
-    return groupTeacher;
+    if (!teacherAssignment) throw new NotFoundException("TeacherAssignment not found");
+    return teacherAssignment;
   }
 
   async update(
     id: number,
-    updateDto: UpdateGroupTeacherDto
-  ): Promise<GroupTeacher> {
-    const groupTeacher = await this.groupTeacherRepository.findOneBy({ id });
-    if (!groupTeacher) throw new NotFoundException("GroupTeacher not found");
+    updateDto: UpdateTeacherAssignmentDto
+  ): Promise<TeacherAssignment> {
+    const teacherAssignment = await this.teacherAssignmentRepository.findOneBy({ id });
+    if (!teacherAssignment) throw new NotFoundException("TeacherAssignment not found");
 
     if (updateDto.classId) {
       const schoolClass = await this.classRepository.findOneBy({
         id: updateDto.classId,
       });
       if (!schoolClass) throw new NotFoundException("Class not found");
-      groupTeacher.schoolClass = schoolClass;
+      teacherAssignment.schoolClass = schoolClass;
     }
 
     if (updateDto.teacherId) {
@@ -105,43 +105,43 @@ export class GroupTeachersService {
         id: updateDto.teacherId,
       });
       if (!teacher) throw new NotFoundException("Teacher not found");
-      groupTeacher.teacher = teacher;
+      teacherAssignment.teacher = teacher;
     }
 
-    return this.groupTeacherRepository.save(groupTeacher);
+    return this.teacherAssignmentRepository.save(teacherAssignment);
   }
 
   async remove(
     classId: number,
     teacherId: number
   ): Promise<{ message: string }> {
-    const result = await this.groupTeacherRepository.delete({
+    const result = await this.teacherAssignmentRepository.delete({
       schoolClass: { id: classId },
       teacher: { id: teacherId },
     });
 
     if (result.affected === 0) {
       throw new NotFoundException(
-        `GroupTeacher with classId=${classId} and teacherId=${teacherId} not found`
+        `TeacherAssignment with classId=${classId} and teacherId=${teacherId} not found`
       );
     }
 
-    return { message: "GroupTeacher deleted successfully" };
+    return { message: "TeacherAssignment deleted successfully" };
   }
 
-  async deactivateTeacher(id: number): Promise<GroupTeacher> {
-    const groupTeacher = await this.findOne(id);
-    groupTeacher.status = false;
-    return await this.groupTeacherRepository.save(groupTeacher);
+  async deactivateTeacher(id: number): Promise<TeacherAssignment> {
+    const teacherAssignment = await this.findOne(id);
+    teacherAssignment.status = false;
+    return await this.teacherAssignmentRepository.save(teacherAssignment);
   }
 
-  async activateTeacher(id: number): Promise<GroupTeacher> {
-    const groupTeacher = await this.findOne(id);
-    groupTeacher.status = true;
-    return await this.groupTeacherRepository.save(groupTeacher);
+  async activateTeacher(id: number): Promise<TeacherAssignment> {
+    const teacherAssignment = await this.findOne(id);
+    teacherAssignment.status = true;
+    return await this.teacherAssignmentRepository.save(teacherAssignment);
   }
 
-  async findActiveTeachersInClass(classId: number): Promise<GroupTeacher[]> {
+  async findActiveTeachersInClass(classId: number): Promise<TeacherAssignment[]> {
     const schoolClass = await this.classRepository.findOne({
       where: { id: classId },
     });
@@ -149,7 +149,7 @@ export class GroupTeachersService {
       throw new NotFoundException(`Class with ID ${classId} not found`);
     }
 
-    return await this.groupTeacherRepository.find({
+    return await this.teacherAssignmentRepository.find({
       where: {
         schoolClass: { id: classId },
         status: true,
@@ -159,7 +159,7 @@ export class GroupTeachersService {
     });
   }
 
-  async findByClass(classId: number): Promise<GroupTeacher[]> {
+  async findByClass(classId: number): Promise<TeacherAssignment[]> {
     const schoolClass = await this.classRepository.findOne({
       where: { id: classId },
     });
@@ -167,23 +167,23 @@ export class GroupTeachersService {
       throw new NotFoundException(`Class with ID ${classId} not found`);
     }
 
-    const groupTeachers = await this.groupTeacherRepository.find({
+    const teacherAssignments = await this.teacherAssignmentRepository.find({
       where: { schoolClass: { id: classId } },
       relations: ["teacher"],
       order: { id: "ASC" },
     });
-    return groupTeachers;
+    return teacherAssignments;
   }
 
-  async findByTeacher(teacherId: number): Promise<GroupTeacher[]> {
-    const teacher = await this.groupTeacherRepository.findOne({
+  async findByTeacher(teacherId: number): Promise<TeacherAssignment[]> {
+    const teacher = await this.teacherAssignmentRepository.findOne({
       where: { teacher: { id: teacherId } },
     });
     if (!teacher) {
       throw new NotFoundException(`${teacherId}-teacher has no class`);
     }
 
-    return await this.groupTeacherRepository.find({
+    return await this.teacherAssignmentRepository.find({
       where: { teacher: { id: teacherId } },
       relations: ["schoolClass"],
       order: { id: "ASC" },

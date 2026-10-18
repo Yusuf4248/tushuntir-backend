@@ -15,7 +15,7 @@ import { QueryFailedError, Repository } from "typeorm";
 import { SubjectsService } from "../subjects/subjects.service";
 import { LessonsService } from "../../../lessons/lessons.service";
 import { ClassStudentsService } from "../class-students/class-students.service";
-import { GroupTeachersService } from "../../../group-teachers/group-teachers.service";
+import { TeacherAssignmentsService } from "../teacher-assignments/teacher-assignments.service";
 import { AttendanceService } from "../../../attendance/attendance.service";
 
 @Injectable()
@@ -28,8 +28,8 @@ export class ClassesService {
     private readonly attendanceService: AttendanceService,
     @Inject(forwardRef(() => ClassStudentsService))
     private readonly classStudentsService: ClassStudentsService,
-    @Inject(forwardRef(() => GroupTeachersService))
-    private readonly groupTeachersService: GroupTeachersService
+    @Inject(forwardRef(() => TeacherAssignmentsService))
+    private readonly teacherAssignmentsService: TeacherAssignmentsService
   ) {}
   async create(createSchoolClassDto: CreateSchoolClassDto) {
     const { subject } = await this.subjectService.findOne(
@@ -95,7 +95,7 @@ export class ClassesService {
       );
     const schoolClass = await this.classRepo.findOne({
       where: { id },
-      relations: ["subject", "lessons", "groupTeachers", "classStudents"],
+      relations: ["subject", "lessons", "teacherAssignments", "classStudents"],
     });
     if (!schoolClass) {
       throw new NotFoundException(`Class ID-${id} not found`);
@@ -149,7 +149,7 @@ export class ClassesService {
   async findOneClassForTeacher(id: number) {
     const schoolClass = await this.findOne(id);
     await this.lessonService.completeExpiredLessons();
-    const groupTeachers = await this.groupTeachersService.findByClass(id);
+    const teacherAssignments = await this.teacherAssignmentsService.findByClass(id);
     const classStudents = await this.classStudentsService.findByClass(id);
     const { lessons } = await this.lessonService.findClassAllLessons(id);
     const newDate = new Date();
@@ -162,7 +162,7 @@ export class ClassesService {
       message: `${id}-schoolClass`,
       schoolClass: schoolClass.schoolClass,
       room: schoolClass.room,
-      groupTeachers,
+      teacherAssignments,
       classStudents,
       lessons,
       data,

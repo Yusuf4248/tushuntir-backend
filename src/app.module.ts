@@ -19,7 +19,7 @@ import { MediaModule } from "./media/media.module";
 import { MailModule } from "./shared/mail/mail.module";
 import { FileModule } from "./shared/file/file.module";
 import { LessonsModule } from "./lessons/lessons.module";
-import { GroupTeachersModule } from "./group-teachers/group-teachers.module";
+import { TeacherAssignmentsModule } from "./modules/school/teacher-assignments/teacher-assignments.module";
 import { ClassStudentsModule } from "./modules/school/class-students/class-students.module";
 import { DataSource } from "typeorm";
 
@@ -45,7 +45,7 @@ import { DataSource } from "typeorm";
     SubjectsModule,
     ClassesModule,
     LessonsModule,
-    GroupTeachersModule,
+    TeacherAssignmentsModule,
     ClassStudentsModule,
     AttendanceModule,
     HomeworksModule,

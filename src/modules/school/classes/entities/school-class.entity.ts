@@ -14,7 +14,7 @@ import { Subject } from "../../subjects/entities/subject.entity";
 import { Homework } from "../../../../homeworks/entities/homework.entity";
 import { Exam } from "../../../../exams/entities/exam.entity";
 import { Lesson } from "../../../../lessons/entities/lesson.entity";
-import { GroupTeacher } from "../../../../group-teachers/entities/group-teacher.entity";
+import { TeacherAssignment } from "../../teacher-assignments/entities/teacher-assignment.entity";
 import { ClassStudent } from "../../class-students/entities/class-student.entity";
 
 export enum ClassStatus {
@@ -73,11 +73,11 @@ export class SchoolClass {
   @JoinColumn({ name: "subject_id" })
   subject: Subject;
 
-  @OneToMany(() => GroupTeacher, (groupTeacher) => groupTeacher.schoolClass, {
+  @OneToMany(() => TeacherAssignment, (teacherAssignment) => teacherAssignment.schoolClass, {
     onDelete: "CASCADE",
   })
-  @ApiProperty({ type: () => GroupTeacher })
-  groupTeachers: GroupTeacher[];
+  @ApiProperty({ type: () => TeacherAssignment })
+  teacherAssignments: TeacherAssignment[];
 
   @OneToMany(() => ClassStudent, (classStudent) => classStudent.schoolClass, {
     onDelete: "CASCADE",

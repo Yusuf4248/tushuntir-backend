@@ -10,7 +10,7 @@ import { SchoolClass } from "../modules/school/classes/entities/school-class.ent
 import { School } from "../modules/school/schools/entities/school.entity";
 import { JwtModule } from "@nestjs/jwt";
 import { FileModule } from "../shared/file/file.module";
-import { GroupTeacher } from "../group-teachers/entities/group-teacher.entity";
+import { TeacherAssignment } from "../modules/school/teacher-assignments/entities/teacher-assignment.entity";
 
 @Module({
   imports: [
@@ -21,7 +21,7 @@ import { GroupTeacher } from "../group-teachers/entities/group-teacher.entity";
       Exam,
       SchoolClass,
       School,
-      GroupTeacher,
+      TeacherAssignment,
     ]),
     JwtModule,
     FileModule,

@@ -13,7 +13,7 @@ import { Homework } from "../../homeworks/entities/homework.entity";
 import { Grade } from "../../grades/entities/grade.entity";
 import { Exam } from "../../exams/entities/exam.entity";
 import { School } from "../../modules/school/schools/entities/school.entity";
-import { GroupTeacher } from "../../group-teachers/entities/group-teacher.entity";
+import { TeacherAssignment } from "../../modules/school/teacher-assignments/entities/teacher-assignment.entity";
 
 @Entity("teacher")
 export class Teacher {
@@ -71,9 +71,9 @@ export class Teacher {
   @UpdateDateColumn()
   updated_at: Date;
 
-  @OneToMany(() => GroupTeacher, (groupTeacher) => groupTeacher.teacher)
-  @ApiProperty({ type: () => GroupTeacher })
-  groupTeachers: GroupTeacher[];
+  @OneToMany(() => TeacherAssignment, (teacherAssignment) => teacherAssignment.teacher)
+  @ApiProperty({ type: () => TeacherAssignment })
+  teacherAssignments: TeacherAssignment[];
 
   @OneToMany(() => Homework, (homework) => homework.teacher)
   homework: Homework[];

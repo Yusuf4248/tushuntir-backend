@@ -19,19 +19,19 @@ import {
   ApiBearerAuth,
   ApiBody,
 } from "@nestjs/swagger";
-import { GroupTeachersService } from "./group-teachers.service";
-import { CreateGroupTeacherDto } from "./dto/create-group-teacher.dto";
-import { UpdateGroupTeacherDto } from "./dto/update-group-teacher.dto";
-import { GroupTeacher } from "./entities/group-teacher.entity";
-import { Roles } from "../app.constants";
-import { AuthGuard } from "../common/guards/auth.guard";
-import { RolesGuard } from "../common/guards/role.guard";
+import { TeacherAssignmentsService } from "./teacher-assignments.service";
+import { CreateTeacherAssignmentDto } from "./dto/create-teacher-assignment.dto";
+import { UpdateTeacherAssignmentDto } from "./dto/update-teacher-assignment.dto";
+import { TeacherAssignment } from "./entities/teacher-assignment.entity";
+import { Roles } from "../../../app.constants";
+import { AuthGuard } from "../../../common/guards/auth.guard";
+import { RolesGuard } from "../../../common/guards/role.guard";
 
 @ApiBearerAuth("JWT-auth")
-@ApiTags("Group-Teachers")
-@Controller("group-teachers")
-export class GroupTeachersController {
-  constructor(private readonly groupTeachersService: GroupTeachersService) {}
+@ApiTags("Teacher assignments")
+@Controller("teacher-assignments")
+export class TeacherAssignmentsController {
+  constructor(private readonly teacherAssignmentsService: TeacherAssignmentsService) {}
 
   @Get("my-classes")
   @UseGuards(AuthGuard)
@@ -43,7 +43,7 @@ export class GroupTeachersController {
           "Only teachers can access their classes"
         );
       }
-      return this.groupTeachersService.findByTeacher(user.id);
+      return this.teacherAssignmentsService.findByTeacher(user.id);
     } catch (error) {
       console.log(error);
     }
@@ -56,60 +56,60 @@ export class GroupTeachersController {
   @ApiResponse({
     status: 201,
     description: "Teacher successfully assigned to class.",
-    type: GroupTeacher,
+    type: TeacherAssignment,
   })
-  create(@Body() createGroupTeacherDto: CreateGroupTeacherDto) {
-    return this.groupTeachersService.create(createGroupTeacherDto);
+  create(@Body() createTeacherAssignmentDto: CreateTeacherAssignmentDto) {
+    return this.teacherAssignmentsService.create(createTeacherAssignmentDto);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles("admin", "superadmin")
   @Get()
-  @ApiOperation({ summary: "Get all group-teacher assignments" })
+  @ApiOperation({ summary: "Get all teacher-assignment assignments" })
   @ApiResponse({
     status: 200,
-    description: "List of group-teacher assignments",
-    type: [GroupTeacher],
+    description: "List of teacher-assignment assignments",
+    type: [TeacherAssignment],
   })
   findAll() {
-    return this.groupTeachersService.findAll();
+    return this.teacherAssignmentsService.findAll();
   }
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles("admin", "superadmin")
   @Get(":id")
-  @ApiOperation({ summary: "Get a single group-teacher assignment by ID" })
-  @ApiParam({ name: "id", type: Number, description: "GroupTeacher ID" })
+  @ApiOperation({ summary: "Get a single teacher-assignment assignment by ID" })
+  @ApiParam({ name: "id", type: Number, description: "TeacherAssignment ID" })
   @ApiResponse({
     status: 200,
-    description: "Single group-teacher assignment",
-    type: GroupTeacher,
+    description: "Single teacher-assignment assignment",
+    type: TeacherAssignment,
   })
   findOne(@Param("id") id: string) {
-    return this.groupTeachersService.findOne(+id);
+    return this.teacherAssignmentsService.findOne(+id);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles("admin", "superadmin")
   @Patch(":id")
-  @ApiOperation({ summary: "Update group-teacher assignment" })
-  @ApiParam({ name: "id", type: Number, description: "GroupTeacher ID" })
+  @ApiOperation({ summary: "Update teacher-assignment assignment" })
+  @ApiParam({ name: "id", type: Number, description: "TeacherAssignment ID" })
   @ApiResponse({
     status: 200,
-    description: "Group-teacher assignment updated",
-    type: GroupTeacher,
+    description: "Teacher assignment updated",
+    type: TeacherAssignment,
   })
   update(
     @Param("id") id: string,
-    @Body() updateGroupTeacherDto: UpdateGroupTeacherDto
+    @Body() updateTeacherAssignmentDto: UpdateTeacherAssignmentDto
   ) {
-    return this.groupTeachersService.update(+id, updateGroupTeacherDto);
+    return this.teacherAssignmentsService.update(+id, updateTeacherAssignmentDto);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles("admin", "superadmin")
   @Delete("remove")
-  @ApiOperation({ summary: "Remove group-teacher assignment" })
+  @ApiOperation({ summary: "Remove teacher-assignment assignment" })
   @ApiBody({
     schema: {
       type: "object",
@@ -128,12 +128,12 @@ export class GroupTeachersController {
       required: ["classId", "teacherId"],
     },
   })
-  @ApiResponse({ status: 200, description: "Group-teacher assignment removed" })
+  @ApiResponse({ status: 200, description: "Teacher assignment removed" })
   remove(
     @Body("classId", ParseIntPipe) classId: number,
     @Body("teacherId", ParseIntPipe) teacherId: number
   ) {
-    return this.groupTeachersService.remove(classId, teacherId);
+    return this.teacherAssignmentsService.remove(classId, teacherId);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
@@ -144,12 +144,12 @@ export class GroupTeachersController {
   @ApiResponse({
     status: 200,
     description: "List of class teachers",
-    type: [GroupTeacher],
+    type: [TeacherAssignment],
   })
   async findByClass(
     @Param("classId", ParseIntPipe) classId: number
-  ): Promise<GroupTeacher[]> {
-    return this.groupTeachersService.findByClass(classId);
+  ): Promise<TeacherAssignment[]> {
+    return this.teacherAssignmentsService.findByClass(classId);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
@@ -160,12 +160,12 @@ export class GroupTeachersController {
   @ApiResponse({
     status: 200,
     description: "List of classes for teacher",
-    type: [GroupTeacher],
+    type: [TeacherAssignment],
   })
   async findByTeacher(
     @Param("teacherId", ParseIntPipe) teacherId: number
-  ): Promise<GroupTeacher[]> {
-    return this.groupTeachersService.findByTeacher(teacherId);
+  ): Promise<TeacherAssignment[]> {
+    return this.teacherAssignmentsService.findByTeacher(teacherId);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
@@ -176,43 +176,43 @@ export class GroupTeachersController {
   @ApiResponse({
     status: 200,
     description: "List of active teachers",
-    type: [GroupTeacher],
+    type: [TeacherAssignment],
   })
   async findActiveTeachersInClass(
     @Param("classId", ParseIntPipe) classId: number
-  ): Promise<GroupTeacher[]> {
-    return this.groupTeachersService.findActiveTeachersInClass(classId);
+  ): Promise<TeacherAssignment[]> {
+    return this.teacherAssignmentsService.findActiveTeachersInClass(classId);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles("admin", "superadmin")
   @Patch("deactivate/:id")
-  @ApiOperation({ summary: "Deactivate a group-teacher record" })
+  @ApiOperation({ summary: "Deactivate a teacher-assignment record" })
   @ApiParam({ name: "id", type: Number })
   @ApiResponse({
     status: 200,
     description: "Deactivated record",
-    type: GroupTeacher,
+    type: TeacherAssignment,
   })
   async deactivateTeacher(
     @Param("id", ParseIntPipe) id: number
-  ): Promise<GroupTeacher> {
-    return this.groupTeachersService.deactivateTeacher(id);
+  ): Promise<TeacherAssignment> {
+    return this.teacherAssignmentsService.deactivateTeacher(id);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles("admin", "superadmin")
   @Patch("activate/:id")
-  @ApiOperation({ summary: "Activate a group-teacher record" })
+  @ApiOperation({ summary: "Activate a teacher-assignment record" })
   @ApiParam({ name: "id", type: Number })
   @ApiResponse({
     status: 200,
     description: "Activated record",
-    type: GroupTeacher,
+    type: TeacherAssignment,
   })
   async activateTeacher(
     @Param("id", ParseIntPipe) id: number
-  ): Promise<GroupTeacher> {
-    return this.groupTeachersService.activateTeacher(id);
+  ): Promise<TeacherAssignment> {
+    return this.teacherAssignmentsService.activateTeacher(id);
   }
 }

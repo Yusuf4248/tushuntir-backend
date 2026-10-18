@@ -15,7 +15,7 @@ import { addDays, isAfter } from "date-fns";
 import { SchoolClass } from "../modules/school/classes/entities/school-class.entity";
 import { Room } from "../rooms/entities/room.entity";
 import { ClassStudent } from "../modules/school/class-students/entities/class-student.entity";
-import { GroupTeacher } from "../group-teachers/entities/group-teacher.entity";
+import { TeacherAssignment } from "../modules/school/teacher-assignments/entities/teacher-assignment.entity";
 import { UpdateLessonStatusDto } from "./dto/update-lesson-status.dto";
 
 @Injectable()
@@ -28,8 +28,8 @@ export class LessonsService {
     @InjectRepository(Room) private readonly roomRepo: Repository<Room>,
     @InjectRepository(ClassStudent)
     private readonly classStudentRepo: Repository<ClassStudent>,
-    @InjectRepository(GroupTeacher)
-    private readonly groupTeacherRepo: Repository<GroupTeacher>
+    @InjectRepository(TeacherAssignment)
+    private readonly teacherAssignmentRepo: Repository<TeacherAssignment>
   ) {}
 
   async create(createLessonDto: CreateLessonDto) {
@@ -62,7 +62,7 @@ export class LessonsService {
         .set({ end_date: newEndDate })
         .where("class_id = :classId", { classId: schoolClass!.id })
         .execute();
-      await this.groupTeacherRepo
+      await this.teacherAssignmentRepo
         .createQueryBuilder()
         .update()
         .set({ end_date: newEndDate })
