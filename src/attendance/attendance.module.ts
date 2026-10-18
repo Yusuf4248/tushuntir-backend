@@ -6,10 +6,10 @@ import { Attendance } from "./entities/attendance.entity";
 import { Student } from "../student/entities/student.entities";
 import { StudentModule } from "../student/student.module";
 import { JwtModule } from "@nestjs/jwt";
-import { LessonsModule } from "../lessons/lessons.module";
+import { LessonsModule } from "../modules/daily/lessons/lessons.module";
 import { ClassesModule } from "../modules/school/classes/classes.module";
 import { ClassStudentsModule } from "../modules/school/class-students/class-students.module";
-import { Lesson } from "../lessons/entities/lesson.entity";
+import { Lesson } from "../modules/daily/lessons/entities/lesson.entity";
 
 @Module({
   imports: [

@@ -12,7 +12,7 @@ import { Teacher } from "../../../../teacher/entities/teacher.entity";
 import { SchoolClass } from "../../../school/classes/entities/school-class.entity";
 import { HomeworkSubmission } from "../../homework-submissions/entities/homework-submission.entity";
 import { ApiProperty } from "@nestjs/swagger";
-import { Lesson } from "../../../../lessons/entities/lesson.entity";
+import { Lesson } from "../../../daily/lessons/entities/lesson.entity";
 
 @Entity("homework")
 export class Homework {

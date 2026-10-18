@@ -11,7 +11,7 @@ import { HomeworkSubmission } from "../homework-submissions/entities/homework-su
 import { JwtModule } from "@nestjs/jwt";
 import { FileModule } from "../../../shared/file/file.module";
 import { Media } from "../media/entities/media.entity";
-import { LessonsModule } from "../../../lessons/lessons.module";
+import { LessonsModule } from "../../daily/lessons/lessons.module";
 
 @Module({
   imports: [

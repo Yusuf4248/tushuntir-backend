@@ -11,7 +11,7 @@ import {
 import { School } from "../../schools/entities/school.entity";
 import { ApiProperty } from "@nestjs/swagger";
 import { ExamSession } from "../../../assessment/exam-sessions/entities/exam-session.entity";
-import { Lesson } from "../../../../lessons/entities/lesson.entity";
+import { Lesson } from "../../../daily/lessons/entities/lesson.entity";
 
 @Entity("rooms")
 export class Room {

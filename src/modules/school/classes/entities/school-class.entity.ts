@@ -13,7 +13,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { Subject } from "../../subjects/entities/subject.entity";
 import { Homework } from "../../../homework/homework/entities/homework.entity";
 import { ExamSession } from "../../../assessment/exam-sessions/entities/exam-session.entity";
-import { Lesson } from "../../../../lessons/entities/lesson.entity";
+import { Lesson } from "../../../daily/lessons/entities/lesson.entity";
 import { TeacherAssignment } from "../../teacher-assignments/entities/teacher-assignment.entity";
 import { ClassStudent } from "../../class-students/entities/class-student.entity";
 

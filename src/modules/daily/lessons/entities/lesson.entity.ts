@@ -9,10 +9,10 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { ApiProperty } from "@nestjs/swagger";
-import { SchoolClass } from "../../modules/school/classes/entities/school-class.entity";
-import { Attendance } from "../../attendance/entities/attendance.entity";
-import { Homework } from "../../modules/homework/homework/entities/homework.entity";
-import { Room } from "../../modules/school/rooms/entities/room.entity";
+import { SchoolClass } from "../../../school/classes/entities/school-class.entity";
+import { Attendance } from "../../../../attendance/entities/attendance.entity";
+import { Homework } from "../../../homework/homework/entities/homework.entity";
+import { Room } from "../../../school/rooms/entities/room.entity";
 
 export enum LessonStatus {
   NEW = "new",
@@ -21,7 +21,7 @@ export enum LessonStatus {
   IN_PROGRESS = "in_progress",
 }
 
-@Entity()
+@Entity("lessons")
 export class Lesson {
   @ApiProperty({ example: 1, description: "Lessonning ID raqami" })
   @PrimaryGeneratedColumn()

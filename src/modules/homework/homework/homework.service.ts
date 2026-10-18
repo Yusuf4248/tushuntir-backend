@@ -12,7 +12,7 @@ import { ClassesService } from "../../school/classes/classes.service";
 import { TeacherService } from "../../../teacher/teacher.service";
 import { Media } from "../media/entities/media.entity";
 import { FileService } from "../../../shared/file/file.service";
-import { LessonsService } from "../../../lessons/lessons.service";
+import { LessonsService } from "../../daily/lessons/lessons.service";
 import * as path from "path";
 
 @Injectable()

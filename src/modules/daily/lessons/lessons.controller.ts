@@ -23,9 +23,9 @@ import {
   ApiBody,
 } from "@nestjs/swagger";
 import { Lesson } from "./entities/lesson.entity";
-import { AuthGuard } from "../common/guards/auth.guard";
-import { RolesGuard } from "../common/guards/role.guard";
-import { Roles } from "../app.constants";
+import { AuthGuard } from "../../../common/guards/auth.guard";
+import { RolesGuard } from "../../../common/guards/role.guard";
+import { Roles } from "../../../app.constants";
 import { UpdateLessonStatusDto } from "./dto/update-lesson-status.dto";
 
 @ApiBearerAuth("JWT-auth")

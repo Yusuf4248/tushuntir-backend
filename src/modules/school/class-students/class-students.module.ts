@@ -7,8 +7,8 @@ import { Student } from "../../../student/entities/student.entities";
 import { SchoolClass } from "../classes/entities/school-class.entity";
 import { JwtModule } from "@nestjs/jwt";
 import { AttendanceModule } from "../../../attendance/attendance.module";
-import { LessonsModule } from "../../../lessons/lessons.module";
-import { Lesson } from "../../../lessons/entities/lesson.entity";
+import { LessonsModule } from "../../daily/lessons/lessons.module";
+import { Lesson } from "../../daily/lessons/entities/lesson.entity";
 
 @Module({
   imports: [

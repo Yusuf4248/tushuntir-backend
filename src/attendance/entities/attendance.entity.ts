@@ -8,7 +8,7 @@ import {
 } from "typeorm";
 import { ApiProperty } from "@nestjs/swagger";
 import { Student } from "../../student/entities/student.entities";
-import { Lesson } from "../../lessons/entities/lesson.entity";
+import { Lesson } from "../../modules/daily/lessons/entities/lesson.entity";
 
 export enum AttendanceStatus {
   CAME = "came",

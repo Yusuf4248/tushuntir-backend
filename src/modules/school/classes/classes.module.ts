@@ -9,10 +9,10 @@ import { ExamSession } from "../../assessment/exam-sessions/entities/exam-sessio
 import { JwtModule } from "@nestjs/jwt";
 import { TeacherAssignment } from "../teacher-assignments/entities/teacher-assignment.entity";
 import { ClassStudent } from "../class-students/entities/class-student.entity";
-import { LessonsModule } from "../../../lessons/lessons.module";
+import { LessonsModule } from "../../daily/lessons/lessons.module";
 import { TeacherAssignmentsModule } from "../teacher-assignments/teacher-assignments.module";
 import { ClassStudentsModule } from "../class-students/class-students.module";
-import { Lesson } from "../../../lessons/entities/lesson.entity";
+import { Lesson } from "../../daily/lessons/entities/lesson.entity";
 import { AttendanceModule } from "../../../attendance/attendance.module";
 
 @Module({

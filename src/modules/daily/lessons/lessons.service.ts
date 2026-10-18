@@ -10,12 +10,12 @@ import { UpdateLessonDto } from "./dto/update-lesson.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Lesson, LessonStatus } from "./entities/lesson.entity";
 import { Between, MoreThan, Repository } from "typeorm";
-import { ClassesService } from "../modules/school/classes/classes.service";
+import { ClassesService } from "../../school/classes/classes.service";
 import { addDays, isAfter } from "date-fns";
-import { SchoolClass } from "../modules/school/classes/entities/school-class.entity";
-import { Room } from "../modules/school/rooms/entities/room.entity";
-import { ClassStudent } from "../modules/school/class-students/entities/class-student.entity";
-import { TeacherAssignment } from "../modules/school/teacher-assignments/entities/teacher-assignment.entity";
+import { SchoolClass } from "../../school/classes/entities/school-class.entity";
+import { Room } from "../../school/rooms/entities/room.entity";
+import { ClassStudent } from "../../school/class-students/entities/class-student.entity";
+import { TeacherAssignment } from "../../school/teacher-assignments/entities/teacher-assignment.entity";
 import { UpdateLessonStatusDto } from "./dto/update-lesson-status.dto";
 
 @Injectable()

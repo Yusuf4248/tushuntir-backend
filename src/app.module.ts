@@ -18,7 +18,7 @@ import { ExamResultsModule } from "./modules/assessment/exam-results/exam-result
 import { MediaModule } from "./modules/homework/media/media.module";
 import { MailModule } from "./shared/mail/mail.module";
 import { FileModule } from "./shared/file/file.module";
-import { LessonsModule } from "./lessons/lessons.module";
+import { LessonsModule } from "./modules/daily/lessons/lessons.module";
 import { TeacherAssignmentsModule } from "./modules/school/teacher-assignments/teacher-assignments.module";
 import { ClassStudentsModule } from "./modules/school/class-students/class-students.module";
 import { DataSource } from "typeorm";
