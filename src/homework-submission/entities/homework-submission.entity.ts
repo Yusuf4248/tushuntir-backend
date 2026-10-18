@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { Homework } from "../../homeworks/entities/homework.entity";
+import { Homework } from "../../modules/homework/homework/entities/homework.entity";
 import { Student } from "../../student/entities/student.entities";
 import { Grade } from "../../grades/entities/grade.entity";
 

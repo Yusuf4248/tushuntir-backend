@@ -8,11 +8,11 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { Teacher } from "../../teacher/entities/teacher.entity";
-import { SchoolClass } from "../../modules/school/classes/entities/school-class.entity";
-import { HomeworkSubmission } from "../../homework-submission/entities/homework-submission.entity";
+import { Teacher } from "../../../../teacher/entities/teacher.entity";
+import { SchoolClass } from "../../../school/classes/entities/school-class.entity";
+import { HomeworkSubmission } from "../../../../homework-submission/entities/homework-submission.entity";
 import { ApiProperty } from "@nestjs/swagger";
-import { Lesson } from "../../lessons/entities/lesson.entity";
+import { Lesson } from "../../../../lessons/entities/lesson.entity";
 
 @Entity("homework")
 export class Homework {

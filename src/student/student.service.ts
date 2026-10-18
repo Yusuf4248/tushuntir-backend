@@ -14,7 +14,7 @@ import { ChangePasswordDto } from "./dto/change-password.dto";
 import { FileService } from "../shared/file/file.service";
 import { SchoolClass } from "../modules/school/classes/entities/school-class.entity";
 import { Response } from "express";
-import { Homework } from "../homeworks/entities/homework.entity";
+import { Homework } from "../modules/homework/homework/entities/homework.entity";
 import * as path from "path";
 import * as bcrypt from "bcrypt";
 import { Media } from "../media/entities/media.entity";

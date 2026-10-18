@@ -4,9 +4,9 @@ import { HomeworkSubmissionController } from "./homework-submission.controller";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { HomeworkSubmission } from "./entities/homework-submission.entity";
 import { Student } from "../student/entities/student.entities";
-import { Homework } from "../homeworks/entities/homework.entity";
+import { Homework } from "../modules/homework/homework/entities/homework.entity";
 import { StudentModule } from "../student/student.module";
-import { HomeworksModule } from "../homeworks/homeworks.module";
+import { HomeworkModule } from "../modules/homework/homework/homework.module";
 import { Grade } from "../grades/entities/grade.entity";
 import { JwtModule } from "@nestjs/jwt";
 import { Media } from "../media/entities/media.entity";
@@ -22,7 +22,7 @@ import { FileModule } from "../shared/file/file.module";
       Media,
     ]),
     StudentModule,
-    HomeworksModule,
+    HomeworkModule,
     JwtModule,
     FileModule,
   ],

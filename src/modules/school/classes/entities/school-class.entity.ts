@@ -11,7 +11,7 @@ import {
 } from "typeorm";
 import { ApiProperty } from "@nestjs/swagger";
 import { Subject } from "../../subjects/entities/subject.entity";
-import { Homework } from "../../../../homeworks/entities/homework.entity";
+import { Homework } from "../../../homework/homework/entities/homework.entity";
 import { Exam } from "../../../../exams/entities/exam.entity";
 import { Lesson } from "../../../../lessons/entities/lesson.entity";
 import { TeacherAssignment } from "../../teacher-assignments/entities/teacher-assignment.entity";

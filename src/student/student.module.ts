@@ -9,7 +9,7 @@ import { Grade } from "../grades/entities/grade.entity";
 import { SchoolClass } from "../modules/school/classes/entities/school-class.entity";
 import { FileModule } from "../shared/file/file.module";
 import { JwtModule } from "@nestjs/jwt";
-import { Homework } from "../homeworks/entities/homework.entity";
+import { Homework } from "../modules/homework/homework/entities/homework.entity";
 import { Media } from "../media/entities/media.entity";
 import { ClassStudent } from "../modules/school/class-students/entities/class-student.entity";
 

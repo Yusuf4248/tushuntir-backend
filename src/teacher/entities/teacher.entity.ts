@@ -9,7 +9,7 @@ import {
   JoinTable,
 } from "typeorm";
 import { ApiProperty } from "@nestjs/swagger";
-import { Homework } from "../../homeworks/entities/homework.entity";
+import { Homework } from "../../modules/homework/homework/entities/homework.entity";
 import { Grade } from "../../grades/entities/grade.entity";
 import { Exam } from "../../exams/entities/exam.entity";
 import { School } from "../../modules/school/schools/entities/school.entity";

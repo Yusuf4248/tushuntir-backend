@@ -21,20 +21,20 @@ import {
   ApiBearerAuth,
   ApiConsumes,
 } from "@nestjs/swagger";
-import { HomeworksService } from "./homeworks.service";
+import { HomeworkService } from "./homework.service";
 import { CreateHomeworkDto } from "./dto/create-homework.dto";
 import { UpdateHomeworkDto } from "./dto/update-homework.dto";
 import { Homework } from "./entities/homework.entity";
-import { Roles } from "../app.constants";
-import { AuthGuard } from "../common/guards/auth.guard";
-import { RolesGuard } from "../common/guards/role.guard";
+import { Roles } from "../../../app.constants";
+import { AuthGuard } from "../../../common/guards/auth.guard";
+import { RolesGuard } from "../../../common/guards/role.guard";
 import { FileInterceptor } from "@nestjs/platform-express";
 
-@ApiTags("Homeworks")
+@ApiTags("Homework")
 @ApiBearerAuth("JWT-auth")
-@Controller("homeworks")
-export class HomeworksController {
-  constructor(private readonly homeworksService: HomeworksService) {}
+@Controller("homework")
+export class HomeworkController {
+  constructor(private readonly homeworkService: HomeworkService) {}
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles("teacher")
@@ -48,7 +48,7 @@ export class HomeworksController {
   @ApiBody({ type: CreateHomeworkDto })
   create(@Body() createHomeworkDto: CreateHomeworkDto, @Req() req: any) {
     const teacher = req.user;
-    return this.homeworksService.create(createHomeworkDto, teacher.id);
+    return this.homeworkService.create(createHomeworkDto, teacher.id);
   }
 
   @Post("upload/:id")
@@ -65,7 +65,7 @@ export class HomeworksController {
     @UploadedFile() file: Express.Multer.File,
     @Body("file_title") file_title: string
   ) {
-    return this.homeworksService.uploadMedia  (id, file, file_title);
+    return this.homeworkService.uploadMedia  (id, file, file_title);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
@@ -78,7 +78,7 @@ export class HomeworksController {
     type: [Homework],
   })
   findAll() {
-    return this.homeworksService.findAll();
+    return this.homeworkService.findAll();
   }
 
   @UseGuards(AuthGuard, RolesGuard)
@@ -88,7 +88,7 @@ export class HomeworksController {
   @ApiParam({ name: "id", type: String })
   @ApiResponse({ status: 200, description: "Homework found", type: Homework })
   findOne(@Param("id") id: string) {
-    return this.homeworksService.findOne(+id);
+    return this.homeworkService.findOne(+id);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
@@ -102,7 +102,7 @@ export class HomeworksController {
     @Param("id") id: string,
     @Body() updateHomeworkDto: UpdateHomeworkDto
   ) {
-    return this.homeworksService.update(+id, updateHomeworkDto);
+    return this.homeworkService.update(+id, updateHomeworkDto);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
@@ -112,6 +112,6 @@ export class HomeworksController {
   @ApiParam({ name: "id", type: String })
   @ApiResponse({ status: 200, description: "Homework deleted" })
   remove(@Param("id") id: string) {
-    return this.homeworksService.remove(+id);
+    return this.homeworkService.remove(+id);
   }
 }

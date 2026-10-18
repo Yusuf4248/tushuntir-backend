@@ -9,7 +9,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { HomeworkSubmission } from "./entities/homework-submission.entity";
 import { Repository } from "typeorm";
 import { StudentService } from "../student/student.service";
-import { HomeworksService } from "../homeworks/homeworks.service";
+import { HomeworkService } from "../modules/homework/homework/homework.service";
 import { Media } from "../media/entities/media.entity";
 import { FileService } from "../shared/file/file.service";
 import * as path from "path";
@@ -22,7 +22,7 @@ export class HomeworkSubmissionService {
     @InjectRepository(Media)
     private readonly mediaRepo: Repository<Media>,
     private readonly studentService: StudentService,
-    private readonly homeworkService: HomeworksService,
+    private readonly homeworkService: HomeworkService,
     private readonly fileService: FileService
   ) {}
   async create(createHomeworkSubmissionDto: CreateHomeworkSubmissionDto) {

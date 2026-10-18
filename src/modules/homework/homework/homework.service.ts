@@ -8,15 +8,15 @@ import { UpdateHomeworkDto } from "./dto/update-homework.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Homework } from "./entities/homework.entity";
 import { Repository } from "typeorm";
-import { ClassesService } from "../modules/school/classes/classes.service";
-import { TeacherService } from "../teacher/teacher.service";
-import { Media } from "../media/entities/media.entity";
-import { FileService } from "../shared/file/file.service";
-import { LessonsService } from "../lessons/lessons.service";
+import { ClassesService } from "../../school/classes/classes.service";
+import { TeacherService } from "../../../teacher/teacher.service";
+import { Media } from "../../../media/entities/media.entity";
+import { FileService } from "../../../shared/file/file.service";
+import { LessonsService } from "../../../lessons/lessons.service";
 import * as path from "path";
 
 @Injectable()
-export class HomeworksService {
+export class HomeworkService {
   constructor(
     @InjectRepository(Homework)
     private readonly homeworkRepo: Repository<Homework>,
@@ -56,7 +56,7 @@ export class HomeworksService {
   async uploadMedia(id: number, file: Express.Multer.File, file_title: string) {
     const fileSizeInMb = (file.size / (1024 * 1024)).toFixed(2);
     const fileType = file.mimetype;
-    const filePath = path.join(__dirname, "..", "..", "media", "homework");
+    const filePath = path.join(__dirname, "..", "..", "..", "..", "media", "homework");
     const fileName = await this.fileService.saveFile(file, filePath);
     const media = await this.mediaRepo.save({
       files: fileName,

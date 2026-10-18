@@ -8,7 +8,7 @@ import { AuthModule } from "./auth/auth.module";
 import { SubjectsModule } from "./modules/school/subjects/subjects.module";
 import { ClassesModule } from "./modules/school/classes/classes.module";
 import { AttendanceModule } from "./attendance/attendance.module";
-import { HomeworksModule } from "./homeworks/homeworks.module";
+import { HomeworkModule } from "./modules/homework/homework/homework.module";
 import { HomeworkSubmissionModule } from "./homework-submission/homework-submission.module";
 import { GradesModule } from "./grades/grades.module";
 import { SchoolsModule } from "./modules/school/schools/schools.module";
@@ -48,7 +48,7 @@ import { DataSource } from "typeorm";
     TeacherAssignmentsModule,
     ClassStudentsModule,
     AttendanceModule,
-    HomeworksModule,
+    HomeworkModule,
     HomeworkSubmissionModule,
     GradesModule,
     SchoolsModule,
