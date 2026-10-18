@@ -6,7 +6,7 @@ import { ClassStudent } from "./entities/class-student.entity";
 import { Student } from "../../../student/entities/student.entities";
 import { SchoolClass } from "../classes/entities/school-class.entity";
 import { JwtModule } from "@nestjs/jwt";
-import { AttendanceModule } from "../../../attendance/attendance.module";
+import { AttendanceModule } from "../../daily/attendance/attendance.module";
 import { LessonsModule } from "../../daily/lessons/lessons.module";
 import { Lesson } from "../../daily/lessons/entities/lesson.entity";
 

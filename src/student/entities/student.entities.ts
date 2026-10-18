@@ -7,7 +7,7 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { ApiProperty } from "@nestjs/swagger";
-import { Attendance } from "../../attendance/entities/attendance.entity";
+import { Attendance } from "../../modules/daily/attendance/entities/attendance.entity";
 import { HomeworkSubmission } from "../../modules/homework/homework-submissions/entities/homework-submission.entity";
 import { Grade } from "../../modules/daily/grades/entities/grade.entity";
 import { ExamResult } from "../../modules/assessment/exam-results/entities/exam-result.entity";

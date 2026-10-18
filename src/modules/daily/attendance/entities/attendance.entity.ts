@@ -7,8 +7,8 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { ApiProperty } from "@nestjs/swagger";
-import { Student } from "../../student/entities/student.entities";
-import { Lesson } from "../../modules/daily/lessons/entities/lesson.entity";
+import { Student } from "../../../../student/entities/student.entities";
+import { Lesson } from "../../lessons/entities/lesson.entity";
 
 export enum AttendanceStatus {
   CAME = "came",
@@ -17,7 +17,7 @@ export enum AttendanceStatus {
   PENDING = "pending",
 }
 
-@Entity()
+@Entity("attendance")
 export class Attendance {
   @ApiProperty({ example: 1, description: "Unikal ID raqami" })
   @PrimaryGeneratedColumn()

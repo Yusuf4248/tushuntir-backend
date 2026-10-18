@@ -7,7 +7,7 @@ import { TeacherModule } from "./teacher/teacher.module";
 import { AuthModule } from "./auth/auth.module";
 import { SubjectsModule } from "./modules/school/subjects/subjects.module";
 import { ClassesModule } from "./modules/school/classes/classes.module";
-import { AttendanceModule } from "./attendance/attendance.module";
+import { AttendanceModule } from "./modules/daily/attendance/attendance.module";
 import { HomeworkModule } from "./modules/homework/homework/homework.module";
 import { HomeworkSubmissionsModule } from "./modules/homework/homework-submissions/homework-submissions.module";
 import { GradesModule } from "./modules/daily/grades/grades.module";

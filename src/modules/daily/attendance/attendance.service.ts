@@ -14,12 +14,12 @@ import { UpdateAttendanceDto } from "./dto/update-attendance.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Attendance, AttendanceStatus } from "./entities/attendance.entity";
 import { Repository } from "typeorm";
-import { StudentService } from "../student/student.service";
-import { LessonsService } from "../modules/daily/lessons/lessons.service";
-import { Student } from "../student/entities/student.entities";
-import { Lesson, LessonStatus } from "../modules/daily/lessons/entities/lesson.entity";
-import { ClassesService } from "../modules/school/classes/classes.service";
-import { ClassStudentsService } from "../modules/school/class-students/class-students.service";
+import { StudentService } from "../../../student/student.service";
+import { LessonsService } from "../lessons/lessons.service";
+import { Student } from "../../../student/entities/student.entities";
+import { Lesson, LessonStatus } from "../lessons/entities/lesson.entity";
+import { ClassesService } from "../../school/classes/classes.service";
+import { ClassStudentsService } from "../../school/class-students/class-students.service";
 import { UpdateLessonAttendancesDto } from "./dto/update-lesson-attendances-dto";
 
 @Injectable()

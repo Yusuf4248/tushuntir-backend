@@ -13,7 +13,7 @@ import { LessonsModule } from "../../daily/lessons/lessons.module";
 import { TeacherAssignmentsModule } from "../teacher-assignments/teacher-assignments.module";
 import { ClassStudentsModule } from "../class-students/class-students.module";
 import { Lesson } from "../../daily/lessons/entities/lesson.entity";
-import { AttendanceModule } from "../../../attendance/attendance.module";
+import { AttendanceModule } from "../../daily/attendance/attendance.module";
 
 @Module({
   imports: [

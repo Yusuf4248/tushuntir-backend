@@ -16,7 +16,7 @@ import { SubjectsService } from "../subjects/subjects.service";
 import { LessonsService } from "../../daily/lessons/lessons.service";
 import { ClassStudentsService } from "../class-students/class-students.service";
 import { TeacherAssignmentsService } from "../teacher-assignments/teacher-assignments.service";
-import { AttendanceService } from "../../../attendance/attendance.service";
+import { AttendanceService } from "../../daily/attendance/attendance.service";
 
 @Injectable()
 export class ClassesService {

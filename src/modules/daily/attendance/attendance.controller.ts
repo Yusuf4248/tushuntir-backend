@@ -20,9 +20,9 @@ import {
   ApiBody,
   ApiParam,
 } from "@nestjs/swagger";
-import { Roles } from "../app.constants";
-import { AuthGuard } from "../common/guards/auth.guard";
-import { RolesGuard } from "../common/guards/role.guard";
+import { Roles } from "../../../app.constants";
+import { AuthGuard } from "../../../common/guards/auth.guard";
+import { RolesGuard } from "../../../common/guards/role.guard";
 import { UpdateLessonAttendancesDto } from "./dto/update-lesson-attendances-dto";
 
 @ApiTags("Attendance")

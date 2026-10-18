@@ -3,7 +3,7 @@ import { StudentService } from "./student.service";
 import { StudentController } from "./student.controller";
 import { Student } from "./entities/student.entities";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { Attendance } from "../attendance/entities/attendance.entity";
+import { Attendance } from "../modules/daily/attendance/entities/attendance.entity";
 import { HomeworkSubmission } from "../modules/homework/homework-submissions/entities/homework-submission.entity";
 import { Grade } from "../modules/daily/grades/entities/grade.entity";
 import { SchoolClass } from "../modules/school/classes/entities/school-class.entity";
