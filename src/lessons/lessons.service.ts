@@ -13,7 +13,7 @@ import { Between, MoreThan, Repository } from "typeorm";
 import { ClassesService } from "../modules/school/classes/classes.service";
 import { addDays, isAfter } from "date-fns";
 import { SchoolClass } from "../modules/school/classes/entities/school-class.entity";
-import { Room } from "../rooms/entities/room.entity";
+import { Room } from "../modules/school/rooms/entities/room.entity";
 import { ClassStudent } from "../modules/school/class-students/entities/class-student.entity";
 import { TeacherAssignment } from "../modules/school/teacher-assignments/entities/teacher-assignment.entity";
 import { UpdateLessonStatusDto } from "./dto/update-lesson-status.dto";

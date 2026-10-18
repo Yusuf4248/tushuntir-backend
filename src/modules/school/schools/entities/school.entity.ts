@@ -8,7 +8,7 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { ApiProperty } from "@nestjs/swagger";
-import { Room } from "../../../../rooms/entities/room.entity";
+import { Room } from "../../rooms/entities/room.entity";
 import { Admin } from "../../../../admin/entities/admin.entity";
 import { Teacher } from "../../../../teacher/entities/teacher.entity";
 

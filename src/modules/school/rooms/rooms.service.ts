@@ -8,8 +8,8 @@ import { UpdateRoomDto } from "./dto/update-room.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Room } from "./entities/room.entity";
 import { Repository } from "typeorm";
-import { SchoolsService } from "../modules/school/schools/schools.service";
-import { School } from "../modules/school/schools/entities/school.entity";
+import { SchoolsService } from "../schools/schools.service";
+import { School } from "../schools/entities/school.entity";
 
 @Injectable()
 export class RoomsService {

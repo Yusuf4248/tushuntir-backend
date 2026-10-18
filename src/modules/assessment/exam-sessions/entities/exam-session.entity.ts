@@ -11,7 +11,7 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { ApiProperty } from "@nestjs/swagger";
-import { Room } from "../../../../rooms/entities/room.entity";
+import { Room } from "../../../school/rooms/entities/room.entity";
 import { SchoolClass } from "../../../school/classes/entities/school-class.entity";
 import { Teacher } from "../../../../teacher/entities/teacher.entity";
 import { ExamResult } from "../../exam-results/entities/exam-result.entity";

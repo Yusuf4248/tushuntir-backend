@@ -8,10 +8,10 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { School } from "../../modules/school/schools/entities/school.entity";
+import { School } from "../../schools/entities/school.entity";
 import { ApiProperty } from "@nestjs/swagger";
-import { ExamSession } from "../../modules/assessment/exam-sessions/entities/exam-session.entity";
-import { Lesson } from "../../lessons/entities/lesson.entity";
+import { ExamSession } from "../../../assessment/exam-sessions/entities/exam-session.entity";
+import { Lesson } from "../../../../lessons/entities/lesson.entity";
 
 @Entity("rooms")
 export class Room {
