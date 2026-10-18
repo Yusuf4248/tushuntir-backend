@@ -12,7 +12,7 @@ import { UpdateGroupDto } from "./dto/update-group.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Group } from "./entities/group.entity";
 import { QueryFailedError, Repository } from "typeorm";
-import { CoursesService } from "../courses/courses.service";
+import { SubjectsService } from "../modules/school/subjects/subjects.service";
 import { LessonsService } from "../lessons/lessons.service";
 import { GroupStudentsService } from "../group-students/group-students.service";
 import { GroupTeachersService } from "../group-teachers/group-teachers.service";
@@ -24,7 +24,7 @@ export class GroupService {
     @InjectRepository(Group) private readonly groupRepo: Repository<Group>,
     @Inject(forwardRef(() => LessonsService))
     private readonly lessonService: LessonsService,
-    private readonly courseService: CoursesService,
+    private readonly subjectService: SubjectsService,
     private readonly attendanceService: AttendanceService,
     @Inject(forwardRef(() => GroupStudentsService))
     private readonly groupStudentsService: GroupStudentsService,
@@ -32,14 +32,14 @@ export class GroupService {
     private readonly groupTeachersService: GroupTeachersService
   ) {}
   async create(createGroupDto: CreateGroupDto) {
-    const { course } = await this.courseService.findOne(
-      createGroupDto.courseId
+    const { subject } = await this.subjectService.findOne(
+      createGroupDto.subjectId
     );
 
     try {
       const newGroup = await this.groupRepo.save({
         ...createGroupDto,
-        course,
+        subject,
       });
 
       const lessons = await this.lessonService.createAllLessons({
@@ -49,7 +49,7 @@ export class GroupService {
 
       const newGroup1 = await this.groupRepo.findOne({
         where: { id: newGroup.id },
-        relations: ["course"],
+        relations: ["subject"],
       });
 
       return {
@@ -74,7 +74,7 @@ export class GroupService {
   async findAll(page: number, limit: number) {
     const skip = (page - 1) * limit;
     const [groups, total] = await this.groupRepo.findAndCount({
-      relations: ["course", "lessons.room"],
+      relations: ["subject", "lessons.room"],
       skip,
       take: limit,
       order: { id: "ASC" },
@@ -95,7 +95,7 @@ export class GroupService {
       );
     const group = await this.groupRepo.findOne({
       where: { id },
-      relations: ["course", "lessons", "groupTeachers", "groupStudents"],
+      relations: ["subject", "lessons", "groupTeachers", "groupStudents"],
     });
     if (!group) {
       throw new NotFoundException(`Group ID-${id} not found`);
@@ -136,7 +136,7 @@ export class GroupService {
     }
     const group = await this.groupRepo.findOne({
       where: { name: group_name },
-      relations: ["students", "teachers", "course"],
+      relations: ["students", "teachers", "subject"],
     });
     if (!group) {
       throw new NotFoundException(

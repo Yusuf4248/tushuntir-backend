@@ -88,7 +88,7 @@ export class LessonsService {
 
     let group = await this.groupRepo.findOne({
       where: { id: groupId },
-      relations: ["course"],
+      relations: ["subject"],
     });
 
     if (!group) {
@@ -107,7 +107,7 @@ export class LessonsService {
     }
 
     const end_time = new Date(
-      start_time.getTime() + group.course.lesson_duration * 60 * 1000
+      start_time.getTime() + group.subject.lesson_duration * 60 * 1000
     );
 
     await this.groupRepo.update(
@@ -122,7 +122,7 @@ export class LessonsService {
 
     group = await this.groupRepo.findOne({
       where: { id: groupId },
-      relations: ["course"],
+      relations: ["subject"],
     });
 
     const room = await this.roomRepo.findOne({ where: { id: roomId } });
@@ -152,7 +152,7 @@ export class LessonsService {
   async generateLessonDates(groupId: number): Promise<Date[]> {
     const group = await this.groupRepo.findOne({
       where: { id: groupId },
-      relations: ["course"],
+      relations: ["subject"],
     });
 
     if (!group) {
@@ -161,10 +161,10 @@ export class LessonsService {
 
     const lessonDates: Date[] = [];
     const totalLessons: number =
-      group.course.lessons_in_a_month * group.course.duration;
+      group.subject.lessons_in_a_month * group.subject.duration;
 
     let currentDate = new Date(group.start_date);
-    const lessonsInWeek = group.course.lessons_in_a_week;
+    const lessonsInWeek = group.subject.lessons_in_a_week;
 
     if (lessonsInWeek === 5) {
       // Har kuni Dushanba - Juma oraliqda dars
@@ -213,14 +213,14 @@ export class LessonsService {
 
     const lesson = await this.lessonRepo.findOne({
       where: { date: lastDate },
-      relations: ["group", "group.course"],
+      relations: ["group", "group.subject"],
     });
 
     if (!lesson) {
       throw new NotFoundException("Lesson not found for the given date");
     }
 
-    const lessonsInWeek = lesson.group.course.lessons_in_a_week;
+    const lessonsInWeek = lesson.group.subject.lessons_in_a_week;
 
     const currentDate = new Date(lastDate);
     let nextDate = new Date(currentDate);

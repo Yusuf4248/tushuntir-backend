@@ -17,7 +17,7 @@ export class CreateExamDto {
   @IsString()
   title: string;
 
-  @ApiProperty({ example: "Final test for the React course" })
+  @ApiProperty({ example: "Final test for the React subject" })
   @IsNotEmpty()
   @IsString()
   description: string;

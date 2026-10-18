@@ -19,7 +19,7 @@ export class CreateGroupDto {
   @ApiProperty({ example: 3 })
   @IsNotEmpty()
   @IsInt()
-  courseId: number;
+  subjectId: number;
 
   @ApiProperty({ example: "2025-06-01" })
   @IsNotEmpty()

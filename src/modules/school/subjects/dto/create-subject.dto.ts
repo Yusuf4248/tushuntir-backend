@@ -11,9 +11,9 @@ import {
   LessonDurationEnum,
   LessonInAWeekEnum,
   TotalLessonsInMonthEnum,
-} from "../entities/course.entity";
+} from "../entities/subject.entity";
 
-export class CreateCourseDto {
+export class CreateSubjectDto {
   @ApiProperty({ example: "Frontend", maxLength: 100 })
   @IsString()
   @MaxLength(100)
@@ -21,7 +21,7 @@ export class CreateCourseDto {
 
   @ApiProperty({
     example: "Learn HTML and JS.",
-    description: "Detailed course description",
+    description: "Detailed subject description",
   })
   @IsNotEmpty()
   @IsString()
@@ -35,7 +35,7 @@ export class CreateCourseDto {
 
   @ApiProperty({
     example: "3",
-    description: "Overall course duration(in month)",
+    description: "Overall subject duration(in month)",
   })
   @IsInt()
   @IsNotEmpty()

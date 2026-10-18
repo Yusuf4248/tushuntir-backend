@@ -7,7 +7,7 @@ import {
   OneToMany,
 } from "typeorm";
 import { ApiProperty } from "@nestjs/swagger";
-import { Group } from "../../group/entities/group.entity";
+import { Group } from "../../../../group/entities/group.entity";
 
 export enum LessonInAWeekEnum {
   THREE = 3,
@@ -26,19 +26,19 @@ export enum TotalLessonsInMonthEnum {
   TWELVE = 12,
 }
 
-@Entity("course")
-export class Course {
-  @ApiProperty({ example: 1, description: "Course ID" })
+@Entity("subjects")
+export class Subject {
+  @ApiProperty({ example: 1, description: "Subject ID" })
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ApiProperty({ example: "Frontend Bootcamp", description: "Course title" })
+  @ApiProperty({ example: "Frontend Bootcamp", description: "Subject title" })
   @Column({ type: "varchar", length: 100 })
   title: string;
 
   @ApiProperty({
     example: "Learn HTML, CSS, JavaScript and React",
-    description: "Detailed course description",
+    description: "Detailed subject description",
   })
   @Column()
   description: string;
@@ -49,7 +49,7 @@ export class Course {
 
   @ApiProperty({
     example: "3",
-    description: "Overall course duration(in month)",
+    description: "Overall subject duration(in month)",
   })
   @Column()
   duration: number;
@@ -80,7 +80,7 @@ export class Course {
 
   @ApiProperty({
     example: true,
-    description: "Is the course currently active?",
+    description: "Is the subject currently active?",
   })
   @Column({ type: "boolean", default: true })
   is_active: boolean;
@@ -102,6 +102,6 @@ export class Course {
   @ApiProperty({
     type: () => [Group],
   })
-  @OneToMany(() => Group, (group) => group.course)
+  @OneToMany(() => Group, (group) => group.subject)
   groups: Group[];
 }

@@ -5,7 +5,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { AdminModule } from "./admin/admin.module";
 import { TeacherModule } from "./teacher/teacher.module";
 import { AuthModule } from "./auth/auth.module";
-import { CoursesModule } from "./courses/courses.module";
+import { SubjectsModule } from "./modules/school/subjects/subjects.module";
 import { GroupModule } from "./group/group.module";
 import { AttendanceModule } from "./attendance/attendance.module";
 import { HomeworksModule } from "./homeworks/homeworks.module";
@@ -42,7 +42,7 @@ import { DataSource } from "typeorm";
     AdminModule,
     TeacherModule,
     AuthModule,
-    CoursesModule,
+    SubjectsModule,
     GroupModule,
     LessonsModule,
     GroupTeachersModule,

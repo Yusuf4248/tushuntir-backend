@@ -192,7 +192,7 @@ export class StudentService {
   //   }
   //   const groups = student.groups.map((group) => ({
   //     name: group.name,
-  //     course: group.course.title,
+  //     subject: group.subject.title,
   //     start_date: group.start_date,
   //     end_date: group.end_date,
   //     status: group.status,

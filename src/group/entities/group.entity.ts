@@ -10,7 +10,7 @@ import {
   ManyToMany,
 } from "typeorm";
 import { ApiProperty } from "@nestjs/swagger";
-import { Course } from "../../courses/entities/course.entity";
+import { Subject } from "../../modules/school/subjects/entities/subject.entity";
 import { Homework } from "../../homeworks/entities/homework.entity";
 import { Exam } from "../../exams/entities/exam.entity";
 import { Lesson } from "../../lessons/entities/lesson.entity";
@@ -68,9 +68,10 @@ export class Group {
   @UpdateDateColumn({ type: "timestamp" })
   updated_at: Date;
 
-  @ApiProperty({ type: () => Course })
-  @ManyToOne(() => Course, (course) => course.groups, { onDelete: "CASCADE" })
-  course: Course;
+  @ApiProperty({ type: () => Subject })
+  @ManyToOne(() => Subject, (subject) => subject.groups, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "subject_id" })
+  subject: Subject;
 
   @OneToMany(() => GroupTeacher, (groupTeacher) => groupTeacher.group, {
     onDelete: "CASCADE",

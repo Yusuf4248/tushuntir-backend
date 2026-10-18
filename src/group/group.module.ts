@@ -3,7 +3,7 @@ import { GroupService } from "./group.service";
 import { GroupController } from "./group.controller";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { Group } from "./entities/group.entity";
-import { CoursesModule } from "../courses/courses.module";
+import { SubjectsModule } from "../modules/school/subjects/subjects.module";
 import { Homework } from "../homeworks/entities/homework.entity";
 import { Exam } from "../exams/entities/exam.entity";
 import { JwtModule } from "@nestjs/jwt";
@@ -25,7 +25,7 @@ import { AttendanceModule } from "../attendance/attendance.module";
       GroupStudent,
       Lesson,
     ]),
-    CoursesModule,
+    SubjectsModule,
     AttendanceModule,
     forwardRef(() => GroupTeachersModule),
     forwardRef(() => GroupStudentsModule),
