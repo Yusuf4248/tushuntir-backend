@@ -32,7 +32,7 @@ export class ProfileGuard implements CanActivate {
         throw new UnauthorizedException("Token payload invalid");
       }
       // Faqat ruxsat etilgan rollar
-      const allowedRoles = ["admin", "teacher", "student", "lid"];
+      const allowedRoles = ["admin", "teacher", "student"];
       if (!allowedRoles.includes(payload.role)) {
         throw new ForbiddenException("This role is not allowed for profile");
       }
@@ -54,8 +54,6 @@ export class ProfileGuard implements CanActivate {
         return process.env.TEACHER_ACCESS_TOKEN_KEY!;
       case "student":
         return process.env.STUDENT_ACCESS_TOKEN_KEY!;
-      case "lid":
-        return process.env.LID_ACCESS_TOKEN_KEY!;
       default:
         throw new ForbiddenException("Role is not allowed");
     }

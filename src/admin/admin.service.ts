@@ -14,7 +14,6 @@ import { UpdateAdminStatusDto } from "./dto/update-admin-status.dto";
 import { Branch } from "../branches/entities/branch.entity";
 import { Teacher } from "../teacher/entities/teacher.entity";
 import { Student } from "../student/entities/student.entities";
-import { Lid } from "../lid/entities/lid.entity";
 import * as bcrypt from "bcrypt";
 
 @Injectable()
@@ -26,7 +25,6 @@ export class AdminService {
     private readonly teacherRepo: Repository<Teacher>,
     @InjectRepository(Student)
     private readonly studentRepo: Repository<Student>,
-    @InjectRepository(Lid) private readonly lidRepo: Repository<Lid>,
     private readonly branchService: BranchesService
   ) {}
   async create(createAdminDto: CreateAdminDto) {
@@ -192,8 +190,6 @@ export class AdminService {
           where: { id },
           relations: ["events"],
         });
-      case "lid":
-        return this.lidRepo.findOne({ where: { id } });
       default:
         throw new NotFoundException("Role noto'g'ri");
     }

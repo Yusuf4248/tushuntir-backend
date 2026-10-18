@@ -109,9 +109,6 @@ export class Student {
   @OneToMany(() => Grade, (grades) => grades.student)
   grades: Grade[];
 
-  @Column({ nullable: true })
-  lidId: number;
-
   @ManyToMany(() => Event, (event) => event.students, { nullable: true })
   events: Event[];
 

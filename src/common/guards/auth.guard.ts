@@ -43,8 +43,6 @@ export class AuthGuard implements CanActivate {
     switch (role) {
       case "admin":
         return process.env.ADMIN_ACCESS_TOKEN_KEY!;
-      case "lid":
-        return process.env.LID_ACCESS_TOKEN_KEY!;
       case "teacher":
         return process.env.TEACHER_ACCESS_TOKEN_KEY!;
       case "student":

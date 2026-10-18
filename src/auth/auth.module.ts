@@ -9,23 +9,18 @@ import { AdminAuthController } from "./admin/admin.auth.controller";
 import { AdminAuthService } from "./admin/admin.auth.service";
 import { StudentAuthController } from "./student/student.auth.controller";
 import { StudentAuthService } from "./student/student.auth.service";
-import { LidModule } from "../lid/lid.module";
-import { LidAuthController } from "./lid/lid.auth.controller";
-import { LidAuthService } from "./lid/lid.auth.service";
 
 @Module({
-  imports: [TeacherModule, AdminModule, StudentModule, JwtModule, LidModule],
+  imports: [TeacherModule, AdminModule, StudentModule, JwtModule],
   controllers: [
     TeacherAuthController,
     AdminAuthController,
     StudentAuthController,
-    LidAuthController,
   ],
   providers: [
     TeacherAuthService,
     AdminAuthService,
     StudentAuthService,
-    LidAuthService,
   ],
 })
 export class AuthModule {}

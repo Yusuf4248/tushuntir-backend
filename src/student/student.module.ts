@@ -6,8 +6,6 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { Attendance } from "../attendance/entities/attendance.entity";
 import { HomeworkSubmission } from "../homework-submission/entities/homework-submission.entity";
 import { Grade } from "../grades/entities/grade.entity";
-import { Lid } from "../lid/entities/lid.entity";
-import { LidModule } from "../lid/lid.module";
 import { Payment } from "../payments/entities/payment.entity";
 import { Group } from "../group/entities/group.entity";
 import { FileModule } from "../file/file.module";
@@ -23,7 +21,6 @@ import { GroupStudent } from "../group-students/entities/group-student.entity";
       Attendance,
       HomeworkSubmission,
       Grade,
-      Lid,
       Payment,
       Event,
       Group,
@@ -32,7 +29,6 @@ import { GroupStudent } from "../group-students/entities/group-student.entity";
       HomeworkSubmission,
       GroupStudent,
     ]),
-    LidModule,
     FileModule,
     JwtModule,
   ],

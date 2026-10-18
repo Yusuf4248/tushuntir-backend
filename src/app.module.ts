@@ -11,7 +11,6 @@ import { AttendanceModule } from "./attendance/attendance.module";
 import { HomeworksModule } from "./homeworks/homeworks.module";
 import { HomeworkSubmissionModule } from "./homework-submission/homework-submission.module";
 import { GradesModule } from "./grades/grades.module";
-import { LidModule } from "./lid/lid.module";
 import { BranchesModule } from "./branches/branches.module";
 import { RoomsModule } from "./rooms/rooms.module";
 import { EventsModule } from "./events/events.module";
@@ -61,7 +60,6 @@ import { DataSource } from "typeorm";
     HomeworksModule,
     HomeworkSubmissionModule,
     GradesModule,
-    LidModule,
     BranchesModule,
     RoomsModule,
     EventsModule,
