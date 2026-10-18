@@ -9,7 +9,7 @@ import {
 } from "typeorm";
 import { Homework } from "../../homework/entities/homework.entity";
 import { Student } from "../../../../student/entities/student.entities";
-import { Grade } from "../../../../grades/entities/grade.entity";
+import { Grade } from "../../../daily/grades/entities/grade.entity";
 
 export enum HomeworkStatus {
   QABUL_QILINGAN = "qabul qilingan",

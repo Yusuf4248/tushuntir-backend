@@ -8,9 +8,9 @@ import { UpdateGradeDto } from "./dto/update-grade.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Grade } from "./entities/grade.entity";
 import { Repository } from "typeorm";
-import { StudentService } from "../student/student.service";
-import { TeacherService } from "../teacher/teacher.service";
-import { HomeworkSubmissionsService } from "../modules/homework/homework-submissions/homework-submissions.service";
+import { StudentService } from "../../../student/student.service";
+import { TeacherService } from "../../../teacher/teacher.service";
+import { HomeworkSubmissionsService } from "../../homework/homework-submissions/homework-submissions.service";
 
 @Injectable()
 export class GradesService {

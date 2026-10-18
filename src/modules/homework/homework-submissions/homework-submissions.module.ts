@@ -7,7 +7,7 @@ import { Student } from "../../../student/entities/student.entities";
 import { Homework } from "../homework/entities/homework.entity";
 import { StudentModule } from "../../../student/student.module";
 import { HomeworkModule } from "../homework/homework.module";
-import { Grade } from "../../../grades/entities/grade.entity";
+import { Grade } from "../../daily/grades/entities/grade.entity";
 import { JwtModule } from "@nestjs/jwt";
 import { Media } from "../media/entities/media.entity";
 import { FileModule } from "../../../shared/file/file.module";

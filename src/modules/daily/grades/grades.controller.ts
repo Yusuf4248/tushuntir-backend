@@ -18,9 +18,9 @@ import {
   ApiParam,
   ApiBearerAuth,
 } from "@nestjs/swagger";
-import { AuthGuard } from "../common/guards/auth.guard";
-import { RolesGuard } from "../common/guards/role.guard";
-import { Roles } from "../app.constants";
+import { AuthGuard } from "../../../common/guards/auth.guard";
+import { RolesGuard } from "../../../common/guards/role.guard";
+import { Roles } from "../../../app.constants";
 
 @ApiTags("Grades")
 @ApiBearerAuth("JWT-auth")

@@ -10,7 +10,7 @@ import { ClassesModule } from "./modules/school/classes/classes.module";
 import { AttendanceModule } from "./attendance/attendance.module";
 import { HomeworkModule } from "./modules/homework/homework/homework.module";
 import { HomeworkSubmissionsModule } from "./modules/homework/homework-submissions/homework-submissions.module";
-import { GradesModule } from "./grades/grades.module";
+import { GradesModule } from "./modules/daily/grades/grades.module";
 import { SchoolsModule } from "./modules/school/schools/schools.module";
 import { RoomsModule } from "./modules/school/rooms/rooms.module";
 import { ExamSessionsModule } from "./modules/assessment/exam-sessions/exam-sessions.module";

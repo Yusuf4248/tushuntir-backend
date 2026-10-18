@@ -6,9 +6,9 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { Student } from "../../student/entities/student.entities";
-import { HomeworkSubmission } from "../../modules/homework/homework-submissions/entities/homework-submission.entity";
-import { Teacher } from "../../teacher/entities/teacher.entity";
+import { Student } from "../../../../student/entities/student.entities";
+import { HomeworkSubmission } from "../../../homework/homework-submissions/entities/homework-submission.entity";
+import { Teacher } from "../../../../teacher/entities/teacher.entity";
 
 @Entity("grades")
 export class Grade {
