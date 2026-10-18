@@ -10,7 +10,7 @@ import { HomeworksModule } from "../homeworks/homeworks.module";
 import { Grade } from "../grades/entities/grade.entity";
 import { JwtModule } from "@nestjs/jwt";
 import { Media } from "../media/entities/media.entity";
-import { FileModule } from "../file/file.module";
+import { FileModule } from "../shared/file/file.module";
 
 @Module({
   imports: [

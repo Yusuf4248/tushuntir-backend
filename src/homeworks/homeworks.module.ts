@@ -9,7 +9,7 @@ import { GroupModule } from "../group/group.module";
 import { TeacherModule } from "../teacher/teacher.module";
 import { HomeworkSubmission } from "../homework-submission/entities/homework-submission.entity";
 import { JwtModule } from "@nestjs/jwt";
-import { FileModule } from "../file/file.module";
+import { FileModule } from "../shared/file/file.module";
 import { Media } from "../media/entities/media.entity";
 import { LessonsModule } from "../lessons/lessons.module";
 

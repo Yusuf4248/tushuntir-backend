@@ -11,7 +11,7 @@ import { Student } from "./entities/student.entities";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { ChangePasswordDto } from "./dto/change-password.dto";
-import { FileService } from "../file/file.service";
+import { FileService } from "../shared/file/file.service";
 import { Group } from "../group/entities/group.entity";
 import { Response } from "express";
 import { Homework } from "../homeworks/entities/homework.entity";

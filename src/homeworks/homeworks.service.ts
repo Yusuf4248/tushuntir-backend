@@ -11,7 +11,7 @@ import { Repository } from "typeorm";
 import { GroupService } from "../group/group.service";
 import { TeacherService } from "../teacher/teacher.service";
 import { Media } from "../media/entities/media.entity";
-import { FileService } from "../file/file.service";
+import { FileService } from "../shared/file/file.service";
 import { LessonsService } from "../lessons/lessons.service";
 import * as path from "path";
 

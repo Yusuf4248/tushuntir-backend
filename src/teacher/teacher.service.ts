@@ -12,7 +12,7 @@ import { UpdateTeacherDto } from "./dto/update-teacher.dto";
 import { Teacher } from "./entities/teacher.entity";
 import { ChangePasswordDto } from "../student/dto/change-password.dto";
 import { Branch } from "../branches/entities/branch.entity";
-import { FileService } from "../file/file.service";
+import { FileService } from "../shared/file/file.service";
 import * as bcrypt from "bcrypt";
 import * as path from "path";
 import * as fs from "fs";

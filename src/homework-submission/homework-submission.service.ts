@@ -11,7 +11,7 @@ import { Repository } from "typeorm";
 import { StudentService } from "../student/student.service";
 import { HomeworksService } from "../homeworks/homeworks.service";
 import { Media } from "../media/entities/media.entity";
-import { FileService } from "../file/file.service";
+import { FileService } from "../shared/file/file.service";
 import * as path from "path";
 
 @Injectable()
