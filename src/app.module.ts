@@ -3,7 +3,7 @@ import { ConfigModule } from "@nestjs/config";
 import { StudentModule } from "./student/student.module";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { AdminModule } from "./modules/identity/admin/admin.module";
-import { TeacherModule } from "./teacher/teacher.module";
+import { TeacherModule } from "./modules/identity/teacher/teacher.module";
 import { AuthModule } from "./modules/identity/auth/auth.module";
 import { SubjectsModule } from "./modules/school/subjects/subjects.module";
 import { ClassesModule } from "./modules/school/classes/classes.module";

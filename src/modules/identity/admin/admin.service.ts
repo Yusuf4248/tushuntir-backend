@@ -12,7 +12,7 @@ import { ChangePasswordDto } from "../../../student/dto/change-password.dto";
 import { SchoolsService } from "../../school/schools/schools.service";
 import { UpdateAdminStatusDto } from "./dto/update-admin-status.dto";
 import { School } from "../../school/schools/entities/school.entity";
-import { Teacher } from "../../../teacher/entities/teacher.entity";
+import { Teacher } from "../teacher/entities/teacher.entity";
 import { Student } from "../../../student/entities/student.entities";
 import * as bcrypt from "bcrypt";
 

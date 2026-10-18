@@ -8,7 +8,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { Teacher } from "../../../../teacher/entities/teacher.entity";
+import { Teacher } from "../../../identity/teacher/entities/teacher.entity";
 import { SchoolClass } from "../../../school/classes/entities/school-class.entity";
 import { HomeworkSubmission } from "../../homework-submissions/entities/homework-submission.entity";
 import { ApiProperty } from "@nestjs/swagger";

@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { SchoolClass } from "../../classes/entities/school-class.entity";
-import { Teacher } from "../../../../teacher/entities/teacher.entity";
+import { Teacher } from "../../../identity/teacher/entities/teacher.entity";
 
 @Entity("teacher_assignments")
 export class TeacherAssignment {

@@ -7,7 +7,7 @@ import { SchoolClass } from "../../school/classes/entities/school-class.entity";
 import { Room } from "../../school/rooms/entities/room.entity";
 import { RoomsModule } from "../../school/rooms/rooms.module";
 import { ClassesModule } from "../../school/classes/classes.module";
-import { Teacher } from "../../../teacher/entities/teacher.entity";
+import { Teacher } from "../../identity/teacher/entities/teacher.entity";
 import { JwtModule } from "@nestjs/jwt";
 
 @Module({

@@ -9,7 +9,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Homework } from "./entities/homework.entity";
 import { Repository } from "typeorm";
 import { ClassesService } from "../../school/classes/classes.service";
-import { TeacherService } from "../../../teacher/teacher.service";
+import { TeacherService } from "../../identity/teacher/teacher.service";
 import { Media } from "../media/entities/media.entity";
 import { FileService } from "../../../shared/file/file.service";
 import { LessonsService } from "../../daily/lessons/lessons.service";

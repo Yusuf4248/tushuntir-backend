@@ -10,9 +10,9 @@ import { In, Repository } from "typeorm";
 import { CreateTeacherDto } from "./dto/create-teacher.dto";
 import { UpdateTeacherDto } from "./dto/update-teacher.dto";
 import { Teacher } from "./entities/teacher.entity";
-import { ChangePasswordDto } from "../student/dto/change-password.dto";
-import { School } from "../modules/school/schools/entities/school.entity";
-import { FileService } from "../shared/file/file.service";
+import { ChangePasswordDto } from "../../../student/dto/change-password.dto";
+import { School } from "../../school/schools/entities/school.entity";
+import { FileService } from "../../../shared/file/file.service";
 import * as bcrypt from "bcrypt";
 import * as path from "path";
 import * as fs from "fs";
@@ -182,6 +182,8 @@ export class TeacherService {
         __dirname,
         "..",
         "..",
+        "..",
+        "..",
         "static",
         "teacher"
       );
@@ -211,6 +213,8 @@ export class TeacherService {
 
     const avatarPath = path.join(
       __dirname,
+      "..",
+      "..",
       "..",
       "..",
       "static",

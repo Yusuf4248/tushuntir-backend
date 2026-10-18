@@ -13,7 +13,7 @@ import {
 import { ApiProperty } from "@nestjs/swagger";
 import { Room } from "../../../school/rooms/entities/room.entity";
 import { SchoolClass } from "../../../school/classes/entities/school-class.entity";
-import { Teacher } from "../../../../teacher/entities/teacher.entity";
+import { Teacher } from "../../../identity/teacher/entities/teacher.entity";
 import { ExamResult } from "../../exam-results/entities/exam-result.entity";
 
 export enum ExamSessionStatus {

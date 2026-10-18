@@ -8,7 +8,7 @@ import { UpdateSchoolDto } from "./dto/update-school.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { School } from "./entities/school.entity";
 import { In, Repository } from "typeorm";
-import { Teacher } from "../../../teacher/entities/teacher.entity";
+import { Teacher } from "../../identity/teacher/entities/teacher.entity";
 
 @Injectable()
 export class SchoolsService {

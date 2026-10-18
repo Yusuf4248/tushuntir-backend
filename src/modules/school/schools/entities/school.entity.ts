@@ -10,7 +10,7 @@ import {
 import { ApiProperty } from "@nestjs/swagger";
 import { Room } from "../../rooms/entities/room.entity";
 import { Admin } from "../../../identity/admin/entities/admin.entity";
-import { Teacher } from "../../../../teacher/entities/teacher.entity";
+import { Teacher } from "../../../identity/teacher/entities/teacher.entity";
 
 @Entity("schools")
 export class School {

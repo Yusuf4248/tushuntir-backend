@@ -9,7 +9,7 @@ import { TeacherAssignment } from "./entities/teacher-assignment.entity";
 import { CreateTeacherAssignmentDto } from "./dto/create-teacher-assignment.dto";
 import { UpdateTeacherAssignmentDto } from "./dto/update-teacher-assignment.dto";
 import { SchoolClass } from "../classes/entities/school-class.entity";
-import { Teacher } from "../../../teacher/entities/teacher.entity";
+import { Teacher } from "../../identity/teacher/entities/teacher.entity";
 
 @Injectable()
 export class TeacherAssignmentsService {

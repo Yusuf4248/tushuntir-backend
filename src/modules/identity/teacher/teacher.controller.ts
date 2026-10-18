@@ -15,7 +15,7 @@ import {
 import { TeacherService } from "./teacher.service";
 import { CreateTeacherDto } from "./dto/create-teacher.dto";
 import { UpdateTeacherDto } from "./dto/update-teacher.dto";
-import { ChangePasswordDto } from "../student/dto/change-password.dto";
+import { ChangePasswordDto } from "../../../student/dto/change-password.dto";
 import {
   ApiTags,
   ApiOperation,
@@ -27,10 +27,10 @@ import {
   ApiQuery,
 } from "@nestjs/swagger";
 import { Teacher } from "./entities/teacher.entity";
-import { Roles } from "../app.constants";
-import { AuthGuard } from "../common/guards/auth.guard";
-import { RolesGuard } from "../common/guards/role.guard";
-import { JwtSelfGuard } from "../common/guards/jwt-self.guard";
+import { Roles } from "../../../app.constants";
+import { AuthGuard } from "../../../common/guards/auth.guard";
+import { RolesGuard } from "../../../common/guards/role.guard";
+import { JwtSelfGuard } from "../../../common/guards/jwt-self.guard";
 import { FileInterceptor } from "@nestjs/platform-express";
 
 @ApiTags("Teacher")

@@ -8,7 +8,7 @@ import {
 } from "typeorm";
 import { Student } from "../../../../student/entities/student.entities";
 import { HomeworkSubmission } from "../../../homework/homework-submissions/entities/homework-submission.entity";
-import { Teacher } from "../../../../teacher/entities/teacher.entity";
+import { Teacher } from "../../../identity/teacher/entities/teacher.entity";
 
 @Entity("grades")
 export class Grade {

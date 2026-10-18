@@ -10,7 +10,7 @@ import { ExamSession } from "./entities/exam-session.entity";
 import { In, Repository } from "typeorm";
 import { ClassesService } from "../../school/classes/classes.service";
 import { RoomsService } from "../../school/rooms/rooms.service";
-import { Teacher } from "../../../teacher/entities/teacher.entity";
+import { Teacher } from "../../identity/teacher/entities/teacher.entity";
 
 @Injectable()
 export class ExamSessionsService {

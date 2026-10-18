@@ -4,8 +4,8 @@ import {
   UnauthorizedException,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import { TeacherService } from "../../../../teacher/teacher.service";
-import { Teacher } from "../../../../teacher/entities/teacher.entity";
+import { TeacherService } from "../../teacher/teacher.service";
+import { Teacher } from "../../teacher/entities/teacher.entity";
 import { LoginDto } from "../dto/login.dto";
 import { Request, Response } from "express";
 import * as bcrypt from "bcrypt";
