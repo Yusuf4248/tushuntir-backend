@@ -3,9 +3,9 @@ import {
   Injectable,
   UnauthorizedException,
 } from "@nestjs/common";
-import { AdminService } from "../../modules/identity/admin/admin.service";
+import { AdminService } from "../../admin/admin.service";
 import { JwtService } from "@nestjs/jwt";
-import { Admin } from "../../modules/identity/admin/entities/admin.entity";
+import { Admin } from "../../admin/entities/admin.entity";
 import { LoginDto } from "../dto/login.dto";
 import { Request, Response } from "express";
 import * as bcrypt from "bcrypt";
