@@ -26,7 +26,6 @@ import { GroupTeachersModule } from "./group-teachers/group-teachers.module";
 import { GroupStudentsModule } from "./group-students/group-students.module";
 import { ServeStaticModule } from "@nestjs/serve-static";
 import { join } from "path";
-import { OtpModule } from "./otp/otp.module";
 import { DataSource } from "typeorm";
 
 @Module({
@@ -70,7 +69,6 @@ import { DataSource } from "typeorm";
     MediaModule,
     MailModule,
     FileModule,
-    OtpModule,
   ],
   controllers: [],
   providers: [],
