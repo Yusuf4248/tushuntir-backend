@@ -18,7 +18,7 @@ import { Homework } from "../modules/homework/homework/entities/homework.entity"
 import * as path from "path";
 import * as bcrypt from "bcrypt";
 import { Media } from "../media/entities/media.entity";
-import { HomeworkSubmission } from "../homework-submission/entities/homework-submission.entity";
+import { HomeworkSubmission } from "../modules/homework/homework-submissions/entities/homework-submission.entity";
 
 @Injectable()
 export class StudentService {

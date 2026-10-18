@@ -7,7 +7,7 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { Student } from "../../student/entities/student.entities";
-import { HomeworkSubmission } from "../../homework-submission/entities/homework-submission.entity";
+import { HomeworkSubmission } from "../../modules/homework/homework-submissions/entities/homework-submission.entity";
 import { Teacher } from "../../teacher/entities/teacher.entity";
 
 @Entity("grades")

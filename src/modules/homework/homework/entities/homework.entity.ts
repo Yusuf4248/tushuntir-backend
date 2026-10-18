@@ -10,7 +10,7 @@ import {
 } from "typeorm";
 import { Teacher } from "../../../../teacher/entities/teacher.entity";
 import { SchoolClass } from "../../../school/classes/entities/school-class.entity";
-import { HomeworkSubmission } from "../../../../homework-submission/entities/homework-submission.entity";
+import { HomeworkSubmission } from "../../homework-submissions/entities/homework-submission.entity";
 import { ApiProperty } from "@nestjs/swagger";
 import { Lesson } from "../../../../lessons/entities/lesson.entity";
 

@@ -10,7 +10,7 @@ import { Grade } from "./entities/grade.entity";
 import { Repository } from "typeorm";
 import { StudentService } from "../student/student.service";
 import { TeacherService } from "../teacher/teacher.service";
-import { HomeworkSubmissionService } from "../homework-submission/homework-submission.service";
+import { HomeworkSubmissionsService } from "../modules/homework/homework-submissions/homework-submissions.service";
 
 @Injectable()
 export class GradesService {
@@ -18,7 +18,7 @@ export class GradesService {
     @InjectRepository(Grade) private readonly gradeRepo: Repository<Grade>,
     private readonly studentService: StudentService,
     private readonly teacherService: TeacherService,
-    private readonly homeworkSubmissionService: HomeworkSubmissionService
+    private readonly homeworkSubmissionsService: HomeworkSubmissionsService
   ) {}
   async create(createGradeDto: CreateGradeDto) {
     const { student } = await this.studentService.findOne(
@@ -28,7 +28,7 @@ export class GradesService {
       createGradeDto.teacherId
     );
     const { homework_submission } =
-      await this.homeworkSubmissionService.findOne(
+      await this.homeworkSubmissionsService.findOne(
         createGradeDto.homeworkSubmissionId
       );
     const newGrade = await this.gradeRepo.save({

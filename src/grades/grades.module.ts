@@ -5,10 +5,10 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { Grade } from "./entities/grade.entity";
 import { Teacher } from "../teacher/entities/teacher.entity";
 import { Student } from "../student/entities/student.entities";
-import { HomeworkSubmission } from "../homework-submission/entities/homework-submission.entity";
+import { HomeworkSubmission } from "../modules/homework/homework-submissions/entities/homework-submission.entity";
 import { TeacherModule } from "../teacher/teacher.module";
 import { StudentModule } from "../student/student.module";
-import { HomeworkSubmissionModule } from "../homework-submission/homework-submission.module";
+import { HomeworkSubmissionsModule } from "../modules/homework/homework-submissions/homework-submissions.module";
 import { JwtModule } from "@nestjs/jwt";
 
 @Module({
@@ -16,7 +16,7 @@ import { JwtModule } from "@nestjs/jwt";
     TypeOrmModule.forFeature([Grade, Teacher, Student, HomeworkSubmission]),
     TeacherModule,
     StudentModule,
-    HomeworkSubmissionModule,
+    HomeworkSubmissionsModule,
     JwtModule,
   ],
   controllers: [GradesController],

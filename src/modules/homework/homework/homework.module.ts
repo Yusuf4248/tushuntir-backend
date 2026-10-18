@@ -7,7 +7,7 @@ import { Teacher } from "../../../teacher/entities/teacher.entity";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { ClassesModule } from "../../school/classes/classes.module";
 import { TeacherModule } from "../../../teacher/teacher.module";
-import { HomeworkSubmission } from "../../../homework-submission/entities/homework-submission.entity";
+import { HomeworkSubmission } from "../homework-submissions/entities/homework-submission.entity";
 import { JwtModule } from "@nestjs/jwt";
 import { FileModule } from "../../../shared/file/file.module";
 import { Media } from "../../../media/entities/media.entity";

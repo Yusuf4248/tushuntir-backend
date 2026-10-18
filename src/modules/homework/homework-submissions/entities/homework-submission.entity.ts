@@ -7,9 +7,9 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { Homework } from "../../modules/homework/homework/entities/homework.entity";
-import { Student } from "../../student/entities/student.entities";
-import { Grade } from "../../grades/entities/grade.entity";
+import { Homework } from "../../homework/entities/homework.entity";
+import { Student } from "../../../../student/entities/student.entities";
+import { Grade } from "../../../../grades/entities/grade.entity";
 
 export enum HomeworkStatus {
   QABUL_QILINGAN = "qabul qilingan",
@@ -18,7 +18,7 @@ export enum HomeworkStatus {
   KUTAYOTGAN = "kutayotgan",
 }
 
-@Entity("homework-submission")
+@Entity("homework_submissions")
 export class HomeworkSubmission {
   @PrimaryGeneratedColumn()
   id: number;

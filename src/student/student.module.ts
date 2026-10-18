@@ -4,7 +4,7 @@ import { StudentController } from "./student.controller";
 import { Student } from "./entities/student.entities";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { Attendance } from "../attendance/entities/attendance.entity";
-import { HomeworkSubmission } from "../homework-submission/entities/homework-submission.entity";
+import { HomeworkSubmission } from "../modules/homework/homework-submissions/entities/homework-submission.entity";
 import { Grade } from "../grades/entities/grade.entity";
 import { SchoolClass } from "../modules/school/classes/entities/school-class.entity";
 import { FileModule } from "../shared/file/file.module";

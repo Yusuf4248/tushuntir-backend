@@ -8,14 +8,14 @@ import { UpdateHomeworkSubmissionDto } from "./dto/update-homework-submission.dt
 import { InjectRepository } from "@nestjs/typeorm";
 import { HomeworkSubmission } from "./entities/homework-submission.entity";
 import { Repository } from "typeorm";
-import { StudentService } from "../student/student.service";
-import { HomeworkService } from "../modules/homework/homework/homework.service";
-import { Media } from "../media/entities/media.entity";
-import { FileService } from "../shared/file/file.service";
+import { StudentService } from "../../../student/student.service";
+import { HomeworkService } from "../homework/homework.service";
+import { Media } from "../../../media/entities/media.entity";
+import { FileService } from "../../../shared/file/file.service";
 import * as path from "path";
 
 @Injectable()
-export class HomeworkSubmissionService {
+export class HomeworkSubmissionsService {
   constructor(
     @InjectRepository(HomeworkSubmission)
     private readonly homeworkSubmissionRepo: Repository<HomeworkSubmission>,
@@ -51,15 +51,17 @@ export class HomeworkSubmissionService {
       __dirname,
       "..",
       "..",
+      "..",
+      "..",
       "media",
-      "homework-submission"
+      "homework-submissions"
     );
     const fileName = await this.fileService.saveFile(file, filePath);
     const media = await this.mediaRepo.save({
       files: fileName,
       file_name: file_title,
       table_id: id,
-      table_name: "homework-submission",
+      table_name: "homework_submissions",
       type: fileType,
       size: +fileSizeInMb,
     });

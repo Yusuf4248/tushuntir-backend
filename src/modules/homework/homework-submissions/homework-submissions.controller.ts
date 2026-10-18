@@ -8,7 +8,7 @@ import {
   Delete,
   UseGuards,
 } from "@nestjs/common";
-import { HomeworkSubmissionService } from "./homework-submission.service";
+import { HomeworkSubmissionsService } from "./homework-submissions.service";
 import { CreateHomeworkSubmissionDto } from "./dto/create-homework-submission.dto";
 import { UpdateHomeworkSubmissionDto } from "./dto/update-homework-submission.dto";
 import {
@@ -18,16 +18,16 @@ import {
   ApiParam,
   ApiBearerAuth,
 } from "@nestjs/swagger";
-import { Roles } from "../app.constants";
-import { AuthGuard } from "../common/guards/auth.guard";
-import { RolesGuard } from "../common/guards/role.guard";
+import { Roles } from "../../../app.constants";
+import { AuthGuard } from "../../../common/guards/auth.guard";
+import { RolesGuard } from "../../../common/guards/role.guard";
 
-@ApiTags("Homework Submission")
+@ApiTags("Homework submissions")
 @ApiBearerAuth("JWT-auth")
-@Controller("homework-submission")
-export class HomeworkSubmissionController {
+@Controller("homework-submissions")
+export class HomeworkSubmissionsController {
   constructor(
-    private readonly homeworkSubmissionService: HomeworkSubmissionService
+    private readonly homeworkSubmissionsService: HomeworkSubmissionsService
   ) {}
 
   @UseGuards(AuthGuard, RolesGuard)
@@ -37,7 +37,7 @@ export class HomeworkSubmissionController {
   @ApiResponse({ status: 201, description: "Homework submitted successfully" })
   @ApiResponse({ status: 400, description: "Invalid input" })
   create(@Body() createHomeworkSubmissionDto: CreateHomeworkSubmissionDto) {
-    return this.homeworkSubmissionService.create(createHomeworkSubmissionDto);
+    return this.homeworkSubmissionsService.create(createHomeworkSubmissionDto);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
@@ -46,7 +46,7 @@ export class HomeworkSubmissionController {
   @ApiOperation({ summary: "Get all submitted homework" })
   @ApiResponse({ status: 200, description: "List of homework submissions" })
   findAll() {
-    return this.homeworkSubmissionService.findAll();
+    return this.homeworkSubmissionsService.findAll();
   }
 
   @UseGuards(AuthGuard, RolesGuard)
@@ -61,7 +61,7 @@ export class HomeworkSubmissionController {
   @ApiResponse({ status: 200, description: "Homework submission found" })
   @ApiResponse({ status: 404, description: "Homework submission not found" })
   findOne(@Param("id") id: string) {
-    return this.homeworkSubmissionService.findOne(+id);
+    return this.homeworkSubmissionsService.findOne(+id);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
@@ -79,7 +79,7 @@ export class HomeworkSubmissionController {
     @Param("id") id: string,
     @Body() updateHomeworkSubmissionDto: UpdateHomeworkSubmissionDto
   ) {
-    return this.homeworkSubmissionService.update(
+    return this.homeworkSubmissionsService.update(
       +id,
       updateHomeworkSubmissionDto
     );
@@ -97,6 +97,6 @@ export class HomeworkSubmissionController {
   @ApiResponse({ status: 200, description: "Homework deleted successfully" })
   @ApiResponse({ status: 404, description: "Homework not found" })
   remove(@Param("id") id: string) {
-    return this.homeworkSubmissionService.remove(+id);
+    return this.homeworkSubmissionsService.remove(+id);
   }
 }

@@ -9,7 +9,7 @@ import { SubjectsModule } from "./modules/school/subjects/subjects.module";
 import { ClassesModule } from "./modules/school/classes/classes.module";
 import { AttendanceModule } from "./attendance/attendance.module";
 import { HomeworkModule } from "./modules/homework/homework/homework.module";
-import { HomeworkSubmissionModule } from "./homework-submission/homework-submission.module";
+import { HomeworkSubmissionsModule } from "./modules/homework/homework-submissions/homework-submissions.module";
 import { GradesModule } from "./grades/grades.module";
 import { SchoolsModule } from "./modules/school/schools/schools.module";
 import { RoomsModule } from "./rooms/rooms.module";
@@ -49,7 +49,7 @@ import { DataSource } from "typeorm";
     ClassStudentsModule,
     AttendanceModule,
     HomeworkModule,
-    HomeworkSubmissionModule,
+    HomeworkSubmissionsModule,
     GradesModule,
     SchoolsModule,
     RoomsModule,
