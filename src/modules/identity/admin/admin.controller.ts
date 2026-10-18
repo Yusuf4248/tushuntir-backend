@@ -13,7 +13,7 @@ import {
 import { AdminService } from "./admin.service";
 import { CreateAdminDto } from "./dto/create-admin.dto";
 import { UpdateAdminDto } from "./dto/update-admin.dto";
-import { ChangePasswordDto } from "../student/dto/change-password.dto";
+import { ChangePasswordDto } from "../../../student/dto/change-password.dto";
 import {
   ApiTags,
   ApiOperation,
@@ -23,12 +23,12 @@ import {
   ApiBearerAuth,
 } from "@nestjs/swagger";
 import { UpdateAdminStatusDto } from "./dto/update-admin-status.dto";
-import { SuperAdminGuard } from "../common/guards/superadmin.guard";
-import { AuthGuard } from "../common/guards/auth.guard";
-import { RolesGuard } from "../common/guards/role.guard";
-import { Roles } from "../app.constants";
-import { JwtSelfGuard } from "../common/guards/jwt-self.guard";
-import { ProfileGuard } from "../common/guards/profile.guard";
+import { SuperAdminGuard } from "../../../common/guards/superadmin.guard";
+import { AuthGuard } from "../../../common/guards/auth.guard";
+import { RolesGuard } from "../../../common/guards/role.guard";
+import { Roles } from "../../../app.constants";
+import { JwtSelfGuard } from "../../../common/guards/jwt-self.guard";
+import { ProfileGuard } from "../../../common/guards/profile.guard";
 
 @ApiTags("Admin")
 @ApiBearerAuth("JWT-auth")

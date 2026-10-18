@@ -9,7 +9,7 @@ import {
   JoinTable,
 } from "typeorm";
 import { ApiProperty } from "@nestjs/swagger";
-import { School } from "../../modules/school/schools/entities/school.entity";
+import { School } from "../../../school/schools/entities/school.entity";
 
 @Entity("admin")
 export class Admin {
