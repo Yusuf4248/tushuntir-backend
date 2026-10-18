@@ -9,7 +9,6 @@ import {
   UseGuards,
   Req,
   UnauthorizedException,
-  Res,
 } from "@nestjs/common";
 import { AdminService } from "./admin.service";
 import { CreateAdminDto } from "./dto/create-admin.dto";
@@ -30,10 +29,6 @@ import { RolesGuard } from "../common/guards/role.guard";
 import { Roles } from "../app.constants";
 import { JwtSelfGuard } from "../common/guards/jwt-self.guard";
 import { ProfileGuard } from "../common/guards/profile.guard";
-import { OtpDto } from "./dto/otp.dto";
-import { ForgetPasswordDto } from "./dto/forget-password.dto";
-import { Request, Response } from "express";
-import { NewPasswordDto } from "./dto/new-password.dto";
 
 @ApiTags("Admin")
 @ApiBearerAuth("JWT-auth")
@@ -52,46 +47,6 @@ export class AdminController {
       throw new UnauthorizedException("User info not found in token");
     }
     return this.adminService.getUniversalProfile(user.id, user.role);
-  }
-
-  @Post("forget-password")
-  @ApiOperation({ summary: "Send OTP for password reset" })
-  @ApiResponse({ status: 200, description: "OTP sent successfully" })
-  @ApiResponse({ status: 404, description: "User not found" })
-  @ApiBody({ type: ForgetPasswordDto })
-  async forgetPassword(
-    @Body() forgetPasswordDto: ForgetPasswordDto,
-    @Res({ passthrough: true }) res: Response
-  ) {
-    return this.adminService.forgetPassword(forgetPasswordDto, res);
-  }
-
-  @Post("verify-otp")
-  @ApiOperation({ summary: "Verify OTP code" })
-  @ApiResponse({ status: 200, description: "OTP verified successfully" })
-  @ApiResponse({ status: 400, description: "Invalid or expired OTP" })
-  @ApiBody({ type: OtpDto })
-  async verifyOtp(@Req() req: Request, @Body() verifyOtpDto: OtpDto) {
-    return this.adminService.verifyOtp(verifyOtpDto, req);
-  }
-
-  @Post("new-password")
-  @ApiOperation({ summary: "Send new password" })
-  @ApiResponse({
-    status: 200,
-    description: "Your password successfully changed!",
-  })
-  @ApiResponse({
-    status: 400,
-    description: "Something went wrong or Passwords do not match",
-  })
-  @ApiBody({ type: NewPasswordDto })
-  async newPassword(
-    @Req() req: any,
-    @Res({ passthrough: true }) res: Response,
-    @Body() dto: NewPasswordDto
-  ) {
-    return this.adminService.newPassword(dto, req, res);
   }
 
   @UseGuards(SuperAdminGuard)

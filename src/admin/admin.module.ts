@@ -9,14 +9,11 @@ import { JwtModule } from "@nestjs/jwt";
 import { Teacher } from "../teacher/entities/teacher.entity";
 import { Lid } from "../lid/entities/lid.entity";
 import { Student } from "../student/entities/student.entities";
-import { LidModule } from "../lid/lid.module";
-import { Otp } from "../otp/entities/otp.entity";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Admin, Branch, Teacher, Lid, Student, Otp]),
+    TypeOrmModule.forFeature([Admin, Branch, Teacher, Lid, Student]),
     BranchesModule,
-    LidModule,
     JwtModule,
   ],
   controllers: [AdminController],
