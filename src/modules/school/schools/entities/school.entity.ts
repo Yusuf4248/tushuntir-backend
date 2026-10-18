@@ -8,12 +8,12 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { ApiProperty } from "@nestjs/swagger";
-import { Room } from "../../rooms/entities/room.entity";
-import { Admin } from "../../admin/entities/admin.entity";
-import { Teacher } from "../../teacher/entities/teacher.entity";
+import { Room } from "../../../../rooms/entities/room.entity";
+import { Admin } from "../../../../admin/entities/admin.entity";
+import { Teacher } from "../../../../teacher/entities/teacher.entity";
 
-@Entity("branches")
-export class Branch {
+@Entity("schools")
+export class School {
   @ApiProperty({ example: 1, description: "Filial ID raqami" })
   @PrimaryGeneratedColumn()
   id: number;
@@ -33,13 +33,13 @@ export class Branch {
   @Column({ unique: true })
   call_number: string;
 
-  @OneToMany(() => Room, (room) => room.branch)
+  @OneToMany(() => Room, (room) => room.school)
   room: Room[];
 
-  @ManyToMany(() => Admin, (admin) => admin.branch)
+  @ManyToMany(() => Admin, (admin) => admin.school)
   admin: Admin[];
 
-  @ManyToMany(() => Teacher, (teacher) => teacher.branches)
+  @ManyToMany(() => Teacher, (teacher) => teacher.schools)
   teachers: Teacher[];
 
   @CreateDateColumn({ name: "created_at" })

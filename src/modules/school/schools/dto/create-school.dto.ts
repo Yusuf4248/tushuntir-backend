@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsNotEmpty, IsPhoneNumber, IsString } from "class-validator";
 
-export class CreateBranchDto {
+export class CreateSchoolDto {
   @ApiProperty({ example: "Chilonzor Filiali", description: "Filial nomi" })
   @IsString()
   @IsNotEmpty()

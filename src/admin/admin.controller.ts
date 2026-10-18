@@ -153,8 +153,8 @@ export class AdminController {
     return this.adminService.updateStatus(+id, dto);
   }
 
-  @Patch(":id/branch/:branchId")
-  addBranch(@Param("id") id: string, @Param("branchId") branchId: string) {
-    return this.adminService.addBranch(+branchId, +id);
+  @Patch(":id/school/:schoolId")
+  addSchool(@Param("id") id: string, @Param("schoolId") schoolId: string) {
+    return this.adminService.addSchool(+schoolId, +id);
   }
 }

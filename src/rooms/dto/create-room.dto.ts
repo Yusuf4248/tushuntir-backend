@@ -4,11 +4,11 @@ import { ApiProperty } from "@nestjs/swagger";
 export class CreateRoomDto {
   @ApiProperty({
     example: 1,
-    description: "Filial ID (branchId)",
+    description: "Filial ID (schoolId)",
   })
-  @IsInt({ message: "branchId butun son bo'lishi kerak" })
-  @IsPositive({ message: "branchId musbat bo'lishi kerak" })
-  branchId: number;
+  @IsInt({ message: "schoolId butun son bo'lishi kerak" })
+  @IsPositive({ message: "schoolId musbat bo'lishi kerak" })
+  schoolId: number;
 
   @ApiProperty({
     example: "Room A",

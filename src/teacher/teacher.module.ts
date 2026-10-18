@@ -7,7 +7,7 @@ import { Homework } from "../homeworks/entities/homework.entity";
 import { Grade } from "../grades/entities/grade.entity";
 import { Exam } from "../exams/entities/exam.entity";
 import { Group } from "../group/entities/group.entity";
-import { Branch } from "../branches/entities/branch.entity";
+import { School } from "../modules/school/schools/entities/school.entity";
 import { JwtModule } from "@nestjs/jwt";
 import { FileModule } from "../shared/file/file.module";
 import { GroupTeacher } from "../group-teachers/entities/group-teacher.entity";
@@ -20,7 +20,7 @@ import { GroupTeacher } from "../group-teachers/entities/group-teacher.entity";
       Grade,
       Exam,
       Group,
-      Branch,
+      School,
       GroupTeacher,
     ]),
     JwtModule,

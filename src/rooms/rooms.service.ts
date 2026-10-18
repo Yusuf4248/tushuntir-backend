@@ -8,20 +8,20 @@ import { UpdateRoomDto } from "./dto/update-room.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Room } from "./entities/room.entity";
 import { Repository } from "typeorm";
-import { BranchesService } from "../branches/branches.service";
-import { Branch } from "../branches/entities/branch.entity";
+import { SchoolsService } from "../modules/school/schools/schools.service";
+import { School } from "../modules/school/schools/entities/school.entity";
 
 @Injectable()
 export class RoomsService {
   constructor(
     @InjectRepository(Room) private readonly roomRepo: Repository<Room>,
-    @InjectRepository(Branch) private readonly branchRepo: Repository<Branch>,
-    private readonly branchesService: BranchesService
+    @InjectRepository(School) private readonly schoolRepo: Repository<School>,
+    private readonly schoolsService: SchoolsService
   ) {}
   async create(createRoomDto: CreateRoomDto) {
-    const branch = await this.branchesService.findOne(createRoomDto.branchId);
+    const school = await this.schoolsService.findOne(createRoomDto.schoolId);
     const newRoom = await this.roomRepo.save({
-      branch: branch.branch,
+      school: school.school,
       ...createRoomDto,
     });
     return {
@@ -32,7 +32,7 @@ export class RoomsService {
   }
 
   async findAll() {
-    const rooms = await this.roomRepo.find({ relations: ["branch"] });
+    const rooms = await this.roomRepo.find({ relations: ["school"] });
     return {
       message: "All rooms",
       success: true,
@@ -48,7 +48,7 @@ export class RoomsService {
     }
     const room = await this.roomRepo.findOne({
       where: { id },
-      relations: ["branch", "lesson", "lesson.room", "lesson.group"],
+      relations: ["school", "lesson", "lesson.room", "lesson.group"],
     });
     if (!room) {
       throw new NotFoundException(`${id}-room not found`);
@@ -64,17 +64,17 @@ export class RoomsService {
     try {
       const existingRoom = await this.findOne(id);
 
-      const oldBranchId = existingRoom.room.branch
-        ? existingRoom.room.branch.id
+      const oldSchoolId = existingRoom.room.school
+        ? existingRoom.room.school.id
         : undefined;
 
-      const newBranchId = updateRoomDto.branchId!;
+      const newSchoolId = updateRoomDto.schoolId!;
 
-      if (newBranchId !== undefined && newBranchId !== oldBranchId) {
-        await this.deleteOldBranchData(existingRoom.room);
-        await this.addNewBranchData(newBranchId, existingRoom.room);
-      } else if (newBranchId === undefined) {
-        updateRoomDto.branchId = oldBranchId || undefined;
+      if (newSchoolId !== undefined && newSchoolId !== oldSchoolId) {
+        await this.deleteOldSchoolData(existingRoom.room);
+        await this.addNewSchoolData(newSchoolId, existingRoom.room);
+      } else if (newSchoolId === undefined) {
+        updateRoomDto.schoolId = oldSchoolId || undefined;
       }
 
       await this.roomRepo.update({ id }, updateRoomDto);
@@ -101,36 +101,36 @@ export class RoomsService {
     };
   }
 
-  private async deleteOldBranchData(room: Room) {
+  private async deleteOldSchoolData(room: Room) {
     try {
-      if (room.branch) {
+      if (room.school) {
         await this.roomRepo
           .createQueryBuilder()
-          .relation(Room, "branch")
+          .relation(Room, "school")
           .of(room)
           .set(null);
       }
     } catch (error) {
-      throw new Error(`Eski branch o'chirishda xatolik: ${error.message}`);
+      throw new Error(`Eski school o'chirishda xatolik: ${error.message}`);
     }
   }
 
-  private async addNewBranchData(newBranchId: number, room: Room) {
+  private async addNewSchoolData(newSchoolId: number, room: Room) {
     try {
-      const newBranch = await this.branchRepo.findOne({
-        where: { id: newBranchId },
+      const newSchool = await this.schoolRepo.findOne({
+        where: { id: newSchoolId },
       });
-      if (!newBranch) {
-        throw new Error(`Branch ID ${newBranchId} topilmadi`);
+      if (!newSchool) {
+        throw new Error(`School ID ${newSchoolId} topilmadi`);
       }
 
       await this.roomRepo
         .createQueryBuilder()
-        .relation(Room, "branch")
+        .relation(Room, "school")
         .of(room)
-        .set(newBranch);
+        .set(newSchool);
     } catch (error) {
-      throw new Error(`Yangi branch qo'shishda xatolik: ${error.message}`);
+      throw new Error(`Yangi school qo'shishda xatolik: ${error.message}`);
     }
   }
 

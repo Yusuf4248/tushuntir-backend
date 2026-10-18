@@ -2,12 +2,13 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { Branch } from "../../branches/entities/branch.entity";
+import { School } from "../../modules/school/schools/entities/school.entity";
 import { ApiProperty } from "@nestjs/swagger";
 import { Exam } from "../../exams/entities/exam.entity";
 import { Lesson } from "../../lessons/entities/lesson.entity";
@@ -39,15 +40,16 @@ export class Room {
     example: 1,
     description: "Xonaga tegishli filialning ID raqami",
   })
-  @Column({ nullable: true })
-  branchId: number;
+  @Column({ name: "school_id", nullable: true })
+  schoolId: number;
 
   @ApiProperty({
-    type: () => Branch,
-    description: "Xonaga tegishli filial (branch)",
+    type: () => School,
+    description: "Xonaga tegishli filial (school)",
   })
-  @ManyToOne(() => Branch, (branch) => branch.room, { eager: false })
-  branch: Branch;
+  @ManyToOne(() => School, (school) => school.room, { eager: false })
+  @JoinColumn({ name: "school_id" })
+  school: School;
 
   @OneToMany(() => Exam, (exam) => exam.room)
   exams: Exam[];

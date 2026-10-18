@@ -9,9 +9,9 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Admin } from "./entities/admin.entity";
 import { In, Repository } from "typeorm";
 import { ChangePasswordDto } from "../student/dto/change-password.dto";
-import { BranchesService } from "../branches/branches.service";
+import { SchoolsService } from "../modules/school/schools/schools.service";
 import { UpdateAdminStatusDto } from "./dto/update-admin-status.dto";
-import { Branch } from "../branches/entities/branch.entity";
+import { School } from "../modules/school/schools/entities/school.entity";
 import { Teacher } from "../teacher/entities/teacher.entity";
 import { Student } from "../student/entities/student.entities";
 import * as bcrypt from "bcrypt";
@@ -20,25 +20,25 @@ import * as bcrypt from "bcrypt";
 export class AdminService {
   constructor(
     @InjectRepository(Admin) private readonly adminRepo: Repository<Admin>,
-    @InjectRepository(Branch) private readonly branchRepo: Repository<Branch>,
+    @InjectRepository(School) private readonly schoolRepo: Repository<School>,
     @InjectRepository(Teacher)
     private readonly teacherRepo: Repository<Teacher>,
     @InjectRepository(Student)
     private readonly studentRepo: Repository<Student>,
-    private readonly branchService: BranchesService
+    private readonly schoolService: SchoolsService
   ) {}
   async create(createAdminDto: CreateAdminDto) {
     const hashshed_password = await bcrypt.hash(
       createAdminDto.password_hash,
       7
     );
-    if (createAdminDto.branchId) {
-      const branch = await this.branchRepo.find({
-        where: { id: In(createAdminDto.branchId) },
+    if (createAdminDto.schoolIds) {
+      const school = await this.schoolRepo.find({
+        where: { id: In(createAdminDto.schoolIds) },
       });
       const newAdmin = await this.adminRepo.save({
         ...createAdminDto,
-        branch,
+        school,
         password_hash: hashshed_password,
       });
       return {
@@ -60,7 +60,7 @@ export class AdminService {
   }
 
   async findAll() {
-    const admins = await this.adminRepo.find({ relations: ["branch"] });
+    const admins = await this.adminRepo.find({ relations: ["school"] });
     return {
       success: true,
       admins,
@@ -73,7 +73,7 @@ export class AdminService {
     // "ID must be integer and must be greater than zero"
     const admin = await this.adminRepo.findOne({
       where: { id },
-      relations: ["branch"],
+      relations: ["school"],
     });
     if (!admin) {
       throw new BadRequestException(`Admin with id-${id} not found`);
@@ -91,7 +91,7 @@ export class AdminService {
 
     const admin = await this.adminRepo.findOne({
       where: { id },
-      relations: ["branch"],
+      relations: ["school"],
     });
     return {
       message: "Admin data updated",
@@ -160,11 +160,11 @@ export class AdminService {
     };
   }
 
-  async addBranch(branchId: number, id: number) {
+  async addSchool(schoolId: number, id: number) {
     await this.findOne(id);
-    const { branch } = await this.branchService.findOne(branchId);
+    const { school } = await this.schoolService.findOne(schoolId);
 
-    await this.adminRepo.update({ id }, branch);
+    await this.adminRepo.update({ id }, school);
     const admin = await this.findOne(id);
     return {
       message: "Updated",
@@ -178,12 +178,12 @@ export class AdminService {
       case "admin":
         return await this.adminRepo.findOne({
           where: { id },
-          relations: ["branch"],
+          relations: ["school"],
         });
       case "teacher":
         return this.teacherRepo.findOne({
           where: { id },
-          relations: ["branches", "exam"],
+          relations: ["schools", "exam"],
         });
       case "student":
         return this.studentRepo.findOne({

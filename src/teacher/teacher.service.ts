@@ -11,7 +11,7 @@ import { CreateTeacherDto } from "./dto/create-teacher.dto";
 import { UpdateTeacherDto } from "./dto/update-teacher.dto";
 import { Teacher } from "./entities/teacher.entity";
 import { ChangePasswordDto } from "../student/dto/change-password.dto";
-import { Branch } from "../branches/entities/branch.entity";
+import { School } from "../modules/school/schools/entities/school.entity";
 import { FileService } from "../shared/file/file.service";
 import * as bcrypt from "bcrypt";
 import * as path from "path";
@@ -22,27 +22,27 @@ export class TeacherService {
   constructor(
     @InjectRepository(Teacher)
     private readonly teacherRepo: Repository<Teacher>,
-    @InjectRepository(Branch)
-    private readonly branchRepo: Repository<Branch>,
+    @InjectRepository(School)
+    private readonly schoolRepo: Repository<School>,
     private readonly fileService: FileService
   ) {}
   async create(createTeacherDto: CreateTeacherDto) {
-    let branches: Branch[] = [];
+    let schools: School[] = [];
     const hashshed_password = await bcrypt.hash(createTeacherDto.password, 7);
 
     if (
-      Array.isArray(createTeacherDto.branchId) &&
-      createTeacherDto.branchId.length > 0
+      Array.isArray(createTeacherDto.schoolIds) &&
+      createTeacherDto.schoolIds.length > 0
     ) {
-      branches = await this.branchRepo.find({
-        where: { id: In(createTeacherDto.branchId) },
+      schools = await this.schoolRepo.find({
+        where: { id: In(createTeacherDto.schoolIds) },
       });
     }
 
     const newTeacher = await this.teacherRepo.save({
       ...createTeacherDto,
       password: hashshed_password,
-      branches,
+      schools,
     });
     return {
       message: "Teacher created successfully",
@@ -53,7 +53,7 @@ export class TeacherService {
 
   async findAll(page: number, limit: number) {
     const [teachers, total] = await this.teacherRepo.findAndCount({
-      relations: ["exam", "branches"],
+      relations: ["exam", "schools"],
       skip: (page - 1) * limit,
       take: limit,
       order: { id: "ASC" },
@@ -75,7 +75,7 @@ export class TeacherService {
     }
     const teacher = await this.teacherRepo.findOne({
       where: { id },
-      relations: ["exam", "branches"],
+      relations: ["exam", "schools"],
     });
     if (!teacher) {
       throw new BadRequestException(`teacher with ${id}-id not found`);
@@ -90,33 +90,33 @@ export class TeacherService {
   async update(id: number, updateTeacherDto: UpdateTeacherDto) {
     const teacher = await this.teacherRepo.findOne({
       where: { id },
-      relations: ["branches"],
+      relations: ["schools"],
     });
 
     if (!teacher) {
       throw new NotFoundException(`Teacher with id ${id} not found`);
     }
 
-    // DTO dan branchId va qolgan fieldlarni ajratib olamiz
-    const { branchId, ...restDto } = updateTeacherDto;
+    // DTO dan schoolIds va qolgan fieldlarni ajratib olamiz
+    const { schoolIds, ...restDto } = updateTeacherDto;
 
     // Qolgan fieldlarni yangilaymiz
     Object.assign(teacher, restDto);
 
-    // Branchlar bilan bog‘liq aloqani yangilaymiz
-    if (branchId) {
-      if (!Array.isArray(branchId)) {
-        throw new BadRequestException("branchId must be an array");
+    // Maktablar bilan bog‘liq aloqani yangilaymiz
+    if (schoolIds) {
+      if (!Array.isArray(schoolIds)) {
+        throw new BadRequestException("schoolIds must be an array");
       }
 
-      const branches = await this.branchRepo.findBy({
-        id: In(branchId),
+      const schools = await this.schoolRepo.findBy({
+        id: In(schoolIds),
       });
 
-      teacher.branches = branches;
+      teacher.schools = schools;
     } else {
-      // Agar branchId yo‘q bo‘lsa, mavjud aloqalarni tozalaymiz
-      teacher.branches = [];
+      // Agar schoolIds yo‘q bo‘lsa, mavjud aloqalarni tozalaymiz
+      teacher.schools = [];
     }
 
     // O'zgarishlarni saqlaymiz

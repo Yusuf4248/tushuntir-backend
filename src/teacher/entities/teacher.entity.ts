@@ -12,7 +12,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { Homework } from "../../homeworks/entities/homework.entity";
 import { Grade } from "../../grades/entities/grade.entity";
 import { Exam } from "../../exams/entities/exam.entity";
-import { Branch } from "../../branches/entities/branch.entity";
+import { School } from "../../modules/school/schools/entities/school.entity";
 import { GroupTeacher } from "../../group-teachers/entities/group-teacher.entity";
 
 @Entity("teacher")
@@ -41,8 +41,8 @@ export class Teacher {
   @Column({ type: "varchar", unique: true })
   phone: string;
 
-  @Column({ type: "int", array: true, nullable: true })
-  branchId: number[];
+  @Column({ name: "school_ids", type: "int", array: true, nullable: true })
+  schoolIds: number[];
 
   @ApiProperty({
     example: "main teacher",
@@ -84,7 +84,11 @@ export class Teacher {
   @ManyToMany(() => Exam, (exam) => exam.teacher, { nullable: true })
   exam: Exam[];
 
-  @ManyToMany(() => Branch, (branch) => branch.teachers, { cascade: true })
-  @JoinTable()
-  branches: Branch[];
+  @ManyToMany(() => School, (school) => school.teachers, { cascade: true })
+  @JoinTable({
+    name: "teacher_schools",
+    joinColumn: { name: "teacher_id" },
+    inverseJoinColumn: { name: "school_id" },
+  })
+  schools: School[];
 }

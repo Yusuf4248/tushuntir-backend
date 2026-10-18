@@ -10,13 +10,13 @@ import { ApiProperty } from "@nestjs/swagger";
 export class UpdateRoomDto {
   @ApiProperty({
     example: 1,
-    description: "Filial ID (branchId), o'zgartirish uchun ixtiyoriy",
+    description: "Filial ID (schoolId), o'zgartirish uchun ixtiyoriy",
     required: false,
   })
   @IsOptional()
-  @IsInt({ message: "branchId butun son bo'lishi kerak" })
-  @IsPositive({ message: "branchId musbat bo'lishi kerak" })
-  branchId?: number;
+  @IsInt({ message: "schoolId butun son bo'lishi kerak" })
+  @IsPositive({ message: "schoolId musbat bo'lishi kerak" })
+  schoolId?: number;
 
   @ApiProperty({
     example: "Room A",

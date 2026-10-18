@@ -55,5 +55,5 @@ export class CreateAdminDto {
   })
   @IsArray()
   @IsOptional()
-  branchId?: number[];
+  schoolIds?: number[];
 }

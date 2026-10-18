@@ -9,7 +9,7 @@ import {
   JoinTable,
 } from "typeorm";
 import { ApiProperty } from "@nestjs/swagger";
-import { Branch } from "../../branches/entities/branch.entity";
+import { School } from "../../modules/school/schools/entities/school.entity";
 
 @Entity("admin")
 export class Admin {
@@ -63,9 +63,13 @@ export class Admin {
   @Column({ type: "varchar", nullable: true })
   refersh_token_hash: string;
 
-  @ManyToMany(() => Branch, (branch) => branch.admin, { nullable: true })
-  @JoinTable()
-  branch: Branch[];
+  @ManyToMany(() => School, (school) => school.admin, { nullable: true })
+  @JoinTable({
+    name: "admin_schools",
+    joinColumn: { name: "admin_id" },
+    inverseJoinColumn: { name: "school_id" },
+  })
+  school: School[];
 
   @CreateDateColumn({ name: "created_at" })
   created_at: Date;

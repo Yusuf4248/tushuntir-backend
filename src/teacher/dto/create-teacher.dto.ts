@@ -53,10 +53,10 @@ export class CreateTeacherDto {
 
   @ApiProperty({
     example: [5],
-    description: "IDs of branches the teacher works at",
+    description: "IDs of schools the teacher works at",
     isArray: true,
     type: Number,
   })
   @IsArray()
-  branchId: number[];
+  schoolIds: number[];
 }
