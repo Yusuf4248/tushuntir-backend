@@ -7,8 +7,6 @@ import {
   IsEnum,
   MinLength,
   MaxLength,
-  IsOptional,
-  IsArray,
 } from "class-validator";
 
 export class CreateStudentDto {
@@ -72,9 +70,4 @@ export class CreateStudentDto {
     { message: `Tug'ilgan sana to'g'ri formatda bo'lishi kerak (YYYY-MM-DD)` }
   )
   date_of_birth: Date;
-
-  @ApiProperty({ example: 1, description: "Tegishli event ID si" })
-  @IsOptional()
-  @IsArray()
-  eventsId?: number[];
 }

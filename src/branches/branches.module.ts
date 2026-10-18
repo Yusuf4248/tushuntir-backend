@@ -5,13 +5,12 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { Branch } from "./entities/branch.entity";
 import { Room } from "../rooms/entities/room.entity";
 import { Admin } from "../admin/entities/admin.entity";
-import { Event } from "../events/entities/event.entity";
 import { Teacher } from "../teacher/entities/teacher.entity";
 import { JwtModule } from "@nestjs/jwt";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Branch, Room, Admin, Event, Teacher]),
+    TypeOrmModule.forFeature([Branch, Room, Admin, Teacher]),
     JwtModule,
   ],
   controllers: [BranchesController],

@@ -10,7 +10,6 @@ import {
 import { ApiProperty } from "@nestjs/swagger";
 import { Room } from "../../rooms/entities/room.entity";
 import { Admin } from "../../admin/entities/admin.entity";
-import { Event } from "../../events/entities/event.entity";
 import { Teacher } from "../../teacher/entities/teacher.entity";
 
 @Entity("branches")
@@ -39,9 +38,6 @@ export class Branch {
 
   @ManyToMany(() => Admin, (admin) => admin.branch)
   admin: Admin[];
-
-  @OneToMany(() => Event, (event) => event.branch)
-  events: Event[];
 
   @ManyToMany(() => Teacher, (teacher) => teacher.branches)
   teachers: Teacher[];

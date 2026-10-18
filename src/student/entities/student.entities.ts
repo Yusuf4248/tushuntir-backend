@@ -3,7 +3,6 @@ import {
   PrimaryGeneratedColumn,
   Column,
   OneToMany,
-  ManyToMany,
   CreateDateColumn,
   UpdateDateColumn,
 } from "typeorm";
@@ -11,7 +10,6 @@ import { ApiProperty } from "@nestjs/swagger";
 import { Attendance } from "../../attendance/entities/attendance.entity";
 import { HomeworkSubmission } from "../../homework-submission/entities/homework-submission.entity";
 import { Grade } from "../../grades/entities/grade.entity";
-import { Event } from "../../events/entities/event.entity";
 import { ExamResult } from "../../exam-results/entities/exam-result.entity";
 import { GroupStudent } from "../../group-students/entities/group-student.entity";
 
@@ -107,9 +105,6 @@ export class Student {
 
   @OneToMany(() => Grade, (grades) => grades.student)
   grades: Grade[];
-
-  @ManyToMany(() => Event, (event) => event.students, { nullable: true })
-  events: Event[];
 
   @OneToMany(() => ExamResult, (exam_result) => exam_result.student)
   exam_result: ExamResult[];

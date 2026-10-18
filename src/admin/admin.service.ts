@@ -188,7 +188,6 @@ export class AdminService {
       case "student":
         return this.studentRepo.findOne({
           where: { id },
-          relations: ["events"],
         });
       default:
         throw new NotFoundException("Role noto'g'ri");

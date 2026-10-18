@@ -9,9 +9,8 @@ import { CreateStudentDto } from "./dto/create-student.dto";
 import { UpdateStudentDto } from "./dto/update-student.dto";
 import { Student } from "./entities/student.entities";
 import { InjectRepository } from "@nestjs/typeorm";
-import { In, Repository } from "typeorm";
+import { Repository } from "typeorm";
 import { ChangePasswordDto } from "./dto/change-password.dto";
-import { Event } from "../events/entities/event.entity";
 import { FileService } from "../file/file.service";
 import { Group } from "../group/entities/group.entity";
 import { Response } from "express";
@@ -26,8 +25,6 @@ export class StudentService {
   constructor(
     @InjectRepository(Student)
     private readonly studentRepo: Repository<Student>,
-    @InjectRepository(Event)
-    private readonly eventRepo: Repository<Event>,
     @InjectRepository(Group)
     private readonly groupRepo: Repository<Group>,
     @InjectRepository(Homework)
@@ -39,22 +36,13 @@ export class StudentService {
     private readonly fileService: FileService
   ) {}
   async create(createStudentDto: CreateStudentDto) {
-    const { password_hash, eventsId } = createStudentDto;
+    const { password_hash } = createStudentDto;
 
     const hashed_password = await bcrypt.hash(password_hash, 7);
-
-    let events: Event[] = [];
-
-    if (Array.isArray(eventsId) && eventsId.length > 0) {
-      events = await this.eventRepo.find({
-        where: { id: In(eventsId) },
-      });
-    }
 
     const newStudent = await this.studentRepo.save({
       ...createStudentDto,
       password_hash: hashed_password,
-      events,
     });
 
     return {
@@ -66,7 +54,6 @@ export class StudentService {
 
   async findAll(page: number, limit: number) {
     const [students, total] = await this.studentRepo.findAndCount({
-      relations: ["events"],
       skip: (page - 1) * limit,
       take: limit,
       order: { id: "ASC" },
@@ -87,7 +74,6 @@ export class StudentService {
       );
     const student = await this.studentRepo.findOne({
       where: { id },
-      relations: ["events"],
     });
     if (!student) {
       throw new BadRequestException(`student with ${id}-id not fount`);

@@ -20,7 +20,6 @@ import { GroupStudent } from "../group-students/entities/group-student.entity";
       Attendance,
       HomeworkSubmission,
       Grade,
-      Event,
       Group,
       Homework,
       Media,

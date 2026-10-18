@@ -13,7 +13,6 @@ import { HomeworkSubmissionModule } from "./homework-submission/homework-submiss
 import { GradesModule } from "./grades/grades.module";
 import { BranchesModule } from "./branches/branches.module";
 import { RoomsModule } from "./rooms/rooms.module";
-import { EventsModule } from "./events/events.module";
 import { ExamsModule } from "./exams/exams.module";
 import { ExamResultsModule } from "./exam-results/exam-results.module";
 import { MediaModule } from "./media/media.module";
@@ -59,7 +58,6 @@ import { DataSource } from "typeorm";
     GradesModule,
     BranchesModule,
     RoomsModule,
-    EventsModule,
     ExamsModule,
     ExamResultsModule,
     MediaModule,
