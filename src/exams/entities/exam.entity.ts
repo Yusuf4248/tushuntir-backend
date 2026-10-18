@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   JoinTable,
   ManyToMany,
   ManyToOne,
@@ -11,7 +12,7 @@ import {
 } from "typeorm";
 import { ApiProperty } from "@nestjs/swagger";
 import { Room } from "../../rooms/entities/room.entity";
-import { Group } from "../../group/entities/group.entity";
+import { SchoolClass } from "../../modules/school/classes/entities/school-class.entity";
 import { Teacher } from "../../teacher/entities/teacher.entity";
 import { ExamResult } from "../../exam-results/entities/exam-result.entity";
 
@@ -55,9 +56,10 @@ export class Exam {
   @ManyToOne(() => Room, (room) => room.exams)
   room: Room;
 
-  @ApiProperty({ type: () => Group })
-  @ManyToOne(() => Group, (group) => group.exams)
-  group: Group;
+  @ApiProperty({ type: () => SchoolClass })
+  @ManyToOne(() => SchoolClass, (schoolClass) => schoolClass.exams)
+  @JoinColumn({ name: "class_id" })
+  schoolClass: SchoolClass;
 
   @ManyToMany(() => Teacher, (teacher) => teacher.exam, { nullable: true })
   @JoinTable()

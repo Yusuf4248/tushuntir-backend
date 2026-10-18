@@ -18,7 +18,7 @@ import { StudentService } from "../student/student.service";
 import { LessonsService } from "../lessons/lessons.service";
 import { Student } from "../student/entities/student.entities";
 import { Lesson, LessonStatus } from "../lessons/entities/lesson.entity";
-import { GroupService } from "../group/group.service";
+import { ClassesService } from "../modules/school/classes/classes.service";
 import { GroupStudentsService } from "../group-students/group-students.service";
 import { UpdateLessonAttendancesDto } from "./dto/update-lesson-attendances-dto";
 
@@ -33,8 +33,8 @@ export class AttendanceService {
     private readonly studentService: StudentService,
     @Inject(forwardRef(() => LessonsService))
     private readonly lessonService: LessonsService,
-    @Inject(forwardRef(() => GroupService))
-    private readonly groupService: GroupService,
+    @Inject(forwardRef(() => ClassesService))
+    private readonly classesService: ClassesService,
     @Inject(forwardRef(() => GroupStudentsService))
     private groupStudentService: GroupStudentsService
   ) {}
@@ -125,18 +125,18 @@ export class AttendanceService {
     };
   }
 
-  async getStudentAllAttendances(studentId: number, groupId: number) {
+  async getStudentAllAttendances(studentId: number, classId: number) {
     const { student } = await this.studentService.findOne(studentId);
-    const { group } = await this.groupService.findOne(groupId);
+    const { schoolClass } = await this.classesService.findOne(classId);
     const attendances = await this.attendanceRepo.find({
       where: {
         student: { id: student.id },
-        lesson: { group: { id: group.id } },
+        lesson: { schoolClass: { id: schoolClass.id } },
       },
-      relations: ["lesson", "lesson.group", "student"],
+      relations: ["lesson", "lesson.schoolClass", "student"],
     });
     return {
-      message: `All attendances for student ${studentId} in group ${groupId}`,
+      message: `All attendances for student ${studentId} in class ${classId}`,
       success: true,
       attendances,
     };
@@ -147,10 +147,10 @@ export class AttendanceService {
     const today = dayjs().startOf("day").toDate();
     const lessons = await this.lessonRepo.find({
       where: {
-        group: { id: groupStudent.group.id },
+        schoolClass: { id: groupStudent.schoolClass.id },
         date: MoreThanOrEqual(today),
       },
-      relations: ["group", "room"],
+      relations: ["schoolClass", "room"],
       order: { date: "ASC" },
     });
 
@@ -172,7 +172,7 @@ export class AttendanceService {
     const today = dayjs().startOf("day").toDate();
     const lessons = await this.lessonRepo.find({
       where: {
-        group: { id: groupStudent.group.id },
+        schoolClass: { id: groupStudent.schoolClass.id },
         date: MoreThanOrEqual(today),
       },
       order: { date: "ASC" },
@@ -199,13 +199,13 @@ export class AttendanceService {
     };
   }
 
-  // async updateAttendanceForGroup(dto: UpdateLessonAttendancesDto) {
+  // async updateAttendanceForClass(dto: UpdateLessonAttendancesDto) {
   //   if (isNaN(dto.lessonId))
   //     throw new BadRequestException("lessonId must be a number");
   //   // 1. Find lesson
   //   const lesson = await this.lessonRepo.findOne({
   //     where: { id: dto.lessonId },
-  //     relations: ["group"],
+  //     relations: ["schoolClass"],
   //   });
 
   //   if (!lesson) {
@@ -238,11 +238,11 @@ export class AttendanceService {
   //   );
 
   //   // 5. Get active students
-  //   const activeGroupData =
-  //     await this.groupStudentService.findActiveStudentsInGroupForAttendance(
-  //       lesson.group.id
+  //   const activeClassData =
+  //     await this.groupStudentService.findActiveStudentsInClassForAttendance(
+  //       lesson.schoolClass.id
   //     );
-  //   const activeStudentIds: number[] = activeGroupData.groupStudents.map(
+  //   const activeStudentIds: number[] = activeClassData.groupStudents.map(
   //     (gs) => gs.student.id
   //   );
 
@@ -289,7 +289,7 @@ export class AttendanceService {
   //   };
   // }
 
-  async updateAttendanceForGroup(dto: UpdateLessonAttendancesDto) {
+  async updateAttendanceForClass(dto: UpdateLessonAttendancesDto) {
     if (isNaN(dto.lessonId)) {
       throw new BadRequestException("lessonId must be a number");
     }
@@ -297,7 +297,7 @@ export class AttendanceService {
     // 1. Find lesson
     const lesson = await this.lessonRepo.findOne({
       where: { id: dto.lessonId },
-      relations: ["group"],
+      relations: ["schoolClass"],
     });
     if (!lesson) throw new NotFoundException("Lesson not found");
 
@@ -324,14 +324,14 @@ export class AttendanceService {
     }
 
     // 3.1. Start time check (attendance oldin bo‘lmasin)
-    if (lesson.group.start_time) {
-      const [hours, minutes] = lesson.group.start_time.split(":").map(Number);
+    if (lesson.schoolClass.start_time) {
+      const [hours, minutes] = lesson.schoolClass.start_time.split(":").map(Number);
       const lessonStart = new Date();
       lessonStart.setHours(hours, minutes, 0, 0);
 
       if (now < lessonStart) {
         throw new BadRequestException(
-          `Attendance can only be recorded after the lesson starts at ${lesson.group.start_time}`
+          `Attendance can only be recorded after the lesson starts at ${lesson.schoolClass.start_time}`
         );
       }
     }
@@ -343,16 +343,16 @@ export class AttendanceService {
     });
 
     // 5. Active students
-    const activeGroupData =
-      await this.groupStudentService.findActiveStudentsInGroupForAttendance(
-        lesson.group.id
+    const activeClassData =
+      await this.groupStudentService.findActiveStudentsInClassForAttendance(
+        lesson.schoolClass.id
       );
-    const activeStudentIds = activeGroupData.groupStudents.map(
+    const activeStudentIds = activeClassData.groupStudents.map(
       (gs) => gs.student.id
     );
 
     if (!activeStudentIds.length) {
-      return { message: "No active students in this group" };
+      return { message: "No active students in this class" };
     }
 
     // 6. Existing attendances
@@ -385,7 +385,7 @@ export class AttendanceService {
     };
   }
 
-  async isLessonAttendedByDate(groupId: number, date: Date) {
+  async isLessonAttendedByDate(classId: number, date: Date) {
     // date ni 00:00:00 qilib normalize qilamiz
     dayjs.extend(utc);
     dayjs.extend(timezone);
@@ -395,13 +395,13 @@ export class AttendanceService {
       .add(5, "hour")
       .toDate();
 
-    // Shu sanaga va groupId ga mos darsni topamiz
+    // Shu sanaga va classId ga mos darsni topamiz
     const lesson = await this.lessonRepo.findOne({
       where: {
-        group: { id: groupId },
+        schoolClass: { id: classId },
         date: today1,
       },
-      relations: ["group"],
+      relations: ["schoolClass"],
     });
 
     if (!lesson) {
@@ -424,8 +424,8 @@ export class AttendanceService {
 
     if (lesson.status === LessonStatus.NEW) {
       const groupStudents =
-        await this.groupStudentService.findActiveStudentsInGroup(
-          lesson.group.id
+        await this.groupStudentService.findActiveStudentsInClass(
+          lesson.schoolClass.id
         );
 
       return {
@@ -434,9 +434,9 @@ export class AttendanceService {
         lessonInfo: {
           id: lesson.id,
           title: lesson.title,
-          start_time: lesson.group.start_time,
-          end_time: lesson.group.end_time,
-          groupName: lesson.group.name,
+          start_time: lesson.schoolClass.start_time,
+          end_time: lesson.schoolClass.end_time,
+          className: lesson.schoolClass.name,
         },
       };
     } else {

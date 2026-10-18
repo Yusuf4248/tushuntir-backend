@@ -48,7 +48,7 @@ export class RoomsService {
     }
     const room = await this.roomRepo.findOne({
       where: { id },
-      relations: ["school", "lesson", "lesson.room", "lesson.group"],
+      relations: ["school", "lesson", "lesson.room", "lesson.schoolClass"],
     });
     if (!room) {
       throw new NotFoundException(`${id}-room not found`);
@@ -147,7 +147,7 @@ export class RoomsService {
       };
     }
 
-    //  Sort by date first, then by group.start_time
+    //  Sort by date first, then by schoolClass.start_time
     const sortedLessons = room.lesson.sort((a, b) => {
       const dateA = new Date(a.date).getTime();
       const dateB = new Date(b.date).getTime();
@@ -156,8 +156,8 @@ export class RoomsService {
       if (dateA !== dateB) return dateA - dateB;
 
       // If dates are the same, compare by start_time (if available)
-      const timeA = a.group?.start_time ? a.group.start_time : "00:00";
-      const timeB = b.group?.start_time ? b.group.start_time : "00:00";
+      const timeA = a.schoolClass?.start_time ? a.schoolClass.start_time : "00:00";
+      const timeB = b.schoolClass?.start_time ? b.schoolClass.start_time : "00:00";
 
       // Compare as times
       return timeA.localeCompare(timeB);
@@ -170,9 +170,9 @@ export class RoomsService {
       data: sortedLessons.map((lesson) => ({
         id: lesson.id,
         date: lesson.date,
-        start_time: lesson.group?.start_time || null,
-        end_time: lesson.group?.end_time || null,
-        group: lesson.group || null,
+        start_time: lesson.schoolClass?.start_time || null,
+        end_time: lesson.schoolClass?.end_time || null,
+        schoolClass: lesson.schoolClass || null,
         room: lesson.room || null,
       })),
     };

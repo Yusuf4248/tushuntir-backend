@@ -12,7 +12,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { ChangePasswordDto } from "./dto/change-password.dto";
 import { FileService } from "../shared/file/file.service";
-import { Group } from "../group/entities/group.entity";
+import { SchoolClass } from "../modules/school/classes/entities/school-class.entity";
 import { Response } from "express";
 import { Homework } from "../homeworks/entities/homework.entity";
 import * as path from "path";
@@ -25,8 +25,8 @@ export class StudentService {
   constructor(
     @InjectRepository(Student)
     private readonly studentRepo: Repository<Student>,
-    @InjectRepository(Group)
-    private readonly groupRepo: Repository<Group>,
+    @InjectRepository(SchoolClass)
+    private readonly classRepo: Repository<SchoolClass>,
     @InjectRepository(Homework)
     private readonly homeworkRepo: Repository<Homework>,
     @InjectRepository(Media)
@@ -185,48 +185,48 @@ export class StudentService {
     res.sendFile(avatarPath);
   }
 
-  // async findStudentAllGroups(id: number) {
+  // async findStudentAllClasses(id: number) {
   //   const { student } = await this.findOne(id);
-  //   if (student.groups.length == 0) {
-  //     throw new NotFoundException("The student has no group.");
+  //   if (student.classes.length == 0) {
+  //     throw new NotFoundException("The student has no schoolClass.");
   //   }
-  //   const groups = student.groups.map((group) => ({
-  //     name: group.name,
-  //     subject: group.subject.title,
-  //     start_date: group.start_date,
-  //     end_date: group.end_date,
-  //     status: group.status,
+  //   const classes = student.classes.map((schoolClass) => ({
+  //     name: schoolClass.name,
+  //     subject: schoolClass.subject.title,
+  //     start_date: schoolClass.start_date,
+  //     end_date: schoolClass.end_date,
+  //     status: schoolClass.status,
   //   }));
   //   return {
-  //     groups,
+  //     classes,
   //   };
   // }
 
-  // async getStudentHomeworksByGroup(
+  // async getStudentHomeworksByClass(
   //   studentId: number,
-  //   groupId: number,
+  //   classId: number,
   //   page: number,
   //   limit: number,
   //   status: HomeworkStatus
   // ) {
-  //   if (!Number.isInteger(Number(groupId)) || Number(groupId) <= 0)
+  //   if (!Number.isInteger(Number(classId)) || Number(classId) <= 0)
   //     throw new BadRequestException(
   //       "ID must be integer and must be greater than zero"
   //     );
-  //   const group = await this.groupRepo.findOne({
-  //     where: { id: groupId },
+  //   const schoolClass = await this.classRepo.findOne({
+  //     where: { id: classId },
   //     relations: ["students"],
   //   });
-  //   if (!group) {
-  //     throw new NotFoundException(`${groupId}-group not found`);
+  //   if (!schoolClass) {
+  //     throw new NotFoundException(`${classId}-schoolClass not found`);
   //   }
-  //   const isStudentExist = group.students.some(
+  //   const isStudentExist = schoolClass.students.some(
   //     (student) => student.id == studentId
   //   );
 
   //   if (!isStudentExist) {
   //     throw new ForbiddenException(
-  //       `${studentId}-student not found in this group`
+  //       `${studentId}-student not found in this schoolClass`
   //     );
   //   }
   //   if (page <= 0 || limit <= 0)
@@ -235,7 +235,7 @@ export class StudentService {
 
   //   if (!status) {
   //     const [homeworks, total] = await this.homeworkRepo.findAndCount({
-  //       relations: ["teacher", "group"],
+  //       relations: ["teacher", "schoolClass"],
   //       skip,
   //       take: limit,
   //       order: { id: "DESC" },
@@ -256,10 +256,10 @@ export class StudentService {
   //       {
   //         where: {
   //           student: { id: studentId },
-  //           homework: { group: { id: groupId } },
+  //           homework: { schoolClass: { id: classId } },
   //           status: status,
   //         },
-  //         relations: ["homework", "homework.group", "homework.teacher"],
+  //         relations: ["homework", "homework.schoolClass", "homework.teacher"],
   //         skip,
   //         take: limit,
   //         order: { id: "DESC" },

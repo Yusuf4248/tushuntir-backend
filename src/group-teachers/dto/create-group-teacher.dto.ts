@@ -9,10 +9,10 @@ import {
 } from "class-validator";
 
 export class CreateGroupTeacherDto {
-  @ApiProperty({ example: 2, description: "Group ID" })
+  @ApiProperty({ example: 2, description: "Class ID" })
   @IsNumber()
   @IsNotEmpty()
-  groupId: number;
+  classId: number;
 
   @ApiProperty({ example: [5], description: "Teacher ID" })
   @IsArray()
@@ -21,7 +21,7 @@ export class CreateGroupTeacherDto {
 
   @ApiProperty({
     example: true,
-    description: "Status of the teacher in the group (active/inactive)",
+    description: "Status of the teacher in the class (active/inactive)",
   })
   @IsBoolean()
   @IsNotEmpty()
@@ -30,7 +30,7 @@ export class CreateGroupTeacherDto {
 
   @ApiProperty({
     example: "2025-01-01",
-    description: "Start date of the group",
+    description: "Start date of the class",
   })
   @IsDateString()
   @IsOptional()

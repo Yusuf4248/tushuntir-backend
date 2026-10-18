@@ -10,9 +10,9 @@ import { UpdateLessonDto } from "./dto/update-lesson.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Lesson, LessonStatus } from "./entities/lesson.entity";
 import { Between, MoreThan, Repository } from "typeorm";
-import { GroupService } from "../group/group.service";
+import { ClassesService } from "../modules/school/classes/classes.service";
 import { addDays, isAfter } from "date-fns";
-import { Group } from "../group/entities/group.entity";
+import { SchoolClass } from "../modules/school/classes/entities/school-class.entity";
 import { Room } from "../rooms/entities/room.entity";
 import { GroupStudent } from "../group-students/entities/group-student.entity";
 import { GroupTeacher } from "../group-teachers/entities/group-teacher.entity";
@@ -22,9 +22,9 @@ import { UpdateLessonStatusDto } from "./dto/update-lesson-status.dto";
 export class LessonsService {
   constructor(
     @InjectRepository(Lesson) private readonly lessonRepo: Repository<Lesson>,
-    @Inject(forwardRef(() => GroupService))
-    private readonly groupService: GroupService,
-    @InjectRepository(Group) private readonly groupRepo: Repository<Group>,
+    @Inject(forwardRef(() => ClassesService))
+    private readonly classesService: ClassesService,
+    @InjectRepository(SchoolClass) private readonly classRepo: Repository<SchoolClass>,
     @InjectRepository(Room) private readonly roomRepo: Repository<Room>,
     @InjectRepository(GroupStudent)
     private readonly groupStudentRepo: Repository<GroupStudent>,
@@ -33,9 +33,9 @@ export class LessonsService {
   ) {}
 
   async create(createLessonDto: CreateLessonDto) {
-    const { groupId, roomId } = createLessonDto;
+    const { classId, roomId } = createLessonDto;
 
-    const { group } = await this.groupService.findOne(groupId);
+    const { schoolClass } = await this.classesService.findOne(classId);
     const room = await this.roomRepo.findOne({ where: { id: roomId } });
 
     if (!room) {
@@ -44,29 +44,29 @@ export class LessonsService {
 
     const lesson = await this.lessonRepo.save({
       ...createLessonDto,
-      group,
+      schoolClass,
       room,
     });
 
     const newEndDate = lesson.date;
     if (
       newEndDate &&
-      isAfter(new Date(newEndDate), new Date(group!.end_date))
+      isAfter(new Date(newEndDate), new Date(schoolClass!.end_date))
     ) {
-      group!.end_date = newEndDate;
-      await this.groupRepo.save(group!);
+      schoolClass!.end_date = newEndDate;
+      await this.classRepo.save(schoolClass!);
 
       await this.groupStudentRepo
         .createQueryBuilder()
         .update()
         .set({ end_date: newEndDate })
-        .where("group_id = :groupId", { groupId: group!.id })
+        .where("class_id = :classId", { classId: schoolClass!.id })
         .execute();
       await this.groupTeacherRepo
         .createQueryBuilder()
         .update()
         .set({ end_date: newEndDate })
-        .where("group_id = :groupId", { groupId: group!.id })
+        .where("class_id = :classId", { classId: schoolClass!.id })
         .execute();
     }
 
@@ -79,26 +79,26 @@ export class LessonsService {
 
   async createAllLessons({
     roomId,
-    groupId,
+    classId,
   }: {
     roomId: number;
-    groupId: number;
+    classId: number;
   }) {
-    const lessonDates = await this.generateLessonDates(groupId);
+    const lessonDates = await this.generateLessonDates(classId);
 
-    let group = await this.groupRepo.findOne({
-      where: { id: groupId },
+    let schoolClass = await this.classRepo.findOne({
+      where: { id: classId },
       relations: ["subject"],
     });
 
-    if (!group) {
-      throw new NotFoundException(`Group ID-${groupId} not found`);
+    if (!schoolClass) {
+      throw new NotFoundException(`Class ID-${classId} not found`);
     }
 
-    const startDateString = `${group.start_date}T${
-      group.start_time.length === 5
-        ? group.start_time + ":00"
-        : group.start_time
+    const startDateString = `${schoolClass.start_date}T${
+      schoolClass.start_time.length === 5
+        ? schoolClass.start_time + ":00"
+        : schoolClass.start_time
     }`;
     const start_time = new Date(startDateString);
 
@@ -107,11 +107,11 @@ export class LessonsService {
     }
 
     const end_time = new Date(
-      start_time.getTime() + group.subject.lesson_duration * 60 * 1000
+      start_time.getTime() + schoolClass.subject.lesson_duration * 60 * 1000
     );
 
-    await this.groupRepo.update(
-      { id: groupId },
+    await this.classRepo.update(
+      { id: classId },
       {
         end_date: lessonDates[lessonDates.length - 1]
           .toISOString()
@@ -120,8 +120,8 @@ export class LessonsService {
       }
     );
 
-    group = await this.groupRepo.findOne({
-      where: { id: groupId },
+    schoolClass = await this.classRepo.findOne({
+      where: { id: classId },
       relations: ["subject"],
     });
 
@@ -136,10 +136,10 @@ export class LessonsService {
       const date = lessonDates[i];
 
       const lesson = await this.lessonRepo.save({
-        group: { ...group },
+        schoolClass: { ...schoolClass },
         date,
         title: `Lesson ${i + 1}`,
-        notes: `Lesson ${i + 1} - Group ${group!.name}`,
+        notes: `Lesson ${i + 1} - Class ${schoolClass!.name}`,
         room: { ...room },
       });
 
@@ -149,22 +149,22 @@ export class LessonsService {
     return lessons;
   }
 
-  async generateLessonDates(groupId: number): Promise<Date[]> {
-    const group = await this.groupRepo.findOne({
-      where: { id: groupId },
+  async generateLessonDates(classId: number): Promise<Date[]> {
+    const schoolClass = await this.classRepo.findOne({
+      where: { id: classId },
       relations: ["subject"],
     });
 
-    if (!group) {
-      throw new NotFoundException(`Group ID-${groupId} not found`);
+    if (!schoolClass) {
+      throw new NotFoundException(`Class ID-${classId} not found`);
     }
 
     const lessonDates: Date[] = [];
     const totalLessons: number =
-      group.subject.lessons_in_a_month * group.subject.duration;
+      schoolClass.subject.lessons_in_a_month * schoolClass.subject.duration;
 
-    let currentDate = new Date(group.start_date);
-    const lessonsInWeek = group.subject.lessons_in_a_week;
+    let currentDate = new Date(schoolClass.start_date);
+    const lessonsInWeek = schoolClass.subject.lessons_in_a_week;
 
     if (lessonsInWeek === 5) {
       // Har kuni Dushanba - Juma oraliqda dars
@@ -213,14 +213,14 @@ export class LessonsService {
 
     const lesson = await this.lessonRepo.findOne({
       where: { date: lastDate },
-      relations: ["group", "group.subject"],
+      relations: ["schoolClass", "schoolClass.subject"],
     });
 
     if (!lesson) {
       throw new NotFoundException("Lesson not found for the given date");
     }
 
-    const lessonsInWeek = lesson.group.subject.lessons_in_a_week;
+    const lessonsInWeek = lesson.schoolClass.subject.lessons_in_a_week;
 
     const currentDate = new Date(lastDate);
     let nextDate = new Date(currentDate);
@@ -277,9 +277,9 @@ export class LessonsService {
       throw new NotFoundException(`Lesson with ID ${id} not found`);
     }
 
-    const groupId = oldLessonRecord.lesson.group.id;
+    const classId = oldLessonRecord.lesson.schoolClass.id;
 
-    const group = await this.groupRepo.findOne({ where: { id: groupId } });
+    const schoolClass = await this.classRepo.findOne({ where: { id: classId } });
 
     if (date) {
       const parsedDate = new Date(date);
@@ -306,13 +306,13 @@ export class LessonsService {
         notes: note,
       });
 
-      const lastLesson = await this.shiftLessons(groupId, id, parsedDate);
+      const lastLesson = await this.shiftLessons(classId, id, parsedDate);
 
       //  Yangi lesson yaratish (agar kerak bo'lsa qo'shimcha maydonlar qo'shing)
       const newLesson = this.lessonRepo.save({
         title: `Lesson ${this.extractLessonNumber(lastLesson!.title) + 1}`,
-        notes: `Lesson ${this.extractLessonNumber(lastLesson!.title) + 1} - Group ${group!.name}`,
-        group: { ...group },
+        notes: `Lesson ${this.extractLessonNumber(lastLesson!.title) + 1} - Class ${schoolClass!.name}`,
+        schoolClass: { ...schoolClass },
         date: parsedDate,
         status: LessonStatus.NEW,
         room: oldLessonRecord.lesson.room,
@@ -328,11 +328,11 @@ export class LessonsService {
       await this.lessonRepo.update(id, { status, notes: note });
 
       // ❗Gruppa darslarini surish
-      await this.shiftLessons(groupId, id);
+      await this.shiftLessons(classId, id);
 
       // ✅ Oxirgi darsni topamiz
       const lastLesson = await this.lessonRepo.findOne({
-        where: { group: { id: groupId } },
+        where: { schoolClass: { id: classId } },
         order: { date: "DESC" },
       });
 
@@ -342,8 +342,8 @@ export class LessonsService {
       // ✅ Yangi lesson yaratamiz
       const newLesson = this.lessonRepo.create({
         title: `Lesson ${this.extractLessonNumber(lastLesson!.title) + 1}`,
-        notes: `Lesson ${this.extractLessonNumber(lastLesson!.title) + 1} - Group ${group!.name}`,
-        group: { ...group },
+        notes: `Lesson ${this.extractLessonNumber(lastLesson!.title) + 1} - Class ${schoolClass!.name}`,
+        schoolClass: { ...schoolClass },
         date: nextDate,
         status: LessonStatus.NEW,
         room: oldLessonRecord.lesson.room,
@@ -359,22 +359,22 @@ export class LessonsService {
   }
 
   async shiftLessons(
-    groupId: number,
+    classId: number,
     canceledLessonId: number,
     date: Date | null = null
   ) {
     if (date) {
       const canceledLesson = await this.lessonRepo.findOne({
-        where: { id: canceledLessonId, group: { id: groupId } },
+        where: { id: canceledLessonId, schoolClass: { id: classId } },
       });
       if (!canceledLesson) throw new NotFoundException("Lesson not found");
 
       const laterLessons = await this.lessonRepo.find({
         where: {
-          group: { id: groupId },
+          schoolClass: { id: classId },
           date: Between(new Date(canceledLesson.date.getTime() + 1), date),
         },
-        relations: ["group"],
+        relations: ["schoolClass"],
         order: { date: "ASC" },
       });
 
@@ -382,33 +382,33 @@ export class LessonsService {
 
       for (const lesson of laterLessons) {
         const oldNumber = this.extractLessonNumber(lesson.title);
-        const groupName = lesson.group.name;
+        const className = lesson.schoolClass.name;
         lesson.title = `Lesson ${oldNumber - 1}`;
-        lesson.notes = `Lesson ${oldNumber - 1} - Group${groupName}`;
+        lesson.notes = `Lesson ${oldNumber - 1} - Class${className}`;
         lastUpdatedLesson = await this.lessonRepo.save(lesson);
       }
       return lastUpdatedLesson;
     } else {
       const canceledLesson = await this.lessonRepo.findOne({
-        where: { id: canceledLessonId, group: { id: groupId } },
+        where: { id: canceledLessonId, schoolClass: { id: classId } },
       });
       if (!canceledLesson) throw new NotFoundException("Lesson not found");
 
       const laterLessons = await this.lessonRepo.find({
         where: {
-          group: { id: groupId },
+          schoolClass: { id: classId },
           date: MoreThan(canceledLesson.date),
         },
-        relations: ["group"],
+        relations: ["schoolClass"],
         order: { date: "ASC" },
       });
 
       // 3. Har bir lessonni 1 ta oldingi raqam bilan yangilaymiz
       for (const lesson of laterLessons) {
         const oldNumber = this.extractLessonNumber(lesson.title);
-        const groupName = lesson.group.name;
+        const className = lesson.schoolClass.name;
         lesson.title = `Lesson ${oldNumber - 1}`;
-        lesson.notes = `Lesson ${oldNumber - 1} - Group${groupName}`;
+        lesson.notes = `Lesson ${oldNumber - 1} - Class${className}`;
         await this.lessonRepo.save(lesson);
       }
     }
@@ -419,10 +419,10 @@ export class LessonsService {
   //   const today = new Date();
   //   today.setHours(0, 0, 0, 0); // to get start of today
 
-  //   // IN_PROGRESS lessonlarni group bilan birga chaqiramiz
+  //   // IN_PROGRESS lessonlarni schoolClass bilan birga chaqiramiz
   //   const inProgressLessons = await this.lessonRepo.find({
   //     where: { status: LessonStatus.IN_PROGRESS },
-  //     relations: ["group"],
+  //     relations: ["schoolClass"],
   //   });
 
   //   const lessonsToUpdate: Lesson[] = [];
@@ -435,7 +435,7 @@ export class LessonsService {
 
   //     if (isToday) {
   //       // Faqat bugungi darslar uchun: end_time bilan solishtiramiz
-  //       const [endHour, endMinute] = lesson.group.end_time
+  //       const [endHour, endMinute] = lesson.schoolClass.end_time
   //         .split(":")
   //         .map(Number);
 
@@ -465,7 +465,7 @@ export class LessonsService {
 
       const inProgressLessons = await this.lessonRepo
         .createQueryBuilder("lesson")
-        .leftJoinAndSelect("lesson.group", "group")
+        .leftJoinAndSelect("lesson.schoolClass", "schoolClass")
         .where("lesson.status = :status", { status: LessonStatus.IN_PROGRESS })
         .andWhere("lesson.date <= :now", { now })
         .getMany();
@@ -477,7 +477,7 @@ export class LessonsService {
         const isToday = lessonDate.toDateString() === today.toDateString();
 
         if (isToday) {
-          const [endHour, endMinute] = lesson.group.end_time
+          const [endHour, endMinute] = lesson.schoolClass.end_time
             .split(":")
             .map((val) => {
               const num = Number(val);
@@ -514,7 +514,7 @@ export class LessonsService {
   async findAll(page: number, limit: number) {
     const skip = (page - 1) * limit;
     const [lessons, total] = await this.lessonRepo.findAndCount({
-      relations: ["group"],
+      relations: ["schoolClass"],
       skip,
       take: limit,
       order: { id: "ASC" },
@@ -528,10 +528,10 @@ export class LessonsService {
     };
   }
 
-  async findGroupAllLessons(groupId: number) {
+  async findClassAllLessons(classId: number) {
     const lessons = await this.lessonRepo.find({
-      where: { group: { id: groupId } },
-      relations: ["group", "room"],
+      where: { schoolClass: { id: classId } },
+      relations: ["schoolClass", "room"],
       order: { date: "ASC" },
     });
     return {
@@ -547,7 +547,7 @@ export class LessonsService {
       );
     const lesson = await this.lessonRepo.findOne({
       where: { id },
-      relations: ["group", "room"],
+      relations: ["schoolClass", "room"],
     });
     if (!lesson) {
       throw new NotFoundException(

@@ -80,10 +80,10 @@ export class LessonsController {
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles("superadmin", "admin", "teacher", "student")
-  @Get("group/:groupId")
-  @ApiOperation({ summary: "Get all lessons by group" })
-  async findAllByGroup(@Param("groupId", ParseIntPipe) groupId: number) {
-    return this.lessonsService.findGroupAllLessons(groupId);
+  @Get("class/:classId")
+  @ApiOperation({ summary: "Get all lessons by class" })
+  async findAllByClass(@Param("classId", ParseIntPipe) classId: number) {
+    return this.lessonsService.findClassAllLessons(classId);
   }
 
   @Patch(":id/status")

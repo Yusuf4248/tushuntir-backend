@@ -7,7 +7,7 @@ import {
   OneToMany,
 } from "typeorm";
 import { ApiProperty } from "@nestjs/swagger";
-import { Group } from "../../../../group/entities/group.entity";
+import { SchoolClass } from "../../classes/entities/school-class.entity";
 
 export enum LessonInAWeekEnum {
   THREE = 3,
@@ -100,8 +100,8 @@ export class Subject {
   updated_at: Date;
 
   @ApiProperty({
-    type: () => [Group],
+    type: () => [SchoolClass],
   })
-  @OneToMany(() => Group, (group) => group.subject)
-  groups: Group[];
+  @OneToMany(() => SchoolClass, (schoolClass) => schoolClass.subject)
+  classes: SchoolClass[];
 }

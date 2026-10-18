@@ -3,18 +3,18 @@ import { ExamsService } from "./exams.service";
 import { ExamsController } from "./exams.controller";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { Exam } from "./entities/exam.entity";
-import { Group } from "../group/entities/group.entity";
+import { SchoolClass } from "../modules/school/classes/entities/school-class.entity";
 import { Room } from "../rooms/entities/room.entity";
 import { RoomsModule } from "../rooms/rooms.module";
-import { GroupModule } from "../group/group.module";
+import { ClassesModule } from "../modules/school/classes/classes.module";
 import { Teacher } from "../teacher/entities/teacher.entity";
 import { JwtModule } from "@nestjs/jwt";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Exam, Group, Room, Teacher]),
+    TypeOrmModule.forFeature([Exam, SchoolClass, Room, Teacher]),
     RoomsModule,
-    GroupModule,
+    ClassesModule,
     JwtModule,
   ],
   controllers: [ExamsController],

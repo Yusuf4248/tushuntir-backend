@@ -2,13 +2,14 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
 import { Teacher } from "../../teacher/entities/teacher.entity";
-import { Group } from "../../group/entities/group.entity";
+import { SchoolClass } from "../../modules/school/classes/entities/school-class.entity";
 import { HomeworkSubmission } from "../../homework-submission/entities/homework-submission.entity";
 import { ApiProperty } from "@nestjs/swagger";
 import { Lesson } from "../../lessons/entities/lesson.entity";
@@ -26,9 +27,10 @@ export class Homework {
   })
   teacher: Teacher;
 
-  @ManyToOne(() => Group, (group) => group.homework, { onDelete: "CASCADE" })
-  @ApiProperty({ type: () => Group, description: "Guruh obyektiga bog'lanish" })
-  group: Group;
+  @ManyToOne(() => SchoolClass, (schoolClass) => schoolClass.homework, { onDelete: "CASCADE" })
+  @ApiProperty({ type: () => SchoolClass, description: "Guruh obyektiga bog'lanish" })
+  @JoinColumn({ name: "class_id" })
+  schoolClass: SchoolClass;
 
   @Column()
   @ApiProperty({

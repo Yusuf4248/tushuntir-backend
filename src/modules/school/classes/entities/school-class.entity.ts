@@ -10,14 +10,14 @@ import {
   ManyToMany,
 } from "typeorm";
 import { ApiProperty } from "@nestjs/swagger";
-import { Subject } from "../../modules/school/subjects/entities/subject.entity";
-import { Homework } from "../../homeworks/entities/homework.entity";
-import { Exam } from "../../exams/entities/exam.entity";
-import { Lesson } from "../../lessons/entities/lesson.entity";
-import { GroupTeacher } from "../../group-teachers/entities/group-teacher.entity";
-import { GroupStudent } from "../../group-students/entities/group-student.entity";
+import { Subject } from "../../subjects/entities/subject.entity";
+import { Homework } from "../../../../homeworks/entities/homework.entity";
+import { Exam } from "../../../../exams/entities/exam.entity";
+import { Lesson } from "../../../../lessons/entities/lesson.entity";
+import { GroupTeacher } from "../../../../group-teachers/entities/group-teacher.entity";
+import { GroupStudent } from "../../../../group-students/entities/group-student.entity";
 
-export enum GroupStatus {
+export enum ClassStatus {
   NEW = "new",
   ACTIVE = "active",
   COMPLETED = "completed",
@@ -25,42 +25,42 @@ export enum GroupStatus {
   PENDING = "pending",
 }
 
-@Entity("groups")
-export class Group {
+@Entity("classes")
+export class SchoolClass {
   @ApiProperty({ example: 1, description: "Unique identifier" })
   @PrimaryGeneratedColumn()
   id: number;
 
   @ApiProperty({
     example: "Beginner Web Development",
-    description: "Group name",
+    description: "Class name",
   })
   @Column({ type: "varchar", length: 100, unique: true })
   name: string;
 
-  @ApiProperty({ example: "2025-06-01", description: "Group start date" })
+  @ApiProperty({ example: "2025-06-01", description: "Class start date" })
   @Column({ type: "date" })
   start_date: Date;
 
-  @ApiProperty({ example: "2025-09-01", description: "Group end date" })
+  @ApiProperty({ example: "2025-09-01", description: "Class end date" })
   @Column({ type: "date", nullable: true })
   end_date: Date;
 
-  @ApiProperty({ example: "08:30", description: "Group start time" })
+  @ApiProperty({ example: "08:30", description: "Class start time" })
   @Column({ type: "time" })
   start_time: string;
 
-  @ApiProperty({ example: "11:30", description: "Group end time" })
+  @ApiProperty({ example: "11:30", description: "Class end time" })
   @Column({ type: "time", nullable: true })
   end_time: string;
 
-  @ApiProperty({ enum: GroupStatus, example: GroupStatus.NEW })
+  @ApiProperty({ enum: ClassStatus, example: ClassStatus.NEW })
   @Column({
     type: "enum",
-    enum: GroupStatus,
-    default: GroupStatus.NEW,
+    enum: ClassStatus,
+    default: ClassStatus.NEW,
   })
-  status: GroupStatus;
+  status: ClassStatus;
 
   @CreateDateColumn({ type: "timestamp" })
   created_at: Date;
@@ -69,31 +69,31 @@ export class Group {
   updated_at: Date;
 
   @ApiProperty({ type: () => Subject })
-  @ManyToOne(() => Subject, (subject) => subject.groups, { onDelete: "CASCADE" })
+  @ManyToOne(() => Subject, (subject) => subject.classes, { onDelete: "CASCADE" })
   @JoinColumn({ name: "subject_id" })
   subject: Subject;
 
-  @OneToMany(() => GroupTeacher, (groupTeacher) => groupTeacher.group, {
+  @OneToMany(() => GroupTeacher, (groupTeacher) => groupTeacher.schoolClass, {
     onDelete: "CASCADE",
   })
   @ApiProperty({ type: () => GroupTeacher })
   groupTeachers: GroupTeacher[];
 
-  @OneToMany(() => GroupStudent, (groupStudent) => groupStudent.group, {
+  @OneToMany(() => GroupStudent, (groupStudent) => groupStudent.schoolClass, {
     onDelete: "CASCADE",
   })
   @ApiProperty({ type: () => GroupStudent })
   groupStudents: GroupStudent[];
 
-  @OneToMany(() => Homework, (homework) => homework.group)
+  @OneToMany(() => Homework, (homework) => homework.schoolClass)
   @ApiProperty({ type: () => Homework })
   homework: Homework[];
 
-  @OneToMany(() => Exam, (exam) => exam.group)
+  @OneToMany(() => Exam, (exam) => exam.schoolClass)
   @ApiProperty({ type: () => Exam })
   exams: Exam[];
 
-  @OneToMany(() => Lesson, (lesson) => lesson.group, { onDelete: "CASCADE" })
+  @OneToMany(() => Lesson, (lesson) => lesson.schoolClass, { onDelete: "CASCADE" })
   @ApiProperty({ type: () => Lesson })
   lessons: Lesson[];
 }

@@ -7,7 +7,7 @@ import { Student } from "../student/entities/student.entities";
 import { StudentModule } from "../student/student.module";
 import { JwtModule } from "@nestjs/jwt";
 import { LessonsModule } from "../lessons/lessons.module";
-import { GroupModule } from "../group/group.module";
+import { ClassesModule } from "../modules/school/classes/classes.module";
 import { GroupStudentsModule } from "../group-students/group-students.module";
 import { Lesson } from "../lessons/entities/lesson.entity";
 
@@ -17,7 +17,7 @@ import { Lesson } from "../lessons/entities/lesson.entity";
     forwardRef(() => GroupStudentsModule),
     forwardRef(() => StudentModule),
     forwardRef(() => LessonsModule),
-    forwardRef(() => GroupModule),
+    forwardRef(() => ClassesModule),
     JwtModule,
   ],
   controllers: [AttendanceController],

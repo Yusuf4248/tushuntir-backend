@@ -8,7 +8,7 @@ import { UpdateExamDto } from "./dto/update-exam.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Exam } from "./entities/exam.entity";
 import { In, Repository } from "typeorm";
-import { GroupService } from "../group/group.service";
+import { ClassesService } from "../modules/school/classes/classes.service";
 import { RoomsService } from "../rooms/rooms.service";
 import { Teacher } from "../teacher/entities/teacher.entity";
 
@@ -16,14 +16,14 @@ import { Teacher } from "../teacher/entities/teacher.entity";
 export class ExamsService {
   constructor(
     @InjectRepository(Exam) private readonly examRepo: Repository<Exam>,
-    private readonly groupService: GroupService,
+    private readonly classesService: ClassesService,
     private readonly roomService: RoomsService,
     @InjectRepository(Teacher)
     private readonly teacherRepo: Repository<Teacher>
   ) {}
   async create(createExamDto: CreateExamDto) {
     let teacher: Teacher[] = [];
-    const { group } = await this.groupService.findOne(createExamDto.groupId);
+    const { schoolClass } = await this.classesService.findOne(createExamDto.classId);
     const { room } = await this.roomService.findOne(createExamDto.roomId);
     if (createExamDto.teacherId) {
       teacher = await this.teacherRepo.find({
@@ -32,7 +32,7 @@ export class ExamsService {
     }
     const newExam = await this.examRepo.save({
       ...createExamDto,
-      group,
+      schoolClass,
       room,
       teacher,
     });
@@ -45,7 +45,7 @@ export class ExamsService {
 
   async findAll() {
     const exams = await this.examRepo.find({
-      relations: ["group", "room", "teacher"],
+      relations: ["schoolClass", "room", "teacher"],
     });
     return {
       message: "All exams",
@@ -61,7 +61,7 @@ export class ExamsService {
       );
     const exam = await this.examRepo.findOne({
       where: { id },
-      relations: ["group", "room", "teacher"],
+      relations: ["schoolClass", "room", "teacher"],
     });
     if (!exam) {
       throw new NotFoundException(`${id}-exam not found`);

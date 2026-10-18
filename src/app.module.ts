@@ -6,7 +6,7 @@ import { AdminModule } from "./admin/admin.module";
 import { TeacherModule } from "./teacher/teacher.module";
 import { AuthModule } from "./auth/auth.module";
 import { SubjectsModule } from "./modules/school/subjects/subjects.module";
-import { GroupModule } from "./group/group.module";
+import { ClassesModule } from "./modules/school/classes/classes.module";
 import { AttendanceModule } from "./attendance/attendance.module";
 import { HomeworksModule } from "./homeworks/homeworks.module";
 import { HomeworkSubmissionModule } from "./homework-submission/homework-submission.module";
@@ -43,7 +43,7 @@ import { DataSource } from "typeorm";
     TeacherModule,
     AuthModule,
     SubjectsModule,
-    GroupModule,
+    ClassesModule,
     LessonsModule,
     GroupTeachersModule,
     GroupStudentsModule,

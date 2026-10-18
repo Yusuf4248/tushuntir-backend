@@ -8,7 +8,7 @@ export class CreateHomeworkDto {
   })
   @IsNumber()
   @IsNotEmpty()
-  groupId: number;
+  classId: number;
 
   @ApiProperty({
     example: 1,

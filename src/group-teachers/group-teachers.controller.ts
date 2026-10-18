@@ -33,14 +33,14 @@ import { RolesGuard } from "../common/guards/role.guard";
 export class GroupTeachersController {
   constructor(private readonly groupTeachersService: GroupTeachersService) {}
 
-  @Get("my-groups")
+  @Get("my-classes")
   @UseGuards(AuthGuard)
-  async getMyGroups(@Req() req: any) {
+  async getMyClasses(@Req() req: any) {
     try {
       const user = req.user;
       if (!user || !user.id || user.role !== "teacher") {
         throw new UnauthorizedException(
-          "Only teachers can access their groups"
+          "Only teachers can access their classes"
         );
       }
       return this.groupTeachersService.findByTeacher(user.id);
@@ -52,10 +52,10 @@ export class GroupTeachersController {
   @UseGuards(AuthGuard, RolesGuard)
   @Roles("admin", "superadmin")
   @Post()
-  @ApiOperation({ summary: "Assign teacher to group" })
+  @ApiOperation({ summary: "Assign teacher to class" })
   @ApiResponse({
     status: 201,
-    description: "Teacher successfully assigned to group.",
+    description: "Teacher successfully assigned to class.",
     type: GroupTeacher,
   })
   create(@Body() createGroupTeacherDto: CreateGroupTeacherDto) {
@@ -114,10 +114,10 @@ export class GroupTeachersController {
     schema: {
       type: "object",
       properties: {
-        groupId: {
+        classId: {
           type: "integer",
           example: 1,
-          description: "ID of the group",
+          description: "ID of the class",
         },
         teacherId: {
           type: "integer",
@@ -125,41 +125,41 @@ export class GroupTeachersController {
           description: "ID of the teacher",
         },
       },
-      required: ["groupId", "teacherId"],
+      required: ["classId", "teacherId"],
     },
   })
   @ApiResponse({ status: 200, description: "Group-teacher assignment removed" })
   remove(
-    @Body("groupId", ParseIntPipe) groupId: number,
+    @Body("classId", ParseIntPipe) classId: number,
     @Body("teacherId", ParseIntPipe) teacherId: number
   ) {
-    return this.groupTeachersService.remove(groupId, teacherId);
+    return this.groupTeachersService.remove(classId, teacherId);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles("admin", "superadmin")
-  @Get("by-group/:groupId")
-  @ApiOperation({ summary: "Get all teachers in a group" })
-  @ApiParam({ name: "groupId", type: Number })
+  @Get("by-class/:classId")
+  @ApiOperation({ summary: "Get all teachers in a class" })
+  @ApiParam({ name: "classId", type: Number })
   @ApiResponse({
     status: 200,
-    description: "List of group teachers",
+    description: "List of class teachers",
     type: [GroupTeacher],
   })
-  async findByGroup(
-    @Param("groupId", ParseIntPipe) groupId: number
+  async findByClass(
+    @Param("classId", ParseIntPipe) classId: number
   ): Promise<GroupTeacher[]> {
-    return this.groupTeachersService.findByGroup(groupId);
+    return this.groupTeachersService.findByClass(classId);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles("admin", "superadmin")
   @Get("by-teacher/:teacherId")
-  @ApiOperation({ summary: "Get all groups of a teacher" })
+  @ApiOperation({ summary: "Get all classes of a teacher" })
   @ApiParam({ name: "teacherId", type: Number })
   @ApiResponse({
     status: 200,
-    description: "List of groups for teacher",
+    description: "List of classes for teacher",
     type: [GroupTeacher],
   })
   async findByTeacher(
@@ -170,18 +170,18 @@ export class GroupTeachersController {
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles("admin", "superadmin")
-  @Get("active-in-group/:groupId")
-  @ApiOperation({ summary: "Get active teachers in a group" })
-  @ApiParam({ name: "groupId", type: Number })
+  @Get("active-in-class/:classId")
+  @ApiOperation({ summary: "Get active teachers in a class" })
+  @ApiParam({ name: "classId", type: Number })
   @ApiResponse({
     status: 200,
     description: "List of active teachers",
     type: [GroupTeacher],
   })
-  async findActiveTeachersInGroup(
-    @Param("groupId", ParseIntPipe) groupId: number
+  async findActiveTeachersInClass(
+    @Param("classId", ParseIntPipe) classId: number
   ): Promise<GroupTeacher[]> {
-    return this.groupTeachersService.findActiveTeachersInGroup(groupId);
+    return this.groupTeachersService.findActiveTeachersInClass(classId);
   }
 
   @UseGuards(AuthGuard, RolesGuard)

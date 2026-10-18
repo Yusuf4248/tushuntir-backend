@@ -40,14 +40,14 @@ export class GroupStudentsController {
   @Post()
   @ApiOperation({
     summary: "Create a new group-student relationship",
-    description: "Add a student to a group with specified status and period",
+    description: "Add a student to a class with specified status and period",
   })
   @ApiBody({
     type: CreateGroupStudentDto,
-    description: "Group student data to create",
+    description: "Class student data to create",
   })
   @ApiCreatedResponse({
-    description: "Group student relationship created successfully",
+    description: "Class student relationship created successfully",
     type: GroupStudent,
   })
   @ApiBadRequestResponse({
@@ -114,7 +114,7 @@ export class GroupStudentsController {
   })
   @ApiBody({
     type: UpdateGroupStudentDto,
-    description: "Group student data to update",
+    description: "Class student data to update",
   })
   @ApiOkResponse({
     description: "Group-student relationship updated successfully",
@@ -138,7 +138,7 @@ export class GroupStudentsController {
   @Delete(":id")
   @ApiOperation({
     summary: "Delete a group-student relationship",
-    description: "Remove a student from a group by deleting the relationship",
+    description: "Remove a student from a class by deleting the relationship",
   })
   @ApiParam({
     name: "id",
@@ -161,28 +161,28 @@ export class GroupStudentsController {
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles("admin", "superadmin")
-  @Get("by-group/:groupId")
-  @ApiOperation({ summary: "Get all students in a group" })
-  @ApiParam({ name: "groupId", type: Number })
+  @Get("by-class/:classId")
+  @ApiOperation({ summary: "Get all students in a class" })
+  @ApiParam({ name: "classId", type: Number })
   @ApiResponse({
     status: 200,
-    description: "List of group students",
+    description: "List of class students",
     type: [GroupStudent],
   })
-  async findByGroup(
-    @Param("groupId", ParseIntPipe) groupId: number
+  async findByClass(
+    @Param("classId", ParseIntPipe) classId: number
   ): Promise<GroupStudent[]> {
-    return this.groupStudentsService.findByGroup(groupId);
+    return this.groupStudentsService.findByClass(classId);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles("admin", "superadmin", "student")
   @Get("by-student/:studentId")
-  @ApiOperation({ summary: "Get all groups of a student" })
+  @ApiOperation({ summary: "Get all classes of a student" })
   @ApiParam({ name: "studentId", type: Number })
   @ApiResponse({
     status: 200,
-    description: "List of groups for student",
+    description: "List of classes for student",
     type: [GroupStudent],
   })
   async findByStudent(
@@ -193,18 +193,18 @@ export class GroupStudentsController {
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles("admin", "superadmin", "teacher")
-  @Get("active-in-group/:groupId")
-  @ApiOperation({ summary: "Get active students in a group" })
-  @ApiParam({ name: "groupId", type: Number })
+  @Get("active-in-class/:classId")
+  @ApiOperation({ summary: "Get active students in a class" })
+  @ApiParam({ name: "classId", type: Number })
   @ApiResponse({
     status: 200,
     description: "List of active students",
     type: [GroupStudent],
   })
-  async findActiveStudentsInGroup(
-    @Param("groupId", ParseIntPipe) groupId: number
+  async findActiveStudentsInClass(
+    @Param("classId", ParseIntPipe) classId: number
   ) {
-    return this.groupStudentsService.findActiveStudentsInGroup(groupId);
+    return this.groupStudentsService.findActiveStudentsInClass(classId);
   }
 
   @UseGuards(AuthGuard, RolesGuard)

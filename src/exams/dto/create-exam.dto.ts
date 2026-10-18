@@ -42,9 +42,9 @@ export class CreateExamDto {
   @IsNumber()
   roomId: number;
 
-  @ApiProperty({ example: 3, description: "Group ID" })
+  @ApiProperty({ example: 3, description: "Class ID" })
   @IsNumber()
-  groupId: number;
+  classId: number;
 
   @IsOptional()
   @IsArray()

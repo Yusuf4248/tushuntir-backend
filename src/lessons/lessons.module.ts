@@ -3,18 +3,18 @@ import { LessonsService } from "./lessons.service";
 import { LessonsController } from "./lessons.controller";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { Lesson } from "./entities/lesson.entity";
-import { Group } from "../group/entities/group.entity";
+import { SchoolClass } from "../modules/school/classes/entities/school-class.entity";
 import { JwtModule } from "@nestjs/jwt";
-import { GroupModule } from "../group/group.module";
+import { ClassesModule } from "../modules/school/classes/classes.module";
 import { Room } from "../rooms/entities/room.entity";
 import { GroupStudent } from "../group-students/entities/group-student.entity";
 import { GroupTeacher } from "../group-teachers/entities/group-teacher.entity";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Lesson, Group, Room, GroupStudent, GroupTeacher]),
+    TypeOrmModule.forFeature([Lesson, SchoolClass, Room, GroupStudent, GroupTeacher]),
     JwtModule,
-    forwardRef(() => GroupModule),
+    forwardRef(() => ClassesModule),
   ],
   controllers: [LessonsController],
   providers: [LessonsService],

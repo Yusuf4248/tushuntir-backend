@@ -139,23 +139,23 @@ export class AttendanceController {
     },
   })
   async bulkUpdate(@Body() updateDto: UpdateLessonAttendancesDto) {
-    return this.attendanceService.updateAttendanceForGroup(updateDto);
+    return this.attendanceService.updateAttendanceForClass(updateDto);
   }
 
-  @Get("student/:studentId/group/:groupId")
-  @ApiOperation({ summary: "Get all attendances of a student in a group" })
+  @Get("student/:studentId/class/:classId")
+  @ApiOperation({ summary: "Get all attendances of a student in a class" })
   @ApiParam({
     name: "studentId",
     type: Number,
     description: "ID of the student",
   })
-  @ApiParam({ name: "groupId", type: Number, description: "ID of the group" })
+  @ApiParam({ name: "classId", type: Number, description: "ID of the class" })
   @ApiResponse({ status: 200, description: "List of attendances" })
   async getStudentAllAttendances(
     @Param("studentId", ParseIntPipe) studentId: number,
-    @Param("groupId", ParseIntPipe) groupId: number
+    @Param("classId", ParseIntPipe) classId: number
   ) {
-    return this.attendanceService.getStudentAllAttendances(studentId, groupId);
+    return this.attendanceService.getStudentAllAttendances(studentId, classId);
   }
 
   @Get("lesson/:lessonId")

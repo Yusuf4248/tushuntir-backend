@@ -8,7 +8,7 @@ import { UpdateHomeworkDto } from "./dto/update-homework.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Homework } from "./entities/homework.entity";
 import { Repository } from "typeorm";
-import { GroupService } from "../group/group.service";
+import { ClassesService } from "../modules/school/classes/classes.service";
 import { TeacherService } from "../teacher/teacher.service";
 import { Media } from "../media/entities/media.entity";
 import { FileService } from "../shared/file/file.service";
@@ -22,15 +22,15 @@ export class HomeworksService {
     private readonly homeworkRepo: Repository<Homework>,
     @InjectRepository(Media)
     private readonly mediaRepo: Repository<Media>,
-    private readonly groupService: GroupService,
+    private readonly classesService: ClassesService,
     private readonly teacherService: TeacherService,
     private readonly fileService: FileService,
     private readonly lessonService: LessonsService
   ) {}
   async create(createHomeworkDto: CreateHomeworkDto, teacherId: number) {
-    const { groupId, lessonId } = createHomeworkDto;
+    const { classId, lessonId } = createHomeworkDto;
     const { lesson } = await this.lessonService.findOne(lessonId);
-    const { group } = await this.groupService.findOne(groupId);
+    const { schoolClass } = await this.classesService.findOne(classId);
     const { teacher } = await this.teacherService.findOne(teacherId);
     const isGiven = await this.homeworkRepo.findOne({
       where: { lesson: { id: lessonId } },
@@ -42,7 +42,7 @@ export class HomeworksService {
     }
     const newHomework = await this.homeworkRepo.save({
       ...createHomeworkDto,
-      group,
+      schoolClass,
       teacher,
       lesson,
     });
@@ -71,7 +71,7 @@ export class HomeworksService {
 
   async findAll() {
     const homework = await this.homeworkRepo.find({
-      relations: ["teacher", "group", "lesson"],
+      relations: ["teacher", "schoolClass", "lesson"],
     });
     return {
       success: true,
@@ -87,7 +87,7 @@ export class HomeworksService {
     }
     const homework = await this.homeworkRepo.findOne({
       where: { id },
-      relations: ["teacher", "group", "lesson"],
+      relations: ["teacher", "schoolClass", "lesson"],
     });
     if (!homework) {
       throw new NotFoundException(`Homework-${id} not found`);

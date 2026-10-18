@@ -61,14 +61,14 @@ export class CreateLessonDto {
 
   @ApiProperty({
     example: 1,
-    description: "Group ID",
+    description: "Class ID",
     required: false,
     minimum: 1,
   })
   @IsOptional()
-  @IsInt({ message: "Group ID must be an integer" })
-  @Min(1, { message: "Group ID must be at least 1" })
-  groupId: number;
+  @IsInt({ message: "Class ID must be an integer" })
+  @Min(1, { message: "Class ID must be at least 1" })
+  classId: number;
 
   @ApiProperty({
     example: 1,

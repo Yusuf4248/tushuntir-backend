@@ -11,13 +11,13 @@ import { Type } from "class-transformer";
 export class UpdateGroupStudentDto {
   @ApiPropertyOptional({
     example: 2,
-    description: "Group ID",
+    description: "Class ID",
     type: Number,
   })
   @IsNumber()
   @IsOptional()
   @Type(() => Number)
-  groupId?: number;
+  classId?: number;
 
   @ApiProperty({
     example: 5,
@@ -32,7 +32,7 @@ export class UpdateGroupStudentDto {
 
   @ApiPropertyOptional({
     example: true,
-    description: "Status of the student in the group (active/inactive)",
+    description: "Status of the student in the class (active/inactive)",
   })
   @IsBoolean()
   @IsOptional()

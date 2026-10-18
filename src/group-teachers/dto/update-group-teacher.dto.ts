@@ -2,10 +2,10 @@ import { ApiPropertyOptional } from "@nestjs/swagger";
 import { IsBoolean, IsDateString, IsNumber, IsOptional } from "class-validator";
 
 export class UpdateGroupTeacherDto {
-  @ApiPropertyOptional({ example: 2, description: "Group ID" })
+  @ApiPropertyOptional({ example: 2, description: "Class ID" })
   @IsNumber()
   @IsOptional()
-  groupId?: number;
+  classId?: number;
 
   @ApiPropertyOptional({ example: 5, description: "Teacher ID" })
   @IsNumber()
@@ -14,7 +14,7 @@ export class UpdateGroupTeacherDto {
 
   @ApiPropertyOptional({
     example: true,
-    description: "Status of the teacher in the group (active/inactive)",
+    description: "Status of the teacher in the class (active/inactive)",
   })
   @IsBoolean()
   @IsOptional()
@@ -22,7 +22,7 @@ export class UpdateGroupTeacherDto {
 
   @ApiPropertyOptional({
     example: "2025-01-01",
-    description: "Start date of the group",
+    description: "Start date of the class",
   })
   @IsDateString()
   @IsOptional()

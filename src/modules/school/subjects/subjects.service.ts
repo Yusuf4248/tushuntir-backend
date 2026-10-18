@@ -25,7 +25,7 @@ export class SubjectsService {
 
   async findAll() {
     const subjects = await this.subjectRepo.find({
-      relations: ["groups"],
+      relations: ["classes"],
       order: {
         id: "ASC",
       },
@@ -43,7 +43,7 @@ export class SubjectsService {
     }
     const subject = await this.subjectRepo.findOne({
       where: { id },
-      relations: ["groups"],
+      relations: ["classes"],
       order: {
         id: "ASC",
       },
