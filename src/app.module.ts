@@ -14,8 +14,6 @@ import { GradesModule } from "./grades/grades.module";
 import { BranchesModule } from "./branches/branches.module";
 import { RoomsModule } from "./rooms/rooms.module";
 import { EventsModule } from "./events/events.module";
-import { PaymentsModule } from "./payments/payments.module";
-import { PaymentTypesModule } from "./payment-types/payment-types.module";
 import { ExamsModule } from "./exams/exams.module";
 import { ExamResultsModule } from "./exam-results/exam-results.module";
 import { MediaModule } from "./media/media.module";
@@ -62,8 +60,6 @@ import { DataSource } from "typeorm";
     BranchesModule,
     RoomsModule,
     EventsModule,
-    PaymentsModule,
-    PaymentTypesModule,
     ExamsModule,
     ExamResultsModule,
     MediaModule,

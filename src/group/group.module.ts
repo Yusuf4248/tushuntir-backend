@@ -5,7 +5,6 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { Group } from "./entities/group.entity";
 import { CoursesModule } from "../courses/courses.module";
 import { Homework } from "../homeworks/entities/homework.entity";
-import { Payment } from "../payments/entities/payment.entity";
 import { Exam } from "../exams/entities/exam.entity";
 import { JwtModule } from "@nestjs/jwt";
 import { GroupTeacher } from "../group-teachers/entities/group-teacher.entity";
@@ -21,7 +20,6 @@ import { AttendanceModule } from "../attendance/attendance.module";
     TypeOrmModule.forFeature([
       Group,
       Homework,
-      Payment,
       Exam,
       GroupTeacher,
       GroupStudent,

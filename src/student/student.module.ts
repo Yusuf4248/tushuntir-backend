@@ -6,7 +6,6 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { Attendance } from "../attendance/entities/attendance.entity";
 import { HomeworkSubmission } from "../homework-submission/entities/homework-submission.entity";
 import { Grade } from "../grades/entities/grade.entity";
-import { Payment } from "../payments/entities/payment.entity";
 import { Group } from "../group/entities/group.entity";
 import { FileModule } from "../file/file.module";
 import { JwtModule } from "@nestjs/jwt";
@@ -21,7 +20,6 @@ import { GroupStudent } from "../group-students/entities/group-student.entity";
       Attendance,
       HomeworkSubmission,
       Grade,
-      Payment,
       Event,
       Group,
       Homework,

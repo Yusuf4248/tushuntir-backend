@@ -12,7 +12,6 @@ import {
 import { ApiProperty } from "@nestjs/swagger";
 import { Course } from "../../courses/entities/course.entity";
 import { Homework } from "../../homeworks/entities/homework.entity";
-import { Payment } from "../../payments/entities/payment.entity";
 import { Exam } from "../../exams/entities/exam.entity";
 import { Lesson } from "../../lessons/entities/lesson.entity";
 import { GroupTeacher } from "../../group-teachers/entities/group-teacher.entity";
@@ -88,10 +87,6 @@ export class Group {
   @OneToMany(() => Homework, (homework) => homework.group)
   @ApiProperty({ type: () => Homework })
   homework: Homework[];
-
-  @OneToMany(() => Payment, (payments) => payments.group)
-  @ApiProperty({ type: () => Payment })
-  payments: Payment[];
 
   @OneToMany(() => Exam, (exam) => exam.group)
   @ApiProperty({ type: () => Exam })
