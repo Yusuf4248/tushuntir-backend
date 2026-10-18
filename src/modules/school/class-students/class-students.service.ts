@@ -11,7 +11,7 @@ import { CreateClassStudentDto } from "./dto/create-class-student.dto";
 import { UpdateClassStudentDto } from "./dto/update-class-student.dto";
 import { ClassStudent } from "./entities/class-student.entity";
 import { SchoolClass } from "../classes/entities/school-class.entity";
-import { Student } from "../../../student/entities/student.entities";
+import { Student } from "../../identity/student/entities/student.entity";
 import { AttendanceService } from "../../daily/attendance/attendance.service";
 import { Attendance } from "../../daily/attendance/entities/attendance.entity";
 import { LessonsService } from "../../daily/lessons/lessons.service";

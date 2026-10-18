@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
-import { StudentModule } from "./student/student.module";
+import { StudentModule } from "./modules/identity/student/student.module";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { AdminModule } from "./modules/identity/admin/admin.module";
 import { TeacherModule } from "./modules/identity/teacher/teacher.module";

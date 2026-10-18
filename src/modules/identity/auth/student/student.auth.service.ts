@@ -3,9 +3,9 @@ import {
   Injectable,
   UnauthorizedException,
 } from "@nestjs/common";
-import { StudentService } from "../../../../student/student.service";
+import { StudentService } from "../../student/student.service";
 import { JwtService } from "@nestjs/jwt";
-import { Student } from "../../../../student/entities/student.entities";
+import { Student } from "../../student/entities/student.entity";
 import { LoginDto } from "../dto/login.dto";
 import { Request, Response } from "express";
 import * as bcrypt from "bcrypt";

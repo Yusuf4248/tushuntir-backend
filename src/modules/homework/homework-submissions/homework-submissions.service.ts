@@ -8,7 +8,7 @@ import { UpdateHomeworkSubmissionDto } from "./dto/update-homework-submission.dt
 import { InjectRepository } from "@nestjs/typeorm";
 import { HomeworkSubmission } from "./entities/homework-submission.entity";
 import { Repository } from "typeorm";
-import { StudentService } from "../../../student/student.service";
+import { StudentService } from "../../identity/student/student.service";
 import { HomeworkService } from "../homework/homework.service";
 import { Media } from "../media/entities/media.entity";
 import { FileService } from "../../../shared/file/file.service";

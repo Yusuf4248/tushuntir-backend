@@ -30,10 +30,10 @@ import { CreateStudentDto } from "./dto/create-student.dto";
 import { UpdateStudentDto } from "./dto/update-student.dto";
 import { ChangePasswordDto } from "./dto/change-password.dto";
 import { Multer } from "multer";
-import { AuthGuard } from "../common/guards/auth.guard";
-import { RolesGuard } from "../common/guards/role.guard";
-import { JwtSelfGuard } from "../common/guards/jwt-self.guard";
-import { Roles } from "../app.constants";
+import { AuthGuard } from "../../../common/guards/auth.guard";
+import { RolesGuard } from "../../../common/guards/role.guard";
+import { JwtSelfGuard } from "../../../common/guards/jwt-self.guard";
+import { Roles } from "../../../app.constants";
 import { Response } from "express";
 
 @ApiTags("Students")

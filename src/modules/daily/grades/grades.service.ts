@@ -8,7 +8,7 @@ import { UpdateGradeDto } from "./dto/update-grade.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Grade } from "./entities/grade.entity";
 import { Repository } from "typeorm";
-import { StudentService } from "../../../student/student.service";
+import { StudentService } from "../../identity/student/student.service";
 import { TeacherService } from "../../identity/teacher/teacher.service";
 import { HomeworkSubmissionsService } from "../../homework/homework-submissions/homework-submissions.service";
 

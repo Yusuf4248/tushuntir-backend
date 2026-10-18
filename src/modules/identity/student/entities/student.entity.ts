@@ -7,11 +7,11 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { ApiProperty } from "@nestjs/swagger";
-import { Attendance } from "../../modules/daily/attendance/entities/attendance.entity";
-import { HomeworkSubmission } from "../../modules/homework/homework-submissions/entities/homework-submission.entity";
-import { Grade } from "../../modules/daily/grades/entities/grade.entity";
-import { ExamResult } from "../../modules/assessment/exam-results/entities/exam-result.entity";
-import { ClassStudent } from "../../modules/school/class-students/entities/class-student.entity";
+import { Attendance } from "../../../daily/attendance/entities/attendance.entity";
+import { HomeworkSubmission } from "../../../homework/homework-submissions/entities/homework-submission.entity";
+import { Grade } from "../../../daily/grades/entities/grade.entity";
+import { ExamResult } from "../../../assessment/exam-results/entities/exam-result.entity";
+import { ClassStudent } from "../../../school/class-students/entities/class-student.entity";
 
 @Entity("student")
 export class Student {

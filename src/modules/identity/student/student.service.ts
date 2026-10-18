@@ -7,18 +7,18 @@ import {
 } from "@nestjs/common";
 import { CreateStudentDto } from "./dto/create-student.dto";
 import { UpdateStudentDto } from "./dto/update-student.dto";
-import { Student } from "./entities/student.entities";
+import { Student } from "./entities/student.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { ChangePasswordDto } from "./dto/change-password.dto";
-import { FileService } from "../shared/file/file.service";
-import { SchoolClass } from "../modules/school/classes/entities/school-class.entity";
+import { FileService } from "../../../shared/file/file.service";
+import { SchoolClass } from "../../school/classes/entities/school-class.entity";
 import { Response } from "express";
-import { Homework } from "../modules/homework/homework/entities/homework.entity";
+import { Homework } from "../../homework/homework/entities/homework.entity";
 import * as path from "path";
 import * as bcrypt from "bcrypt";
-import { Media } from "../modules/homework/media/entities/media.entity";
-import { HomeworkSubmission } from "../modules/homework/homework-submissions/entities/homework-submission.entity";
+import { Media } from "../../homework/media/entities/media.entity";
+import { HomeworkSubmission } from "../../homework/homework-submissions/entities/homework-submission.entity";
 
 @Injectable()
 export class StudentService {
@@ -145,6 +145,8 @@ export class StudentService {
         __dirname,
         "..",
         "..",
+        "..",
+        "..",
         "static",
         "student"
       );
@@ -175,6 +177,8 @@ export class StudentService {
 
     const avatarPath = path.join(
       __dirname,
+      "..",
+      "..",
       "..",
       "..",
       "static",

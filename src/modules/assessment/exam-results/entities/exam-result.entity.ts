@@ -8,7 +8,7 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { ExamSession } from "../../exam-sessions/entities/exam-session.entity";
-import { Student } from "../../../../student/entities/student.entities";
+import { Student } from "../../../identity/student/entities/student.entity";
 import { ApiProperty } from "@nestjs/swagger";
 
 @Entity("exam_results")

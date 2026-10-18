@@ -6,7 +6,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { Student } from "../../../../student/entities/student.entities";
+import { Student } from "../../../identity/student/entities/student.entity";
 import { HomeworkSubmission } from "../../../homework/homework-submissions/entities/homework-submission.entity";
 import { Teacher } from "../../../identity/teacher/entities/teacher.entity";
 

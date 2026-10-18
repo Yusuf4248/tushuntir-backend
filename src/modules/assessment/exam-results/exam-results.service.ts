@@ -8,7 +8,7 @@ import { UpdateExamResultDto } from "./dto/update-exam-result.dto";
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { ExamResult } from "./entities/exam-result.entity";
-import { StudentService } from "../../../student/student.service";
+import { StudentService } from "../../identity/student/student.service";
 import { ExamSessionsService } from "../exam-sessions/exam-sessions.service";
 
 @Injectable()

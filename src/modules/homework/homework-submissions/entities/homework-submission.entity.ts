@@ -8,7 +8,7 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { Homework } from "../../homework/entities/homework.entity";
-import { Student } from "../../../../student/entities/student.entities";
+import { Student } from "../../../identity/student/entities/student.entity";
 import { Grade } from "../../../daily/grades/entities/grade.entity";
 
 export enum HomeworkStatus {

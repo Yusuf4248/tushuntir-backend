@@ -4,9 +4,9 @@ import { ExamResultsController } from "./exam-results.controller";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { ExamResult } from "./entities/exam-result.entity";
 import { ExamSession } from "../exam-sessions/entities/exam-session.entity";
-import { Student } from "../../../student/entities/student.entities";
+import { Student } from "../../identity/student/entities/student.entity";
 import { ExamSessionsModule } from "../exam-sessions/exam-sessions.module";
-import { StudentModule } from "../../../student/student.module";
+import { StudentModule } from "../../identity/student/student.module";
 
 @Module({
   imports: [

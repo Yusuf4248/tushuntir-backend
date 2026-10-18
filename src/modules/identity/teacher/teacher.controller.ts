@@ -15,7 +15,7 @@ import {
 import { TeacherService } from "./teacher.service";
 import { CreateTeacherDto } from "./dto/create-teacher.dto";
 import { UpdateTeacherDto } from "./dto/update-teacher.dto";
-import { ChangePasswordDto } from "../../../student/dto/change-password.dto";
+import { ChangePasswordDto } from "../student/dto/change-password.dto";
 import {
   ApiTags,
   ApiOperation,
