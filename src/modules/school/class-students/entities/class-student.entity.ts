@@ -26,6 +26,7 @@ export class ClassStudent {
   @ManyToOne(() => Student, (student) => student.classStudents, {
     onDelete: "CASCADE",
   })
+  @JoinColumn({ name: "student_id" })
   student: Student;
 
   @ApiProperty({

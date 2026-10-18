@@ -25,6 +25,7 @@ export class Homework {
     type: () => Teacher,
     description: "O'qituvchi obyektiga bog'lanish",
   })
+  @JoinColumn({ name: "teacher_id" })
   teacher: Teacher;
 
   @ManyToOne(() => SchoolClass, (schoolClass) => schoolClass.homework, { onDelete: "CASCADE" })
@@ -57,6 +58,7 @@ export class Homework {
   homework_submission: HomeworkSubmission[];
 
   @ManyToOne(() => Lesson, (lesson) => lesson.homework)
+  @JoinColumn({ name: "lesson_id" })
   lesson: Lesson;
 
   @CreateDateColumn({ name: "created_at" })

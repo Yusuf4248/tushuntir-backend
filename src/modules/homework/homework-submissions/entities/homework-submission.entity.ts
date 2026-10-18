@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -24,9 +25,11 @@ export class HomeworkSubmission {
   id: number;
 
   @ManyToOne(() => Homework, (homework) => homework.homework_submission)
+  @JoinColumn({ name: "homework_id" })
   homework: Homework;
 
   @ManyToOne(() => Student, (student) => student.homework_submission)
+  @JoinColumn({ name: "student_id" })
   student: Student;
 
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })

@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -16,15 +17,18 @@ export class Grade {
   id: number;
 
   @ManyToOne(() => Student, (student) => student.grades)
+  @JoinColumn({ name: "student_id" })
   student: Student;
 
   @ManyToOne(
     () => HomeworkSubmission,
     (homework_submission) => homework_submission.grades
   )
+  @JoinColumn({ name: "homework_submission_id" })
   homework_submission: HomeworkSubmission;
 
   @ManyToOne(() => Teacher, (teacher) => teacher.grades)
+  @JoinColumn({ name: "teacher_id" })
   teacher: Teacher;
 
   @Column()

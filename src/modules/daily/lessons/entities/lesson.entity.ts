@@ -76,6 +76,7 @@ export class Lesson {
     description: "Dars bo'lib otadigan xona",
   })
   @ManyToOne(() => Room, (room) => room.lesson)
+  @JoinColumn({ name: "room_id" })
   room: Room;
 
   @CreateDateColumn({ type: "timestamp" })

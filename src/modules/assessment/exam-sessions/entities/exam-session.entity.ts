@@ -54,6 +54,7 @@ export class ExamSession {
 
   @ApiProperty({ type: () => Room })
   @ManyToOne(() => Room, (room) => room.examSessions)
+  @JoinColumn({ name: "room_id" })
   room: Room;
 
   @ApiProperty({ type: () => SchoolClass })

@@ -36,6 +36,7 @@ export class ExamResult {
 
   @ApiProperty({ type: () => Student })
   @ManyToOne(() => Student, (student) => student.exam_result)
+  @JoinColumn({ name: "student_id" })
   student: Student;
 
   @CreateDateColumn({ name: "created_at" })

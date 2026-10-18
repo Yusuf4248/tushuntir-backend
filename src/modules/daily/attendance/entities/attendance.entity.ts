@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -27,6 +28,7 @@ export class Attendance {
   @ManyToOne(() => Student, (student) => student.attendance, {
     onDelete: "CASCADE",
   })
+  @JoinColumn({ name: "student_id" })
   student: Student;
 
   @ApiProperty({ type: () => Lesson, description: "Dars jadvali obyekti" })
@@ -34,6 +36,7 @@ export class Attendance {
     eager: false,
     onDelete: "CASCADE",
   })
+  @JoinColumn({ name: "lesson_id" })
   lesson: Lesson;
 
   @ApiProperty({
