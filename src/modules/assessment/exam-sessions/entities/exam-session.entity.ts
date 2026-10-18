@@ -11,19 +11,19 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { ApiProperty } from "@nestjs/swagger";
-import { Room } from "../../rooms/entities/room.entity";
-import { SchoolClass } from "../../modules/school/classes/entities/school-class.entity";
-import { Teacher } from "../../teacher/entities/teacher.entity";
-import { ExamResult } from "../../exam-results/entities/exam-result.entity";
+import { Room } from "../../../../rooms/entities/room.entity";
+import { SchoolClass } from "../../../school/classes/entities/school-class.entity";
+import { Teacher } from "../../../../teacher/entities/teacher.entity";
+import { ExamResult } from "../../../../exam-results/entities/exam-result.entity";
 
-export enum ExamStatus {
+export enum ExamSessionStatus {
   PENDING = "pending",
   COMPLETED = "completed",
   CANCELLED = "cancelled",
 }
 
-@Entity()
-export class Exam {
+@Entity("exam_sessions")
+export class ExamSession {
   @ApiProperty({ example: 1 })
   @PrimaryGeneratedColumn()
   id: number;
@@ -40,9 +40,9 @@ export class Exam {
   @Column({ type: "date" })
   date: Date;
 
-  @ApiProperty({ enum: ExamStatus, example: ExamStatus.PENDING })
-  @Column({ type: "enum", enum: ExamStatus })
-  status: ExamStatus;
+  @ApiProperty({ enum: ExamSessionStatus, example: ExamSessionStatus.PENDING })
+  @Column({ type: "enum", enum: ExamSessionStatus })
+  status: ExamSessionStatus;
 
   @ApiProperty({ example: "14:00", description: "Start time (HH:mm)" })
   @Column({ type: "time" })
@@ -53,20 +53,24 @@ export class Exam {
   end_time: string;
 
   @ApiProperty({ type: () => Room })
-  @ManyToOne(() => Room, (room) => room.exams)
+  @ManyToOne(() => Room, (room) => room.examSessions)
   room: Room;
 
   @ApiProperty({ type: () => SchoolClass })
-  @ManyToOne(() => SchoolClass, (schoolClass) => schoolClass.exams)
+  @ManyToOne(() => SchoolClass, (schoolClass) => schoolClass.examSessions)
   @JoinColumn({ name: "class_id" })
   schoolClass: SchoolClass;
 
-  @ManyToMany(() => Teacher, (teacher) => teacher.exam, { nullable: true })
-  @JoinTable()
+  @ManyToMany(() => Teacher, (teacher) => teacher.examSessions, { nullable: true })
+  @JoinTable({
+    name: "exam_session_teachers",
+    joinColumn: { name: "exam_session_id" },
+    inverseJoinColumn: { name: "teacher_id" },
+  })
   teacher: Teacher[];
 
-  @OneToMany(() => ExamResult, (exam_result) => exam_result.exam)
-  exam_result: ExamResult[];
+  @OneToMany(() => ExamResult, (exam_result) => exam_result.examSession)
+  examResults: ExamResult[];
 
   @CreateDateColumn({ name: "created_at" })
   created_at: Date;

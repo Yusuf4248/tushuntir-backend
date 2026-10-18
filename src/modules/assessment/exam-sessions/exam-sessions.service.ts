@@ -3,35 +3,35 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { CreateExamDto } from "./dto/create-exam.dto";
-import { UpdateExamDto } from "./dto/update-exam.dto";
+import { CreateExamSessionDto } from "./dto/create-exam-session.dto";
+import { UpdateExamSessionDto } from "./dto/update-exam-session.dto";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Exam } from "./entities/exam.entity";
+import { ExamSession } from "./entities/exam-session.entity";
 import { In, Repository } from "typeorm";
-import { ClassesService } from "../modules/school/classes/classes.service";
-import { RoomsService } from "../rooms/rooms.service";
-import { Teacher } from "../teacher/entities/teacher.entity";
+import { ClassesService } from "../../school/classes/classes.service";
+import { RoomsService } from "../../../rooms/rooms.service";
+import { Teacher } from "../../../teacher/entities/teacher.entity";
 
 @Injectable()
-export class ExamsService {
+export class ExamSessionsService {
   constructor(
-    @InjectRepository(Exam) private readonly examRepo: Repository<Exam>,
+    @InjectRepository(ExamSession) private readonly examSessionRepo: Repository<ExamSession>,
     private readonly classesService: ClassesService,
     private readonly roomService: RoomsService,
     @InjectRepository(Teacher)
     private readonly teacherRepo: Repository<Teacher>
   ) {}
-  async create(createExamDto: CreateExamDto) {
+  async create(createExamSessionDto: CreateExamSessionDto) {
     let teacher: Teacher[] = [];
-    const { schoolClass } = await this.classesService.findOne(createExamDto.classId);
-    const { room } = await this.roomService.findOne(createExamDto.roomId);
-    if (createExamDto.teacherId) {
+    const { schoolClass } = await this.classesService.findOne(createExamSessionDto.classId);
+    const { room } = await this.roomService.findOne(createExamSessionDto.roomId);
+    if (createExamSessionDto.teacherId) {
       teacher = await this.teacherRepo.find({
-        where: { id: In(createExamDto.teacherId) },
+        where: { id: In(createExamSessionDto.teacherId) },
       });
     }
-    const newExam = await this.examRepo.save({
-      ...createExamDto,
+    const newExamSession = await this.examSessionRepo.save({
+      ...createExamSessionDto,
       schoolClass,
       room,
       teacher,
@@ -39,18 +39,18 @@ export class ExamsService {
     return {
       message: "New exam created!",
       success: true,
-      newExam,
+      newExamSession,
     };
   }
 
   async findAll() {
-    const exams = await this.examRepo.find({
+    const examSessions = await this.examSessionRepo.find({
       relations: ["schoolClass", "room", "teacher"],
     });
     return {
       message: "All exams",
       success: true,
-      exams,
+      examSessions,
     };
   }
 
@@ -59,35 +59,35 @@ export class ExamsService {
       throw new BadRequestException(
         "ID must be integer and must be greater than zero"
       );
-    const exam = await this.examRepo.findOne({
+    const examSession = await this.examSessionRepo.findOne({
       where: { id },
       relations: ["schoolClass", "room", "teacher"],
     });
-    if (!exam) {
+    if (!examSession) {
       throw new NotFoundException(`${id}-exam not found`);
     }
     return {
       message: `${id}-exam`,
       success: true,
-      exam,
+      examSession,
     };
   }
 
-  async update(id: number, updateExamDto: UpdateExamDto) {
+  async update(id: number, updateExamSessionDto: UpdateExamSessionDto) {
     await this.findOne(id);
-    await this.examRepo.update({ id }, updateExamDto);
-    const { exam } = await this.findOne(id);
+    await this.examSessionRepo.update({ id }, updateExamSessionDto);
+    const { examSession } = await this.findOne(id);
 
     return {
       message: `${id}-exam data updated!`,
       success: true,
-      exam,
+      examSession,
     };
   }
 
   async remove(id: number) {
     await this.findOne(id);
-    await this.examRepo.delete(id);
+    await this.examSessionRepo.delete(id);
 
     return {
       message: `${id}-exam deleted!`,

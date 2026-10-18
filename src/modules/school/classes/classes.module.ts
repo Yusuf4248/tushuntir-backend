@@ -5,7 +5,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { SchoolClass } from "./entities/school-class.entity";
 import { SubjectsModule } from "../subjects/subjects.module";
 import { Homework } from "../../homework/homework/entities/homework.entity";
-import { Exam } from "../../../exams/entities/exam.entity";
+import { ExamSession } from "../../assessment/exam-sessions/entities/exam-session.entity";
 import { JwtModule } from "@nestjs/jwt";
 import { TeacherAssignment } from "../teacher-assignments/entities/teacher-assignment.entity";
 import { ClassStudent } from "../class-students/entities/class-student.entity";
@@ -20,7 +20,7 @@ import { AttendanceModule } from "../../../attendance/attendance.module";
     TypeOrmModule.forFeature([
       SchoolClass,
       Homework,
-      Exam,
+      ExamSession,
       TeacherAssignment,
       ClassStudent,
       Lesson,

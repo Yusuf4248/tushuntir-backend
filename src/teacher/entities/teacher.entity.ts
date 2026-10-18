@@ -11,7 +11,7 @@ import {
 import { ApiProperty } from "@nestjs/swagger";
 import { Homework } from "../../modules/homework/homework/entities/homework.entity";
 import { Grade } from "../../grades/entities/grade.entity";
-import { Exam } from "../../exams/entities/exam.entity";
+import { ExamSession } from "../../modules/assessment/exam-sessions/entities/exam-session.entity";
 import { School } from "../../modules/school/schools/entities/school.entity";
 import { TeacherAssignment } from "../../modules/school/teacher-assignments/entities/teacher-assignment.entity";
 
@@ -81,8 +81,8 @@ export class Teacher {
   @OneToMany(() => Grade, (grades) => grades.teacher)
   grades: Grade[];
 
-  @ManyToMany(() => Exam, (exam) => exam.teacher, { nullable: true })
-  exam: Exam[];
+  @ManyToMany(() => ExamSession, (examSession) => examSession.teacher, { nullable: true })
+  examSessions: ExamSession[];
 
   @ManyToMany(() => School, (school) => school.teachers, { cascade: true })
   @JoinTable({

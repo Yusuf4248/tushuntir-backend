@@ -9,7 +9,7 @@ import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { ExamResult } from "./entities/exam-result.entity";
 import { StudentService } from "../student/student.service";
-import { ExamsService } from "../exams/exams.service";
+import { ExamSessionsService } from "../modules/assessment/exam-sessions/exam-sessions.service";
 
 @Injectable()
 export class ExamResultsService {
@@ -17,16 +17,16 @@ export class ExamResultsService {
     @InjectRepository(ExamResult)
     private readonly examResultRepo: Repository<ExamResult>,
     private readonly studentService: StudentService,
-    private readonly examService: ExamsService
+    private readonly examSessionsService: ExamSessionsService
   ) {}
   async create(createExamResultDto: CreateExamResultDto) {
     const { student } = await this.studentService.findOne(
       createExamResultDto.studentId
     );
-    const { exam } = await this.examService.findOne(createExamResultDto.examId);
+    const { examSession } = await this.examSessionsService.findOne(createExamResultDto.examSessionId);
     const newExamResult = await this.examResultRepo.save({
       ...createExamResultDto,
-      exam,
+      examSession,
       student,
     });
     return {
@@ -38,7 +38,7 @@ export class ExamResultsService {
 
   async findAll() {
     const examResults = await this.examResultRepo.find({
-      relations: ["exam", "student"],
+      relations: ["examSession", "student"],
     });
     return {
       message: "All exam results",
@@ -54,7 +54,7 @@ export class ExamResultsService {
       );
     const examResult = await this.examResultRepo.findOne({
       where: { id },
-      relations: ["exam", "student"],
+      relations: ["examSession", "student"],
     });
     if (!examResult) {
       throw new NotFoundException(`${id}-exam result not found`);

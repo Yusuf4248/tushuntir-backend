@@ -10,7 +10,7 @@ import {
 } from "typeorm";
 import { School } from "../../modules/school/schools/entities/school.entity";
 import { ApiProperty } from "@nestjs/swagger";
-import { Exam } from "../../exams/entities/exam.entity";
+import { ExamSession } from "../../modules/assessment/exam-sessions/entities/exam-session.entity";
 import { Lesson } from "../../lessons/entities/lesson.entity";
 
 @Entity("rooms")
@@ -51,8 +51,8 @@ export class Room {
   @JoinColumn({ name: "school_id" })
   school: School;
 
-  @OneToMany(() => Exam, (exam) => exam.room)
-  exams: Exam[];
+  @OneToMany(() => ExamSession, (examSession) => examSession.room)
+  examSessions: ExamSession[];
 
   @ApiProperty({
     type: () => Room,

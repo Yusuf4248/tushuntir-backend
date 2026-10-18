@@ -12,7 +12,7 @@ import {
 import { ApiProperty } from "@nestjs/swagger";
 import { Subject } from "../../subjects/entities/subject.entity";
 import { Homework } from "../../../homework/homework/entities/homework.entity";
-import { Exam } from "../../../../exams/entities/exam.entity";
+import { ExamSession } from "../../../assessment/exam-sessions/entities/exam-session.entity";
 import { Lesson } from "../../../../lessons/entities/lesson.entity";
 import { TeacherAssignment } from "../../teacher-assignments/entities/teacher-assignment.entity";
 import { ClassStudent } from "../../class-students/entities/class-student.entity";
@@ -89,9 +89,9 @@ export class SchoolClass {
   @ApiProperty({ type: () => Homework })
   homework: Homework[];
 
-  @OneToMany(() => Exam, (exam) => exam.schoolClass)
-  @ApiProperty({ type: () => Exam })
-  exams: Exam[];
+  @OneToMany(() => ExamSession, (examSession) => examSession.schoolClass)
+  @ApiProperty({ type: () => ExamSession })
+  examSessions: ExamSession[];
 
   @OneToMany(() => Lesson, (lesson) => lesson.schoolClass, { onDelete: "CASCADE" })
   @ApiProperty({ type: () => Lesson })

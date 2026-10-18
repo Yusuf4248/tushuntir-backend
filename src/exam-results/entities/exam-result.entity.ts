@@ -2,11 +2,12 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { Exam } from "../../exams/entities/exam.entity";
+import { ExamSession } from "../../modules/assessment/exam-sessions/entities/exam-session.entity";
 import { Student } from "../../student/entities/student.entities";
 import { ApiProperty } from "@nestjs/swagger";
 
@@ -28,9 +29,10 @@ export class ExamResult {
   @Column()
   date: Date;
 
-  @ApiProperty({ type: () => Exam })
-  @ManyToOne(() => Exam, (exam) => exam.exam_result)
-  exam: Exam;
+  @ApiProperty({ type: () => ExamSession })
+  @ManyToOne(() => ExamSession, (examSession) => examSession.examResults)
+  @JoinColumn({ name: "exam_session_id" })
+  examSession: ExamSession;
 
   @ApiProperty({ type: () => Student })
   @ManyToOne(() => Student, (student) => student.exam_result)

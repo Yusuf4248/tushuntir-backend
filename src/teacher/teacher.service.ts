@@ -53,7 +53,7 @@ export class TeacherService {
 
   async findAll(page: number, limit: number) {
     const [teachers, total] = await this.teacherRepo.findAndCount({
-      relations: ["exam", "schools"],
+      relations: ["examSessions", "schools"],
       skip: (page - 1) * limit,
       take: limit,
       order: { id: "ASC" },
@@ -75,7 +75,7 @@ export class TeacherService {
     }
     const teacher = await this.teacherRepo.findOne({
       where: { id },
-      relations: ["exam", "schools"],
+      relations: ["examSessions", "schools"],
     });
     if (!teacher) {
       throw new BadRequestException(`teacher with ${id}-id not found`);

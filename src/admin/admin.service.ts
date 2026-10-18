@@ -183,7 +183,7 @@ export class AdminService {
       case "teacher":
         return this.teacherRepo.findOne({
           where: { id },
-          relations: ["schools", "exam"],
+          relations: ["schools", "examSessions"],
         });
       case "student":
         return this.studentRepo.findOne({

@@ -18,7 +18,7 @@ export class CreateExamResultDto {
 
   @ApiProperty({ example: 1, description: "Exam ID" })
   @IsInt()
-  examId: number;
+  examSessionId: number;
 
   @ApiProperty({ example: 2, description: "Student ID" })
   @IsInt()

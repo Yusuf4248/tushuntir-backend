@@ -9,9 +9,9 @@ import {
   IsArray,
 } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
-import { ExamStatus } from "../entities/exam.entity";
+import { ExamSessionStatus } from "../entities/exam-session.entity";
 
-export class CreateExamDto {
+export class CreateExamSessionDto {
   @ApiProperty({ example: "Final Exam" })
   @IsNotEmpty()
   @IsString()
@@ -26,9 +26,9 @@ export class CreateExamDto {
   @IsDateString()
   date: Date;
 
-  @ApiProperty({ enum: ExamStatus, example: ExamStatus.PENDING })
-  @IsEnum(ExamStatus)
-  status: ExamStatus;
+  @ApiProperty({ enum: ExamSessionStatus, example: ExamSessionStatus.PENDING })
+  @IsEnum(ExamSessionStatus)
+  status: ExamSessionStatus;
 
   @ApiProperty({ example: "14:00", description: "Start time (HH:mm)" })
   @IsMilitaryTime()
