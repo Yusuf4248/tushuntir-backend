@@ -10,7 +10,7 @@ import { HomeworkSubmission } from "./entities/homework-submission.entity";
 import { Repository } from "typeorm";
 import { StudentService } from "../../../student/student.service";
 import { HomeworkService } from "../homework/homework.service";
-import { Media } from "../../../media/entities/media.entity";
+import { Media } from "../media/entities/media.entity";
 import { FileService } from "../../../shared/file/file.service";
 import * as path from "path";
 

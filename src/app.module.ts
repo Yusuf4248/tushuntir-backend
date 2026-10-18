@@ -15,7 +15,7 @@ import { SchoolsModule } from "./modules/school/schools/schools.module";
 import { RoomsModule } from "./modules/school/rooms/rooms.module";
 import { ExamSessionsModule } from "./modules/assessment/exam-sessions/exam-sessions.module";
 import { ExamResultsModule } from "./modules/assessment/exam-results/exam-results.module";
-import { MediaModule } from "./media/media.module";
+import { MediaModule } from "./modules/homework/media/media.module";
 import { MailModule } from "./shared/mail/mail.module";
 import { FileModule } from "./shared/file/file.module";
 import { LessonsModule } from "./lessons/lessons.module";

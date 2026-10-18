@@ -10,7 +10,7 @@ import { Homework } from "./entities/homework.entity";
 import { Repository } from "typeorm";
 import { ClassesService } from "../../school/classes/classes.service";
 import { TeacherService } from "../../../teacher/teacher.service";
-import { Media } from "../../../media/entities/media.entity";
+import { Media } from "../media/entities/media.entity";
 import { FileService } from "../../../shared/file/file.service";
 import { LessonsService } from "../../../lessons/lessons.service";
 import * as path from "path";
