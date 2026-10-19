@@ -81,5 +81,7 @@ export const SCHOOL_ROLES = [
   UserRole.PARENT,
 ];
 
+export const ALL_ROLES = Object.values(UserRole);
+
 /** Roles that may use the admin-panel CRUD endpoints in this phase. */
 export const ADMIN_PANEL_ROLES = [UserRole.SUPER_ADMIN, UserRole.ADMIN];
