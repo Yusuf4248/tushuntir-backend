@@ -15,6 +15,8 @@ import { TeacherAssignmentsModule } from "./modules/school/teacher-assignments/t
 import { TimetableSlotsModule } from "./modules/school/timetable-slots/timetable-slots.module";
 import { TextbooksModule } from "./modules/learning/textbooks/textbooks.module";
 import { ChaptersModule } from "./modules/learning/chapters/chapters.module";
+import { TopicsModule } from "./modules/learning/topics/topics.module";
+import { TextbookChunksModule } from "./modules/learning/textbook-chunks/textbook-chunks.module";
 import { MailModule } from "./shared/mail/mail.module";
 import { FileModule } from "./shared/file/file.module";
 
@@ -36,6 +38,8 @@ import { FileModule } from "./shared/file/file.module";
     TimetableSlotsModule,
     TextbooksModule,
     ChaptersModule,
+    TopicsModule,
+    TextbookChunksModule,
     MailModule,
     FileModule,
   ],
