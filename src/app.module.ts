@@ -10,6 +10,7 @@ import { AcademicYearsModule } from "./modules/school/academic-years/academic-ye
 import { TermsModule } from "./modules/school/terms/terms.module";
 import { RoomsModule } from "./modules/school/rooms/rooms.module";
 import { ClassesModule } from "./modules/school/classes/classes.module";
+import { ClassStudentsModule } from "./modules/school/class-students/class-students.module";
 import { MailModule } from "./shared/mail/mail.module";
 import { FileModule } from "./shared/file/file.module";
 
@@ -26,6 +27,7 @@ import { FileModule } from "./shared/file/file.module";
     TermsModule,
     RoomsModule,
     ClassesModule,
+    ClassStudentsModule,
     MailModule,
     FileModule,
   ],
