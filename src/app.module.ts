@@ -18,6 +18,8 @@ import { ChaptersModule } from "./modules/learning/chapters/chapters.module";
 import { TopicsModule } from "./modules/learning/topics/topics.module";
 import { TextbookChunksModule } from "./modules/learning/textbook-chunks/textbook-chunks.module";
 import { LessonsModule } from "./modules/daily/lessons/lessons.module";
+import { AttendanceModule } from "./modules/daily/attendance/attendance.module";
+import { GradesModule } from "./modules/daily/grades/grades.module";
 import { MailModule } from "./shared/mail/mail.module";
 import { FileModule } from "./shared/file/file.module";
 
@@ -42,6 +44,8 @@ import { FileModule } from "./shared/file/file.module";
     TopicsModule,
     TextbookChunksModule,
     LessonsModule,
+    AttendanceModule,
+    GradesModule,
     MailModule,
     FileModule,
   ],
