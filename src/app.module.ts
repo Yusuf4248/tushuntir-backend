@@ -11,6 +11,7 @@ import { TermsModule } from "./modules/school/terms/terms.module";
 import { RoomsModule } from "./modules/school/rooms/rooms.module";
 import { ClassesModule } from "./modules/school/classes/classes.module";
 import { ClassStudentsModule } from "./modules/school/class-students/class-students.module";
+import { TeacherAssignmentsModule } from "./modules/school/teacher-assignments/teacher-assignments.module";
 import { MailModule } from "./shared/mail/mail.module";
 import { FileModule } from "./shared/file/file.module";
 
@@ -28,6 +29,7 @@ import { FileModule } from "./shared/file/file.module";
     RoomsModule,
     ClassesModule,
     ClassStudentsModule,
+    TeacherAssignmentsModule,
     MailModule,
     FileModule,
   ],
