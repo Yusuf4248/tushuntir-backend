@@ -20,6 +20,7 @@ import { TextbookChunksModule } from "./modules/learning/textbook-chunks/textboo
 import { LessonsModule } from "./modules/daily/lessons/lessons.module";
 import { AttendanceModule } from "./modules/daily/attendance/attendance.module";
 import { GradesModule } from "./modules/daily/grades/grades.module";
+import { QuestionsModule } from "./modules/learning/questions/questions.module";
 import { MailModule } from "./shared/mail/mail.module";
 import { FileModule } from "./shared/file/file.module";
 
@@ -46,6 +47,7 @@ import { FileModule } from "./shared/file/file.module";
     LessonsModule,
     AttendanceModule,
     GradesModule,
+    QuestionsModule,
     MailModule,
     FileModule,
   ],
