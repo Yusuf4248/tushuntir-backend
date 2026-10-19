@@ -8,6 +8,7 @@ import { ParentStudentsModule } from "./modules/identity/parent-students/parent-
 import { SubjectsModule } from "./modules/school/subjects/subjects.module";
 import { AcademicYearsModule } from "./modules/school/academic-years/academic-years.module";
 import { TermsModule } from "./modules/school/terms/terms.module";
+import { RoomsModule } from "./modules/school/rooms/rooms.module";
 import { MailModule } from "./shared/mail/mail.module";
 import { FileModule } from "./shared/file/file.module";
 
@@ -22,6 +23,7 @@ import { FileModule } from "./shared/file/file.module";
     SubjectsModule,
     AcademicYearsModule,
     TermsModule,
+    RoomsModule,
     MailModule,
     FileModule,
   ],
