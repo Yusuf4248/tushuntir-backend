@@ -189,14 +189,20 @@ export abstract class CrudService<E extends ObjectLiteral & { id: number }> {
     _query: PaginationQueryDto,
   ): void {}
 
-  /** Fills server-side fields before validation. Admins default to their own school. */
+  /**
+   * Fills server-side fields before validation. On tables with their own school_id,
+   * admins default to their own school and super_admin must name one.
+   */
   protected async beforeCreate(data: Data, user: AuthUser): Promise<Data> {
-    if (
-      user.role === UserRole.ADMIN &&
-      this.options.references?.schoolId &&
-      data.schoolId === undefined
-    ) {
-      data.schoolId = user.schoolId;
+    if (this.options.references?.schoolId && data.schoolId === undefined) {
+      if (user.role !== UserRole.SUPER_ADMIN) {
+        data.schoolId = user.schoolId;
+      } else if (
+        !this.repository.metadata.findColumnWithPropertyName("schoolId")
+          ?.isNullable
+      ) {
+        throw new BadRequestException("schoolId is required");
+      }
     }
     return data;
   }

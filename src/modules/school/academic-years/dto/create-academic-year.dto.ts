@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { ApiPropertyOptional } from "@nestjs/swagger";
 import {
   IsBoolean,
   IsInt,
@@ -11,10 +11,15 @@ import {
 import { DATE_ONLY } from "../../../../common/transforms";
 
 export class CreateAcademicYearDto {
-  @ApiProperty({ example: 1, description: "School id" })
+  @ApiPropertyOptional({
+    example: 1,
+    description:
+      "School id. Admins may omit it (their own school is used); required for super_admin",
+  })
+  @IsOptional()
   @IsInt()
   @Min(1)
-  schoolId: number;
+  schoolId?: number;
 
   @ApiPropertyOptional({ example: "2026/2027", nullable: true })
   @IsOptional()

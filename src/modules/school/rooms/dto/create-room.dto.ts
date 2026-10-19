@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { ApiPropertyOptional } from "@nestjs/swagger";
 import {
   IsEnum,
   IsInt,
@@ -11,10 +11,15 @@ import {
 import { RoomType } from "../../../../common/enums";
 
 export class CreateRoomDto {
-  @ApiProperty({ example: 1, description: "School id" })
+  @ApiPropertyOptional({
+    example: 1,
+    description:
+      "School id. Admins may omit it (their own school is used); required for super_admin",
+  })
+  @IsOptional()
   @IsInt()
   @Min(1)
-  schoolId: number;
+  schoolId?: number;
 
   @ApiPropertyOptional({ example: "Computer lab 1", nullable: true })
   @IsOptional()
