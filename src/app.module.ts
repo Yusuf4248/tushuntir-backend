@@ -12,6 +12,7 @@ import { RoomsModule } from "./modules/school/rooms/rooms.module";
 import { ClassesModule } from "./modules/school/classes/classes.module";
 import { ClassStudentsModule } from "./modules/school/class-students/class-students.module";
 import { TeacherAssignmentsModule } from "./modules/school/teacher-assignments/teacher-assignments.module";
+import { TimetableSlotsModule } from "./modules/school/timetable-slots/timetable-slots.module";
 import { MailModule } from "./shared/mail/mail.module";
 import { FileModule } from "./shared/file/file.module";
 
@@ -30,6 +31,7 @@ import { FileModule } from "./shared/file/file.module";
     ClassesModule,
     ClassStudentsModule,
     TeacherAssignmentsModule,
+    TimetableSlotsModule,
     MailModule,
     FileModule,
   ],
