@@ -33,6 +33,8 @@ import { AttemptsModule } from "./modules/learning/attempts/attempts.module";
 import { AttemptAnswersModule } from "./modules/learning/attempt-answers/attempt-answers.module";
 import { TopicMasteryModule } from "./modules/learning/topic-mastery/topic-mastery.module";
 import { IntegrityFlagsModule } from "./modules/assessment/integrity-flags/integrity-flags.module";
+import { AiSessionsModule } from "./modules/learning/ai-sessions/ai-sessions.module";
+import { AiMessagesModule } from "./modules/learning/ai-messages/ai-messages.module";
 import { MailModule } from "./shared/mail/mail.module";
 import { FileModule } from "./shared/file/file.module";
 
@@ -72,6 +74,8 @@ import { FileModule } from "./shared/file/file.module";
     AttemptAnswersModule,
     TopicMasteryModule,
     IntegrityFlagsModule,
+    AiSessionsModule,
+    AiMessagesModule,
     MailModule,
     FileModule,
   ],
