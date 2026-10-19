@@ -35,6 +35,8 @@ import { TopicMasteryModule } from "./modules/learning/topic-mastery/topic-maste
 import { IntegrityFlagsModule } from "./modules/assessment/integrity-flags/integrity-flags.module";
 import { AiSessionsModule } from "./modules/learning/ai-sessions/ai-sessions.module";
 import { AiMessagesModule } from "./modules/learning/ai-messages/ai-messages.module";
+import { SupportGroupsModule } from "./modules/support/support-groups/support-groups.module";
+import { SupportGroupStudentsModule } from "./modules/support/support-group-students/support-group-students.module";
 import { MailModule } from "./shared/mail/mail.module";
 import { FileModule } from "./shared/file/file.module";
 
@@ -76,6 +78,8 @@ import { FileModule } from "./shared/file/file.module";
     IntegrityFlagsModule,
     AiSessionsModule,
     AiMessagesModule,
+    SupportGroupsModule,
+    SupportGroupStudentsModule,
     MailModule,
     FileModule,
   ],
