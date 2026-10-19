@@ -1,27 +1,8 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
-import { StudentModule } from "./modules/identity/student/student.module";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { AdminModule } from "./modules/identity/admin/admin.module";
-import { TeacherModule } from "./modules/identity/teacher/teacher.module";
-import { AuthModule } from "./modules/identity/auth/auth.module";
-import { SubjectsModule } from "./modules/school/subjects/subjects.module";
-import { ClassesModule } from "./modules/school/classes/classes.module";
-import { AttendanceModule } from "./modules/daily/attendance/attendance.module";
-import { HomeworkModule } from "./modules/homework/homework/homework.module";
-import { HomeworkSubmissionsModule } from "./modules/homework/homework-submissions/homework-submissions.module";
-import { GradesModule } from "./modules/daily/grades/grades.module";
-import { SchoolsModule } from "./modules/school/schools/schools.module";
-import { RoomsModule } from "./modules/school/rooms/rooms.module";
-import { ExamSessionsModule } from "./modules/assessment/exam-sessions/exam-sessions.module";
-import { ExamResultsModule } from "./modules/assessment/exam-results/exam-results.module";
-import { MediaModule } from "./modules/homework/media/media.module";
 import { MailModule } from "./shared/mail/mail.module";
 import { FileModule } from "./shared/file/file.module";
-import { LessonsModule } from "./modules/daily/lessons/lessons.module";
-import { TeacherAssignmentsModule } from "./modules/school/teacher-assignments/teacher-assignments.module";
-import { ClassStudentsModule } from "./modules/school/class-students/class-students.module";
-import { DataSource } from "typeorm";
 
 @Module({
   imports: [
@@ -33,35 +14,11 @@ import { DataSource } from "typeorm";
       username: process.env.PG_USER,
       password: process.env.PG_PASSWORD,
       database: process.env.PG_DB,
-      entities: [],
       synchronize: true,
       autoLoadEntities: true,
-      dropSchema: false,
     }),
-    StudentModule,
-    AdminModule,
-    TeacherModule,
-    AuthModule,
-    SubjectsModule,
-    ClassesModule,
-    LessonsModule,
-    TeacherAssignmentsModule,
-    ClassStudentsModule,
-    AttendanceModule,
-    HomeworkModule,
-    HomeworkSubmissionsModule,
-    GradesModule,
-    SchoolsModule,
-    RoomsModule,
-    ExamSessionsModule,
-    ExamResultsModule,
-    MediaModule,
     MailModule,
     FileModule,
   ],
-  controllers: [],
-  providers: [],
 })
-export class AppModule {
-  constructor(private dataSource: DataSource) {}
-}
+export class AppModule {}
