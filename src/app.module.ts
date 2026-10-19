@@ -27,6 +27,8 @@ import { HomeworkModule } from "./modules/homework/homework/homework.module";
 import { HomeworkSubmissionsModule } from "./modules/homework/homework-submissions/homework-submissions.module";
 import { MediaFilesModule } from "./modules/homework/media-files/media-files.module";
 import { AttachmentsModule } from "./modules/homework/attachments/attachments.module";
+import { ExamSessionsModule } from "./modules/assessment/exam-sessions/exam-sessions.module";
+import { ExamSessionStudentsModule } from "./modules/assessment/exam-session-students/exam-session-students.module";
 import { MailModule } from "./shared/mail/mail.module";
 import { FileModule } from "./shared/file/file.module";
 
@@ -60,6 +62,8 @@ import { FileModule } from "./shared/file/file.module";
     HomeworkSubmissionsModule,
     MediaFilesModule,
     AttachmentsModule,
+    ExamSessionsModule,
+    ExamSessionStudentsModule,
     MailModule,
     FileModule,
   ],
