@@ -31,6 +31,7 @@ import { ExamSessionsModule } from "./modules/assessment/exam-sessions/exam-sess
 import { ExamSessionStudentsModule } from "./modules/assessment/exam-session-students/exam-session-students.module";
 import { AttemptsModule } from "./modules/learning/attempts/attempts.module";
 import { AttemptAnswersModule } from "./modules/learning/attempt-answers/attempt-answers.module";
+import { TopicMasteryModule } from "./modules/learning/topic-mastery/topic-mastery.module";
 import { MailModule } from "./shared/mail/mail.module";
 import { FileModule } from "./shared/file/file.module";
 
@@ -68,6 +69,7 @@ import { FileModule } from "./shared/file/file.module";
     ExamSessionStudentsModule,
     AttemptsModule,
     AttemptAnswersModule,
+    TopicMasteryModule,
     MailModule,
     FileModule,
   ],
