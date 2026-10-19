@@ -13,6 +13,8 @@ import { ClassesModule } from "./modules/school/classes/classes.module";
 import { ClassStudentsModule } from "./modules/school/class-students/class-students.module";
 import { TeacherAssignmentsModule } from "./modules/school/teacher-assignments/teacher-assignments.module";
 import { TimetableSlotsModule } from "./modules/school/timetable-slots/timetable-slots.module";
+import { TextbooksModule } from "./modules/learning/textbooks/textbooks.module";
+import { ChaptersModule } from "./modules/learning/chapters/chapters.module";
 import { MailModule } from "./shared/mail/mail.module";
 import { FileModule } from "./shared/file/file.module";
 
@@ -32,6 +34,8 @@ import { FileModule } from "./shared/file/file.module";
     ClassStudentsModule,
     TeacherAssignmentsModule,
     TimetableSlotsModule,
+    TextbooksModule,
+    ChaptersModule,
     MailModule,
     FileModule,
   ],
