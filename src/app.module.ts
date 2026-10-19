@@ -37,6 +37,7 @@ import { AiSessionsModule } from "./modules/learning/ai-sessions/ai-sessions.mod
 import { AiMessagesModule } from "./modules/learning/ai-messages/ai-messages.module";
 import { SupportGroupsModule } from "./modules/support/support-groups/support-groups.module";
 import { SupportGroupStudentsModule } from "./modules/support/support-group-students/support-group-students.module";
+import { NotificationsModule } from "./modules/support/notifications/notifications.module";
 import { MailModule } from "./shared/mail/mail.module";
 import { FileModule } from "./shared/file/file.module";
 
@@ -80,6 +81,7 @@ import { FileModule } from "./shared/file/file.module";
     AiMessagesModule,
     SupportGroupsModule,
     SupportGroupStudentsModule,
+    NotificationsModule,
     MailModule,
     FileModule,
   ],
