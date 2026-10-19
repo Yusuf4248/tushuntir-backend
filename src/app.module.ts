@@ -25,6 +25,8 @@ import { QuizzesModule } from "./modules/learning/quizzes/quizzes.module";
 import { QuizQuestionsModule } from "./modules/learning/quiz-questions/quiz-questions.module";
 import { HomeworkModule } from "./modules/homework/homework/homework.module";
 import { HomeworkSubmissionsModule } from "./modules/homework/homework-submissions/homework-submissions.module";
+import { MediaFilesModule } from "./modules/homework/media-files/media-files.module";
+import { AttachmentsModule } from "./modules/homework/attachments/attachments.module";
 import { MailModule } from "./shared/mail/mail.module";
 import { FileModule } from "./shared/file/file.module";
 
@@ -56,6 +58,8 @@ import { FileModule } from "./shared/file/file.module";
     QuizQuestionsModule,
     HomeworkModule,
     HomeworkSubmissionsModule,
+    MediaFilesModule,
+    AttachmentsModule,
     MailModule,
     FileModule,
   ],
