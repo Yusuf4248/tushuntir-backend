@@ -9,7 +9,7 @@ export const winstonConfig = {
         winston.format.timestamp(),
         winston.format.printf(({ level, message, label, timestamp }) => {
           return `${timestamp} [${label}] ${level}: ${message}`;
-        })
+        }),
       ),
     }),
     new winston.transports.File({
@@ -18,7 +18,7 @@ export const winstonConfig = {
       format: winston.format.combine(
         winston.format.label({ label: "ERP" }),
         winston.format.timestamp(),
-        winston.format.json()
+        winston.format.json(),
       ),
     }),
     new winston.transports.File({
@@ -27,7 +27,7 @@ export const winstonConfig = {
       format: winston.format.combine(
         winston.format.label({ label: "ERP" }),
         winston.format.timestamp(),
-        winston.format.json()
+        winston.format.json(),
       ),
     }),
   ],
