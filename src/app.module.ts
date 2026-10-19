@@ -23,6 +23,7 @@ import { GradesModule } from "./modules/daily/grades/grades.module";
 import { QuestionsModule } from "./modules/learning/questions/questions.module";
 import { QuizzesModule } from "./modules/learning/quizzes/quizzes.module";
 import { QuizQuestionsModule } from "./modules/learning/quiz-questions/quiz-questions.module";
+import { HomeworkModule } from "./modules/homework/homework/homework.module";
 import { MailModule } from "./shared/mail/mail.module";
 import { FileModule } from "./shared/file/file.module";
 
@@ -52,6 +53,7 @@ import { FileModule } from "./shared/file/file.module";
     QuestionsModule,
     QuizzesModule,
     QuizQuestionsModule,
+    HomeworkModule,
     MailModule,
     FileModule,
   ],
