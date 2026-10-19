@@ -32,6 +32,7 @@ import { ExamSessionStudentsModule } from "./modules/assessment/exam-session-stu
 import { AttemptsModule } from "./modules/learning/attempts/attempts.module";
 import { AttemptAnswersModule } from "./modules/learning/attempt-answers/attempt-answers.module";
 import { TopicMasteryModule } from "./modules/learning/topic-mastery/topic-mastery.module";
+import { IntegrityFlagsModule } from "./modules/assessment/integrity-flags/integrity-flags.module";
 import { MailModule } from "./shared/mail/mail.module";
 import { FileModule } from "./shared/file/file.module";
 
@@ -70,6 +71,7 @@ import { FileModule } from "./shared/file/file.module";
     AttemptsModule,
     AttemptAnswersModule,
     TopicMasteryModule,
+    IntegrityFlagsModule,
     MailModule,
     FileModule,
   ],
