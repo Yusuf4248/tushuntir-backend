@@ -4,6 +4,7 @@ import { DatabaseModule } from "./database/database.module";
 import { AuthModule } from "./modules/identity/auth/auth.module";
 import { SchoolsModule } from "./modules/school/schools/schools.module";
 import { UsersModule } from "./modules/identity/users/users.module";
+import { ParentStudentsModule } from "./modules/identity/parent-students/parent-students.module";
 import { MailModule } from "./shared/mail/mail.module";
 import { FileModule } from "./shared/file/file.module";
 
@@ -14,6 +15,7 @@ import { FileModule } from "./shared/file/file.module";
     AuthModule,
     SchoolsModule,
     UsersModule,
+    ParentStudentsModule,
     MailModule,
     FileModule,
   ],
