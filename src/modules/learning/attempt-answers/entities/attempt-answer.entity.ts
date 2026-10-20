@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -16,6 +17,7 @@ export class AttemptAnswer {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Index("IDX_attempt_answers_attempt_id")
   @Column({ name: "attempt_id", type: "int" })
   attemptId: number;
 

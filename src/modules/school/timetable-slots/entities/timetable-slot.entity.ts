@@ -2,6 +2,7 @@ import {
   Check,
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -18,6 +19,7 @@ export class TimetableSlot {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Index("IDX_timetable_slots_teacher_assignment_id")
   @Column({ name: "teacher_assignment_id", type: "int" })
   teacherAssignmentId: number;
 

@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -18,6 +19,7 @@ export class Attempt {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Index("IDX_attempts_quiz_id")
   @Column({ name: "quiz_id", type: "int" })
   quizId: number;
 
@@ -25,6 +27,7 @@ export class Attempt {
   @JoinColumn({ name: "quiz_id" })
   quiz: Quiz;
 
+  @Index("IDX_attempts_student_id")
   @Column({ name: "student_id", type: "int" })
   studentId: number;
 
@@ -32,6 +35,7 @@ export class Attempt {
   @JoinColumn({ name: "student_id" })
   student: User;
 
+  @Index("IDX_attempts_exam_session_id")
   @Column({ name: "exam_session_id", type: "int", nullable: true })
   examSessionId: number | null;
 

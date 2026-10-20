@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -15,6 +16,7 @@ export class AiMessage {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Index("IDX_ai_messages_session_id")
   @Column({ name: "session_id", type: "int" })
   sessionId: number;
 

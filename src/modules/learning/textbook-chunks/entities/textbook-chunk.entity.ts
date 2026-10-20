@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -14,6 +15,7 @@ export class TextbookChunk {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Index("IDX_textbook_chunks_topic_id")
   @Column({ name: "topic_id", type: "int" })
   topicId: number;
 

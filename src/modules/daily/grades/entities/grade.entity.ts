@@ -3,6 +3,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -19,6 +20,7 @@ export class Grade {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Index("IDX_grades_student_id")
   @Column({ name: "student_id", type: "int" })
   studentId: number;
 
@@ -26,6 +28,7 @@ export class Grade {
   @JoinColumn({ name: "student_id" })
   student: User;
 
+  @Index("IDX_grades_teacher_assignment_id")
   @Column({ name: "teacher_assignment_id", type: "int" })
   teacherAssignmentId: number;
 
@@ -33,6 +36,7 @@ export class Grade {
   @JoinColumn({ name: "teacher_assignment_id" })
   teacherAssignment: TeacherAssignment;
 
+  @Index("IDX_grades_lesson_id")
   @Column({ name: "lesson_id", type: "int", nullable: true })
   lessonId: number | null;
 

@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -17,6 +18,7 @@ export class SupportGroup {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Index("IDX_support_groups_school_id")
   @Column({ name: "school_id", type: "int" })
   schoolId: number;
 

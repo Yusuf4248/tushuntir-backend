@@ -2,6 +2,7 @@ import {
   Check,
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -19,6 +20,7 @@ export class Question {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Index("IDX_questions_topic_id")
   @Column({ name: "topic_id", type: "int" })
   topicId: number;
 

@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -19,6 +20,7 @@ export class IntegrityFlag {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Index("IDX_integrity_flags_student_id")
   @Column({ name: "student_id", type: "int" })
   studentId: number;
 

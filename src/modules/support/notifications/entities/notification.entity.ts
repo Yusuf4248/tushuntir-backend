@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -15,6 +16,7 @@ export class Notification {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Index("IDX_notifications_user_id")
   @Column({ name: "user_id", type: "int" })
   userId: number;
 

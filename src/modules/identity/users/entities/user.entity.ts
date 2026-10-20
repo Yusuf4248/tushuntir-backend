@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -16,6 +17,7 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Index("IDX_users_school_id")
   @Column({ name: "school_id", type: "int", nullable: true })
   schoolId: number | null;
 

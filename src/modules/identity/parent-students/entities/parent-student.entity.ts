@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -23,6 +24,7 @@ export class ParentStudent {
   @JoinColumn({ name: "parent_id" })
   parent: User;
 
+  @Index("IDX_parent_students_student_id")
   @Column({ name: "student_id", type: "int" })
   studentId: number;
 

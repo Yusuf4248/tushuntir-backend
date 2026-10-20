@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -32,6 +33,7 @@ export class Quiz {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Index("IDX_quizzes_topic_id")
   @Column({ name: "topic_id", type: "int", nullable: true })
   topicId: number | null;
 
@@ -39,6 +41,7 @@ export class Quiz {
   @JoinColumn({ name: "topic_id" })
   topic: Topic | null;
 
+  @Index("IDX_quizzes_class_id")
   @Column({ name: "class_id", type: "int", nullable: true })
   classId: number | null;
 

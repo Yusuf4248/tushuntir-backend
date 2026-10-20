@@ -2,6 +2,7 @@ import {
   Check,
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -28,6 +29,7 @@ export class TopicMastery {
   @JoinColumn({ name: "student_id" })
   student: User;
 
+  @Index("IDX_topic_mastery_topic_id")
   @Column({ name: "topic_id", type: "int" })
   topicId: number;
 
