@@ -1,5 +1,12 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { IsInt, IsOptional, IsString, Matches, Min } from "class-validator";
+import {
+  IsDateString,
+  IsInt,
+  IsOptional,
+  IsString,
+  Matches,
+  Min,
+} from "class-validator";
 import { DATE_ONLY } from "../../../../common/transforms";
 
 export class CreateLessonDto {
@@ -39,4 +46,14 @@ export class CreateLessonDto {
   @IsOptional()
   @IsString()
   notes?: string | null;
+
+  @ApiPropertyOptional({
+    example: "2026-11-09T09:40:00+05:00",
+    description:
+      "When the lesson actually ended; leave empty to use the timetable slot's end time",
+    nullable: true,
+  })
+  @IsOptional()
+  @IsDateString()
+  endedAt?: string | null;
 }

@@ -9,6 +9,7 @@ import { ConfigService } from "@nestjs/config";
 import { readdirSync, readFileSync } from "fs";
 import { basename, join } from "path";
 import { EntityManager } from "typeorm";
+import { Counts, upsert } from "./upsert";
 import { readAiConfig } from "../modules/ai/ai.config";
 import { AiUnavailableException } from "../modules/ai/ai.errors";
 import { createLlmService } from "../modules/ai/ai.module";
@@ -20,60 +21,11 @@ import {
 } from "./content/content-parser";
 import dataSource from "./data-source";
 
-interface Counts {
-  created: number;
-  updated: number;
-  unchanged: number;
-}
-
-/** pg sends JS arrays as Postgres arrays; jsonb columns need JSON text. */
-const param = (value: unknown) =>
-  typeof value === "object" && value !== null ? JSON.stringify(value) : value;
-
 const counts = {
   topics: { created: 0, updated: 0, unchanged: 0 } as Counts,
   chunks: { created: 0, updated: 0, unchanged: 0 } as Counts,
   chunksRemoved: 0,
 };
-
-async function upsert(
-  manager: EntityManager,
-  table: string,
-  where: Record<string, unknown>,
-  values: Record<string, unknown>,
-  tally?: Counts,
-): Promise<number> {
-  const keys = Object.keys(where);
-  const conditions = keys.map((key, i) => `"${key}" = $${i + 1}`).join(" AND ");
-  const rows: Record<string, unknown>[] = await manager.query(
-    `SELECT * FROM "${table}" WHERE ${conditions} ORDER BY id LIMIT 1`,
-    keys.map((key) => where[key]),
-  );
-  if (!rows.length) {
-    const all = { ...where, ...values };
-    const columns = Object.keys(all);
-    const [{ id }] = await manager.query(
-      `INSERT INTO "${table}" (${columns.map((c) => `"${c}"`).join(", ")}) VALUES (${columns.map((_, i) => `$${i + 1}`).join(", ")}) RETURNING id`,
-      columns.map((c) => param(all[c])),
-    );
-    if (tally) tally.created++;
-    return id;
-  }
-  const row = rows[0];
-  const changed = Object.keys(values).filter(
-    (key) => JSON.stringify(row[key]) !== JSON.stringify(values[key]),
-  );
-  if (changed.length) {
-    await manager.query(
-      `UPDATE "${table}" SET ${changed.map((c, i) => `"${c}" = $${i + 1}`).join(", ")} WHERE id = $${changed.length + 1}`,
-      [...changed.map((c) => param(values[c])), row.id],
-    );
-    if (tally) tally.updated++;
-  } else if (tally) {
-    tally.unchanged++;
-  }
-  return row.id as number;
-}
 
 async function syncChunks(
   manager: EntityManager,

@@ -15,6 +15,7 @@
     "start:prod": "node dist/main",
     "seed:admin": "ts-node src/database/seed-admin.ts",
     "content:load": "ts-node src/database/content-load.ts",
+    "seed:mvp": "ts-node src/database/seed-mvp.ts",
     "typeorm": "typeorm-ts-node-commonjs -d src/database/data-source.ts",
     "migration:generate": "npm run typeorm -- migration:generate",
     "migration:run": "npm run typeorm -- migration:run",

@@ -45,4 +45,8 @@ export class Lesson {
 
   @Column({ name: "notes", type: "text", nullable: true })
   notes: string | null;
+
+  /** Set when the lesson is ended early (demo); otherwise it ends at the timetable slot's ends_at */
+  @Column({ name: "ended_at", type: "timestamptz", nullable: true })
+  endedAt: Date | null;
 }
