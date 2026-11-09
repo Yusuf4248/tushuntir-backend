@@ -20,9 +20,7 @@ export class TextbookEmbeddings1794226711705 implements MigrationInterface {
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`ALTER TABLE "topics" DROP COLUMN "key_ideas"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_textbook_chunks_embedding_hnsw"`,
-    );
+    await queryRunner.query(`DROP INDEX "IDX_textbook_chunks_embedding_hnsw"`);
     await queryRunner.query(
       `ALTER TABLE "textbook_chunks" DROP COLUMN "embedding"`,
     );

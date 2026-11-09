@@ -5,16 +5,16 @@ export class Baseline1794226350236 implements MigrationInterface {
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      `CREATE TYPE "public"."school_type" AS ENUM('public', 'private')`,
+      `CREATE TYPE "school_type" AS ENUM('public', 'private')`,
     );
     await queryRunner.query(
-      `CREATE TABLE "schools" ("id" SERIAL NOT NULL, "name" character varying NOT NULL, "region" character varying NOT NULL, "district" character varying NOT NULL, "type" "public"."school_type" NOT NULL, "emaktab_id" character varying, "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), CONSTRAINT "PK_95b932e47ac129dd8e23a0db548" PRIMARY KEY ("id"))`,
+      `CREATE TABLE "schools" ("id" SERIAL NOT NULL, "name" character varying NOT NULL, "region" character varying NOT NULL, "district" character varying NOT NULL, "type" "school_type" NOT NULL, "emaktab_id" character varying, "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), CONSTRAINT "PK_95b932e47ac129dd8e23a0db548" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
-      `CREATE TYPE "public"."room_type" AS ENUM('classroom', 'computer_lab', 'other')`,
+      `CREATE TYPE "room_type" AS ENUM('classroom', 'computer_lab', 'other')`,
     );
     await queryRunner.query(
-      `CREATE TABLE "rooms" ("id" SERIAL NOT NULL, "school_id" integer NOT NULL, "name" character varying, "type" "public"."room_type" DEFAULT 'classroom', "seats" smallint, CONSTRAINT "PK_0368a2d7c215f2d0458a54933f2" PRIMARY KEY ("id"))`,
+      `CREATE TABLE "rooms" ("id" SERIAL NOT NULL, "school_id" integer NOT NULL, "name" character varying, "type" "room_type" DEFAULT 'classroom', "seats" smallint, CONSTRAINT "PK_0368a2d7c215f2d0458a54933f2" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
       `CREATE INDEX "IDX_rooms_school_id" ON "rooms" ("school_id") `,
@@ -32,10 +32,10 @@ export class Baseline1794226350236 implements MigrationInterface {
       `CREATE TABLE "topics" ("id" SERIAL NOT NULL, "chapter_id" integer NOT NULL, "position" smallint, "title" character varying NOT NULL, "is_exam_topic" boolean DEFAULT false, CONSTRAINT "PK_e4aa99a3fa60ec3a37d1fc4e853" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
-      `CREATE TYPE "public"."user_role" AS ENUM('super_admin', 'admin', 'teacher', 'student', 'parent')`,
+      `CREATE TYPE "user_role" AS ENUM('super_admin', 'admin', 'teacher', 'student', 'parent')`,
     );
     await queryRunner.query(
-      `CREATE TABLE "users" ("id" SERIAL NOT NULL, "school_id" integer, "role" "public"."user_role" NOT NULL, "first_name" character varying NOT NULL, "last_name" character varying NOT NULL, "phone" character varying(32), "email" character varying, "password_hash" character varying NOT NULL, "language" character varying DEFAULT 'uz', "is_active" boolean DEFAULT true, "last_login_at" TIMESTAMP WITH TIME ZONE, "refresh_token_hash" character varying, "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), CONSTRAINT "UQ_a000cca60bcf04454e727699490" UNIQUE ("phone"), CONSTRAINT "UQ_97672ac88f789774dd47f7c8be3" UNIQUE ("email"), CONSTRAINT "PK_a3ffb1c0c8416b9fc6f907b7433" PRIMARY KEY ("id"))`,
+      `CREATE TABLE "users" ("id" SERIAL NOT NULL, "school_id" integer, "role" "user_role" NOT NULL, "first_name" character varying NOT NULL, "last_name" character varying NOT NULL, "phone" character varying(32), "email" character varying, "password_hash" character varying NOT NULL, "language" character varying DEFAULT 'uz', "is_active" boolean DEFAULT true, "last_login_at" TIMESTAMP WITH TIME ZONE, "refresh_token_hash" character varying, "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), CONSTRAINT "UQ_a000cca60bcf04454e727699490" UNIQUE ("phone"), CONSTRAINT "UQ_97672ac88f789774dd47f7c8be3" UNIQUE ("email"), CONSTRAINT "PK_a3ffb1c0c8416b9fc6f907b7433" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
       `CREATE INDEX "IDX_users_school_id" ON "users" ("school_id") `,
@@ -65,10 +65,10 @@ export class Baseline1794226350236 implements MigrationInterface {
       `CREATE INDEX "IDX_academic_years_school_id" ON "academic_years" ("school_id") `,
     );
     await queryRunner.query(
-      `CREATE TYPE "public"."shift" AS ENUM('first', 'second', 'third')`,
+      `CREATE TYPE "shift" AS ENUM('first', 'second', 'third')`,
     );
     await queryRunner.query(
-      `CREATE TABLE "classes" ("id" SERIAL NOT NULL, "school_id" integer NOT NULL, "academic_year_id" integer NOT NULL, "homeroom_teacher_id" integer, "grade" smallint NOT NULL, "letter" character varying(5) NOT NULL, "shift" "public"."shift" DEFAULT 'first', CONSTRAINT "UQ_classes_school_year_grade_letter" UNIQUE ("school_id", "academic_year_id", "grade", "letter"), CONSTRAINT "CHK_classes_grade" CHECK ("grade" BETWEEN 5 AND 11), CONSTRAINT "PK_e207aa15404e9b2ce35910f9f7f" PRIMARY KEY ("id"))`,
+      `CREATE TABLE "classes" ("id" SERIAL NOT NULL, "school_id" integer NOT NULL, "academic_year_id" integer NOT NULL, "homeroom_teacher_id" integer, "grade" smallint NOT NULL, "letter" character varying(5) NOT NULL, "shift" "shift" DEFAULT 'first', CONSTRAINT "UQ_classes_school_year_grade_letter" UNIQUE ("school_id", "academic_year_id", "grade", "letter"), CONSTRAINT "CHK_classes_grade" CHECK ("grade" BETWEEN 5 AND 11), CONSTRAINT "PK_e207aa15404e9b2ce35910f9f7f" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
       `CREATE TABLE "teacher_assignments" ("id" SERIAL NOT NULL, "teacher_id" integer NOT NULL, "class_id" integer NOT NULL, "subject_id" integer NOT NULL, CONSTRAINT "UQ_teacher_assignments_teacher_class_subject" UNIQUE ("teacher_id", "class_id", "subject_id"), CONSTRAINT "PK_49fabd5cfe8fa2beb47a0b0fed9" PRIMARY KEY ("id"))`,
@@ -107,10 +107,10 @@ export class Baseline1794226350236 implements MigrationInterface {
       `CREATE INDEX "IDX_textbook_chunks_topic_id" ON "textbook_chunks" ("topic_id") `,
     );
     await queryRunner.query(
-      `CREATE TYPE "public"."quiz_kind" AS ENUM('practice', 'homework', 'extra_lesson', 'monthly_exam')`,
+      `CREATE TYPE "quiz_kind" AS ENUM('practice', 'homework', 'extra_lesson', 'monthly_exam')`,
     );
     await queryRunner.query(
-      `CREATE TABLE "quizzes" ("id" SERIAL NOT NULL, "topic_id" integer, "class_id" integer, "created_by" integer, "kind" "public"."quiz_kind" NOT NULL, "title" character varying, "time_limit_min" smallint, "shuffle_questions" boolean DEFAULT true, "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), CONSTRAINT "PK_b24f0f7662cf6b3a0e7dba0a1b4" PRIMARY KEY ("id"))`,
+      `CREATE TABLE "quizzes" ("id" SERIAL NOT NULL, "topic_id" integer, "class_id" integer, "created_by" integer, "kind" "quiz_kind" NOT NULL, "title" character varying, "time_limit_min" smallint, "shuffle_questions" boolean DEFAULT true, "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), CONSTRAINT "PK_b24f0f7662cf6b3a0e7dba0a1b4" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
       `CREATE INDEX "IDX_quizzes_topic_id" ON "quizzes" ("topic_id") `,
@@ -119,13 +119,13 @@ export class Baseline1794226350236 implements MigrationInterface {
       `CREATE INDEX "IDX_quizzes_class_id" ON "quizzes" ("class_id") `,
     );
     await queryRunner.query(
-      `CREATE TYPE "public"."question_type" AS ENUM('multiple_choice', 'short_answer')`,
+      `CREATE TYPE "question_type" AS ENUM('multiple_choice', 'short_answer')`,
     );
     await queryRunner.query(
-      `CREATE TYPE "public"."question_status" AS ENUM('draft', 'approved', 'rejected')`,
+      `CREATE TYPE "question_status" AS ENUM('draft', 'approved', 'rejected')`,
     );
     await queryRunner.query(
-      `CREATE TABLE "questions" ("id" SERIAL NOT NULL, "topic_id" integer NOT NULL, "source_chunk_id" integer, "approved_by" integer, "type" "public"."question_type" NOT NULL, "prompt" text NOT NULL, "options" jsonb, "correct_answer" text NOT NULL, "hint" text, "difficulty" smallint, "generated_by_ai" boolean DEFAULT true, "status" "public"."question_status" DEFAULT 'draft', "approved_at" TIMESTAMP WITH TIME ZONE, CONSTRAINT "CHK_questions_difficulty" CHECK ("difficulty" BETWEEN 1 AND 3), CONSTRAINT "PK_08a6d4b0f49ff300bf3a0ca60ac" PRIMARY KEY ("id"))`,
+      `CREATE TABLE "questions" ("id" SERIAL NOT NULL, "topic_id" integer NOT NULL, "source_chunk_id" integer, "approved_by" integer, "type" "question_type" NOT NULL, "prompt" text NOT NULL, "options" jsonb, "correct_answer" text NOT NULL, "hint" text, "difficulty" smallint, "generated_by_ai" boolean DEFAULT true, "status" "question_status" DEFAULT 'draft', "approved_at" TIMESTAMP WITH TIME ZONE, CONSTRAINT "CHK_questions_difficulty" CHECK ("difficulty" BETWEEN 1 AND 3), CONSTRAINT "PK_08a6d4b0f49ff300bf3a0ca60ac" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
       `CREATE INDEX "IDX_questions_topic_id" ON "questions" ("topic_id") `,
@@ -143,10 +143,10 @@ export class Baseline1794226350236 implements MigrationInterface {
       `CREATE INDEX "IDX_exam_sessions_quiz_id" ON "exam_sessions" ("quiz_id") `,
     );
     await queryRunner.query(
-      `CREATE TYPE "public"."attempt_mode" AS ENUM('home', 'exam')`,
+      `CREATE TYPE "attempt_mode" AS ENUM('home', 'exam')`,
     );
     await queryRunner.query(
-      `CREATE TABLE "attempts" ("id" SERIAL NOT NULL, "quiz_id" integer NOT NULL, "student_id" integer NOT NULL, "exam_session_id" integer, "mode" "public"."attempt_mode" NOT NULL, "score_percent" numeric(5,2), "started_at" TIMESTAMP WITH TIME ZONE DEFAULT now(), "finished_at" TIMESTAMP WITH TIME ZONE, CONSTRAINT "PK_295ca261e361fd2fd217754dcac" PRIMARY KEY ("id"))`,
+      `CREATE TABLE "attempts" ("id" SERIAL NOT NULL, "quiz_id" integer NOT NULL, "student_id" integer NOT NULL, "exam_session_id" integer, "mode" "attempt_mode" NOT NULL, "score_percent" numeric(5,2), "started_at" TIMESTAMP WITH TIME ZONE DEFAULT now(), "finished_at" TIMESTAMP WITH TIME ZONE, CONSTRAINT "PK_295ca261e361fd2fd217754dcac" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
       `CREATE INDEX "IDX_attempts_quiz_id" ON "attempts" ("quiz_id") `,
@@ -200,10 +200,10 @@ export class Baseline1794226350236 implements MigrationInterface {
       `CREATE INDEX "IDX_homework_lesson_id" ON "homework" ("lesson_id") `,
     );
     await queryRunner.query(
-      `CREATE TYPE "public"."submission_status" AS ENUM('submitted', 'checked', 'returned', 'late')`,
+      `CREATE TYPE "submission_status" AS ENUM('submitted', 'checked', 'returned', 'late')`,
     );
     await queryRunner.query(
-      `CREATE TABLE "homework_submissions" ("id" SERIAL NOT NULL, "homework_id" integer NOT NULL, "student_id" integer NOT NULL, "checked_by" integer, "answer_text" text, "status" "public"."submission_status" DEFAULT 'submitted', "score" smallint, "feedback" text, "submitted_at" TIMESTAMP WITH TIME ZONE DEFAULT now(), "checked_at" TIMESTAMP WITH TIME ZONE, CONSTRAINT "UQ_homework_submissions_homework_student" UNIQUE ("homework_id", "student_id"), CONSTRAINT "PK_4c570ffb4ce1a34b63afa9d1b26" PRIMARY KEY ("id"))`,
+      `CREATE TABLE "homework_submissions" ("id" SERIAL NOT NULL, "homework_id" integer NOT NULL, "student_id" integer NOT NULL, "checked_by" integer, "answer_text" text, "status" "submission_status" DEFAULT 'submitted', "score" smallint, "feedback" text, "submitted_at" TIMESTAMP WITH TIME ZONE DEFAULT now(), "checked_at" TIMESTAMP WITH TIME ZONE, CONSTRAINT "UQ_homework_submissions_homework_student" UNIQUE ("homework_id", "student_id"), CONSTRAINT "PK_4c570ffb4ce1a34b63afa9d1b26" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
       `CREATE INDEX "IDX_homework_submissions_student_id" ON "homework_submissions" ("student_id") `,
@@ -224,19 +224,19 @@ export class Baseline1794226350236 implements MigrationInterface {
       `CREATE INDEX "IDX_grades_lesson_id" ON "grades" ("lesson_id") `,
     );
     await queryRunner.query(
-      `CREATE TYPE "public"."attendance_status" AS ENUM('present', 'absent', 'late', 'excused')`,
+      `CREATE TYPE "attendance_status" AS ENUM('present', 'absent', 'late', 'excused')`,
     );
     await queryRunner.query(
-      `CREATE TABLE "attendance" ("id" SERIAL NOT NULL, "lesson_id" integer NOT NULL, "student_id" integer NOT NULL, "status" "public"."attendance_status" NOT NULL, "note" character varying, CONSTRAINT "UQ_attendance_lesson_student" UNIQUE ("lesson_id", "student_id"), CONSTRAINT "PK_ee0ffe42c1f1a01e72b725c0cb2" PRIMARY KEY ("id"))`,
+      `CREATE TABLE "attendance" ("id" SERIAL NOT NULL, "lesson_id" integer NOT NULL, "student_id" integer NOT NULL, "status" "attendance_status" NOT NULL, "note" character varying, CONSTRAINT "UQ_attendance_lesson_student" UNIQUE ("lesson_id", "student_id"), CONSTRAINT "PK_ee0ffe42c1f1a01e72b725c0cb2" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
       `CREATE INDEX "IDX_attendance_student_id" ON "attendance" ("student_id") `,
     );
     await queryRunner.query(
-      `CREATE TYPE "public"."flag_status" AS ENUM('open', 'reviewed', 'dismissed')`,
+      `CREATE TYPE "flag_status" AS ENUM('open', 'reviewed', 'dismissed')`,
     );
     await queryRunner.query(
-      `CREATE TABLE "integrity_flags" ("id" SERIAL NOT NULL, "student_id" integer NOT NULL, "topic_id" integer NOT NULL, "exam_session_id" integer NOT NULL, "reviewed_by" integer, "home_score" numeric(5,2), "exam_score" numeric(5,2), "gap" numeric(5,2), "status" "public"."flag_status" DEFAULT 'open', "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), CONSTRAINT "PK_519c19074981f9e2a04d85015a8" PRIMARY KEY ("id"))`,
+      `CREATE TABLE "integrity_flags" ("id" SERIAL NOT NULL, "student_id" integer NOT NULL, "topic_id" integer NOT NULL, "exam_session_id" integer NOT NULL, "reviewed_by" integer, "home_score" numeric(5,2), "exam_score" numeric(5,2), "gap" numeric(5,2), "status" "flag_status" DEFAULT 'open', "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), CONSTRAINT "PK_519c19074981f9e2a04d85015a8" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
       `CREATE INDEX "IDX_integrity_flags_student_id" ON "integrity_flags" ("student_id") `,
@@ -689,117 +689,91 @@ export class Baseline1794226350236 implements MigrationInterface {
       `ALTER TABLE "rooms" DROP CONSTRAINT "FK_ffaac60590923112dad474b21dc"`,
     );
     await queryRunner.query(
-      `DROP INDEX "public"."IDX_exam_session_students_student_id"`,
+      `DROP INDEX "IDX_exam_session_students_student_id"`,
     );
     await queryRunner.query(`DROP TABLE "exam_session_students"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_integrity_flags_student_id"`,
-    );
+    await queryRunner.query(`DROP INDEX "IDX_integrity_flags_student_id"`);
     await queryRunner.query(`DROP TABLE "integrity_flags"`);
-    await queryRunner.query(`DROP TYPE "public"."flag_status"`);
-    await queryRunner.query(`DROP INDEX "public"."IDX_attendance_student_id"`);
+    await queryRunner.query(`DROP TYPE "flag_status"`);
+    await queryRunner.query(`DROP INDEX "IDX_attendance_student_id"`);
     await queryRunner.query(`DROP TABLE "attendance"`);
-    await queryRunner.query(`DROP TYPE "public"."attendance_status"`);
-    await queryRunner.query(`DROP INDEX "public"."IDX_grades_lesson_id"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_grades_teacher_assignment_id"`,
-    );
-    await queryRunner.query(`DROP INDEX "public"."IDX_grades_student_id"`);
+    await queryRunner.query(`DROP TYPE "attendance_status"`);
+    await queryRunner.query(`DROP INDEX "IDX_grades_lesson_id"`);
+    await queryRunner.query(`DROP INDEX "IDX_grades_teacher_assignment_id"`);
+    await queryRunner.query(`DROP INDEX "IDX_grades_student_id"`);
     await queryRunner.query(`DROP TABLE "grades"`);
     await queryRunner.query(`DROP TABLE "attachments"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_homework_submissions_student_id"`,
-    );
+    await queryRunner.query(`DROP INDEX "IDX_homework_submissions_student_id"`);
     await queryRunner.query(`DROP TABLE "homework_submissions"`);
-    await queryRunner.query(`DROP TYPE "public"."submission_status"`);
-    await queryRunner.query(`DROP INDEX "public"."IDX_homework_lesson_id"`);
+    await queryRunner.query(`DROP TYPE "submission_status"`);
+    await queryRunner.query(`DROP INDEX "IDX_homework_lesson_id"`);
     await queryRunner.query(`DROP TABLE "homework"`);
-    await queryRunner.query(`DROP INDEX "public"."IDX_lessons_topic_id"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_lessons_teacher_assignment_id"`,
-    );
+    await queryRunner.query(`DROP INDEX "IDX_lessons_topic_id"`);
+    await queryRunner.query(`DROP INDEX "IDX_lessons_teacher_assignment_id"`);
     await queryRunner.query(`DROP TABLE "lessons"`);
     await queryRunner.query(`DROP TABLE "media_files"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_parent_students_student_id"`,
-    );
+    await queryRunner.query(`DROP INDEX "IDX_parent_students_student_id"`);
     await queryRunner.query(`DROP TABLE "parent_students"`);
-    await queryRunner.query(`DROP INDEX "public"."IDX_ai_messages_session_id"`);
+    await queryRunner.query(`DROP INDEX "IDX_ai_messages_session_id"`);
     await queryRunner.query(`DROP TABLE "ai_messages"`);
-    await queryRunner.query(`DROP INDEX "public"."IDX_ai_sessions_student_id"`);
+    await queryRunner.query(`DROP INDEX "IDX_ai_sessions_student_id"`);
     await queryRunner.query(`DROP TABLE "ai_sessions"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_attempt_answers_attempt_id"`,
-    );
+    await queryRunner.query(`DROP INDEX "IDX_attempt_answers_attempt_id"`);
     await queryRunner.query(`DROP TABLE "attempt_answers"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_attempts_exam_session_id"`,
-    );
-    await queryRunner.query(`DROP INDEX "public"."IDX_attempts_student_id"`);
-    await queryRunner.query(`DROP INDEX "public"."IDX_attempts_quiz_id"`);
+    await queryRunner.query(`DROP INDEX "IDX_attempts_exam_session_id"`);
+    await queryRunner.query(`DROP INDEX "IDX_attempts_student_id"`);
+    await queryRunner.query(`DROP INDEX "IDX_attempts_quiz_id"`);
     await queryRunner.query(`DROP TABLE "attempts"`);
-    await queryRunner.query(`DROP TYPE "public"."attempt_mode"`);
-    await queryRunner.query(`DROP INDEX "public"."IDX_exam_sessions_quiz_id"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_exam_sessions_school_id"`,
-    );
+    await queryRunner.query(`DROP TYPE "attempt_mode"`);
+    await queryRunner.query(`DROP INDEX "IDX_exam_sessions_quiz_id"`);
+    await queryRunner.query(`DROP INDEX "IDX_exam_sessions_school_id"`);
     await queryRunner.query(`DROP TABLE "exam_sessions"`);
     await queryRunner.query(`DROP TABLE "quiz_questions"`);
-    await queryRunner.query(`DROP INDEX "public"."IDX_questions_topic_id"`);
+    await queryRunner.query(`DROP INDEX "IDX_questions_topic_id"`);
     await queryRunner.query(`DROP TABLE "questions"`);
-    await queryRunner.query(`DROP TYPE "public"."question_status"`);
-    await queryRunner.query(`DROP TYPE "public"."question_type"`);
-    await queryRunner.query(`DROP INDEX "public"."IDX_quizzes_class_id"`);
-    await queryRunner.query(`DROP INDEX "public"."IDX_quizzes_topic_id"`);
+    await queryRunner.query(`DROP TYPE "question_status"`);
+    await queryRunner.query(`DROP TYPE "question_type"`);
+    await queryRunner.query(`DROP INDEX "IDX_quizzes_class_id"`);
+    await queryRunner.query(`DROP INDEX "IDX_quizzes_topic_id"`);
     await queryRunner.query(`DROP TABLE "quizzes"`);
-    await queryRunner.query(`DROP TYPE "public"."quiz_kind"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_textbook_chunks_topic_id"`,
-    );
+    await queryRunner.query(`DROP TYPE "quiz_kind"`);
+    await queryRunner.query(`DROP INDEX "IDX_textbook_chunks_topic_id"`);
     await queryRunner.query(`DROP TABLE "textbook_chunks"`);
-    await queryRunner.query(`DROP INDEX "public"."IDX_topic_mastery_topic_id"`);
+    await queryRunner.query(`DROP INDEX "IDX_topic_mastery_topic_id"`);
     await queryRunner.query(`DROP TABLE "topic_mastery"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_class_students_student_id"`,
-    );
+    await queryRunner.query(`DROP INDEX "IDX_class_students_student_id"`);
     await queryRunner.query(`DROP TABLE "class_students"`);
     await queryRunner.query(
-      `DROP INDEX "public"."IDX_timetable_slots_teacher_assignment_id"`,
+      `DROP INDEX "IDX_timetable_slots_teacher_assignment_id"`,
     );
     await queryRunner.query(`DROP TABLE "timetable_slots"`);
-    await queryRunner.query(`DROP INDEX "public"."IDX_terms_academic_year_id"`);
+    await queryRunner.query(`DROP INDEX "IDX_terms_academic_year_id"`);
     await queryRunner.query(`DROP TABLE "terms"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_teacher_assignments_class_id"`,
-    );
+    await queryRunner.query(`DROP INDEX "IDX_teacher_assignments_class_id"`);
     await queryRunner.query(`DROP TABLE "teacher_assignments"`);
     await queryRunner.query(`DROP TABLE "classes"`);
-    await queryRunner.query(`DROP TYPE "public"."shift"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_academic_years_school_id"`,
-    );
+    await queryRunner.query(`DROP TYPE "shift"`);
+    await queryRunner.query(`DROP INDEX "IDX_academic_years_school_id"`);
     await queryRunner.query(`DROP TABLE "academic_years"`);
-    await queryRunner.query(`DROP INDEX "public"."IDX_notifications_user_id"`);
+    await queryRunner.query(`DROP INDEX "IDX_notifications_user_id"`);
     await queryRunner.query(`DROP TABLE "notifications"`);
     await queryRunner.query(
-      `DROP INDEX "public"."IDX_support_group_students_student_id"`,
+      `DROP INDEX "IDX_support_group_students_student_id"`,
     );
     await queryRunner.query(`DROP TABLE "support_group_students"`);
-    await queryRunner.query(
-      `DROP INDEX "public"."IDX_support_groups_school_id"`,
-    );
+    await queryRunner.query(`DROP INDEX "IDX_support_groups_school_id"`);
     await queryRunner.query(`DROP TABLE "support_groups"`);
-    await queryRunner.query(`DROP INDEX "public"."IDX_users_school_id"`);
+    await queryRunner.query(`DROP INDEX "IDX_users_school_id"`);
     await queryRunner.query(`DROP TABLE "users"`);
-    await queryRunner.query(`DROP TYPE "public"."user_role"`);
+    await queryRunner.query(`DROP TYPE "user_role"`);
     await queryRunner.query(`DROP TABLE "topics"`);
     await queryRunner.query(`DROP TABLE "chapters"`);
     await queryRunner.query(`DROP TABLE "textbooks"`);
     await queryRunner.query(`DROP TABLE "subjects"`);
-    await queryRunner.query(`DROP INDEX "public"."IDX_rooms_school_id"`);
+    await queryRunner.query(`DROP INDEX "IDX_rooms_school_id"`);
     await queryRunner.query(`DROP TABLE "rooms"`);
-    await queryRunner.query(`DROP TYPE "public"."room_type"`);
+    await queryRunner.query(`DROP TYPE "room_type"`);
     await queryRunner.query(`DROP TABLE "schools"`);
-    await queryRunner.query(`DROP TYPE "public"."school_type"`);
+    await queryRunner.query(`DROP TYPE "school_type"`);
   }
 }
