@@ -7,7 +7,10 @@
  * 25 students and their parents, five teachers, a weekly timetable (algebra five days a week),
  * this week's lessons (algebra lessons follow the textbook topics in order) and, for every
  * algebra lesson, a homework quiz that closes at QUIZ_DEADLINE_TIME on the lesson's day.
+ * Then it generates AI questions for every algebra topic that has fewer than
+ * MIN_QUESTIONS usable ones, and approves them when DEMO_MODE=true.
  */
+import { ConfigService } from "@nestjs/config";
 import * as bcrypt from "bcrypt";
 import { EntityManager } from "typeorm";
 import {
@@ -17,7 +20,12 @@ import {
   localDate,
   quizDeadlineTime,
 } from "../common/school-time";
+import { readAiConfig } from "../modules/ai/ai.config";
+import { AiUnavailableException } from "../modules/ai/ai.errors";
+import { createLlmService } from "../modules/ai/ai.module";
+import { demoModeEnabled } from "../modules/demo/demo.service";
 import { BCRYPT_ROUNDS } from "../modules/identity/users/users.service";
+import { QuestionGenerationService } from "../modules/learning/question-generation/question-generation.service";
 import dataSource from "./data-source";
 import { upsert } from "./upsert";
 
@@ -125,6 +133,9 @@ const STUDENTS: [string, string, "m" | "f"][] = [
 ];
 const MOTHERS = ["Gulnora", "Dilfuza", "Nodira", "Mavluda", "Zulfiya"];
 const FATHERS = ["Akmal", "Rustam", "Sherzod", "Anvar", "Bahrom"];
+
+/** A topic with at least this many draft or approved questions is not generated again. */
+const MIN_QUESTIONS = 10;
 
 const studentPhone = (i: number) =>
   `+9989010010${String(i + 1).padStart(2, "0")}`;
@@ -352,7 +363,7 @@ async function seed(manager: EntityManager, passwordHash: string) {
       }
     }
   }
-  return { schoolId, classId, monday, quizzes, teacherIds };
+  return { schoolId, classId, monday, quizzes, teacherIds, topics };
 }
 
 /** One homework quiz per algebra lesson, linked through the homework row (lesson → quiz → due_at). */
@@ -415,6 +426,47 @@ async function seedLessonQuiz(
   return quizId;
 }
 
+/** AI questions for each topic; approved for students when DEMO_MODE=true. */
+async function seedQuestions(
+  topics: { id: number; title: string }[],
+  teacherId: number,
+): Promise<void> {
+  const generation = new QuestionGenerationService(
+    createLlmService(readAiConfig(new ConfigService())),
+    dataSource,
+  );
+  const autoApprove = demoModeEnabled();
+  console.log(
+    `\nQuestions (${autoApprove ? "DEMO_MODE: auto-approved" : "drafts for teacher review"}):`,
+  );
+  for (const topic of topics) {
+    const [{ usable }] = await dataSource.query(
+      `SELECT count(*)::int AS usable FROM questions WHERE topic_id = $1 AND status IN ('draft', 'approved')`,
+      [topic.id],
+    );
+    let line = `  topic ${topic.id} "${topic.title}": `;
+    if (usable >= MIN_QUESTIONS) {
+      line += `${usable} already, skipped generation`;
+    } else {
+      try {
+        const result = await generation.generate(topic.id);
+        line += `${result.generated} generated, ${result.saved} saved, ${result.dropped.length} dropped`;
+      } catch (error) {
+        if (!(error instanceof AiUnavailableException)) throw error;
+        console.warn(
+          `${line}skipped (${error.message}). Run npm run seed:mvp again once AI is configured.`,
+        );
+        continue;
+      }
+    }
+    if (autoApprove) {
+      const approved = await generation.approveAll(topic.id, teacherId);
+      if (approved) line += `, ${approved} approved`;
+    }
+    console.log(line);
+  }
+}
+
 async function main() {
   const password = process.env.SEED_DEMO_PASSWORD?.trim();
   if (!password || password.length < 8) {
@@ -437,6 +489,7 @@ async function main() {
         `  lesson ${quiz.lessonId} → quiz ${quiz.quizId} (${quiz.topic})`,
       );
     }
+    await seedQuestions(result.topics, result.teacherIds.ALGEBRA);
     console.log(
       "\nDemo logins (password: the SEED_DEMO_PASSWORD value in .env):",
     );

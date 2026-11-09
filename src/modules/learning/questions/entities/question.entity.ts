@@ -63,6 +63,18 @@ export class Question {
   @Column({ name: "hint", type: "text", nullable: true })
   hint: string | null;
 
+  /** Three hint levels, weakest first: nudge, clue, worked similar example. Never the answer. */
+  @Column({ name: "hints", type: "jsonb", nullable: true })
+  hints: string[] | null;
+
+  /** Why the correct answer is right; shown after the student answers */
+  @Column({ name: "explanation", type: "text", nullable: true })
+  explanation: string | null;
+
+  /** Multiple choice only: wrong option text → the misconception choosing it shows */
+  @Column({ name: "option_misconceptions", type: "jsonb", nullable: true })
+  optionMisconceptions: Record<string, string> | null;
+
   @Column({ name: "difficulty", type: "smallint", nullable: true })
   difficulty: number | null;
 

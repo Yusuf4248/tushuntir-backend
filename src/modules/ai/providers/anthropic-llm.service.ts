@@ -34,8 +34,8 @@ export class AnthropicLlmService extends LlmService {
   async chat(request: ChatRequest): Promise<string> {
     let message: Anthropic.Message;
     try {
-      message = await this.send(request, (client, params) =>
-        client.messages.create(params),
+      message = await this.send(request, (client, params, options) =>
+        client.messages.create(params, options),
       );
     } catch (error) {
       if (error instanceof AiUnavailableException) throw error;
@@ -60,14 +60,17 @@ export class AnthropicLlmService extends LlmService {
       try {
         const message = await this.send(
           { ...request, maxTokens },
-          (client, params) =>
-            client.messages.parse({
-              ...params,
-              output_config: {
-                ...params.output_config,
-                format: zodOutputFormat(request.schema),
+          (client, params, options) =>
+            client.messages.parse(
+              {
+                ...params,
+                output_config: {
+                  ...params.output_config,
+                  format: zodOutputFormat(request.schema),
+                },
               },
-            }),
+              options,
+            ),
         );
         const parsed = request.schema.safeParse(message.parsed_output);
         if (parsed.success) return parsed.data;
@@ -98,19 +101,24 @@ export class AnthropicLlmService extends LlmService {
     call: (
       client: Anthropic,
       params: Anthropic.MessageCreateParamsNonStreaming,
+      options: Anthropic.RequestOptions,
     ) => Promise<M>,
   ): Promise<M> {
     if (!this.client) throw new AiUnavailableException("AI_API_KEY is not set");
     const started = Date.now();
     let message: M;
     try {
-      message = await call(this.client, {
-        model: this.config.model,
-        max_tokens: request.maxTokens ?? DEFAULT_MAX_TOKENS,
-        system: request.system,
-        messages: request.messages,
-        output_config: { effort: request.effort ?? "low" },
-      });
+      message = await call(
+        this.client,
+        {
+          model: this.config.model,
+          max_tokens: request.maxTokens ?? DEFAULT_MAX_TOKENS,
+          system: request.system,
+          messages: request.messages,
+          output_config: { effort: request.effort ?? "low" },
+        },
+        { timeout: request.timeoutMs ?? this.config.timeoutMs },
+      );
     } catch (error) {
       throw this.toAiError(request.purpose, error);
     }

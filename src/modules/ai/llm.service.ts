@@ -14,6 +14,8 @@ export interface ChatRequest {
   messages: ChatMessage[];
   maxTokens?: number;
   effort?: Effort;
+  /** Overrides AI_TIMEOUT_MS for slow calls such as question generation. */
+  timeoutMs?: number;
 }
 
 export interface ChatJsonRequest<T> extends ChatRequest {

@@ -21,6 +21,7 @@ import { LessonsModule } from "./modules/daily/lessons/lessons.module";
 import { AttendanceModule } from "./modules/daily/attendance/attendance.module";
 import { GradesModule } from "./modules/daily/grades/grades.module";
 import { QuestionsModule } from "./modules/learning/questions/questions.module";
+import { QuestionGenerationModule } from "./modules/learning/question-generation/question-generation.module";
 import { QuizzesModule } from "./modules/learning/quizzes/quizzes.module";
 import { QuizQuestionsModule } from "./modules/learning/quiz-questions/quiz-questions.module";
 import { HomeworkModule } from "./modules/homework/homework/homework.module";
@@ -67,6 +68,7 @@ import { FileModule } from "./shared/file/file.module";
     AttendanceModule,
     GradesModule,
     QuestionsModule,
+    QuestionGenerationModule,
     QuizzesModule,
     QuizQuestionsModule,
     HomeworkModule,
