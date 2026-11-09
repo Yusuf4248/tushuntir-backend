@@ -1,5 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import {
+  ArrayMaxSize,
+  IsArray,
   IsBoolean,
   IsInt,
   IsNotEmpty,
@@ -37,4 +39,18 @@ export class CreateTopicDto {
   @IsOptional()
   @IsBoolean()
   isExamTopic?: boolean | null;
+
+  @ApiPropertyOptional({
+    example: ["Faqat suratlar qo'shiladi, maxraj o'zgarmaydi"],
+    description: "Main ideas a student must be able to explain",
+    type: [String],
+    nullable: true,
+  })
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(20)
+  @IsString({ each: true })
+  @IsNotEmpty({ each: true })
+  @MaxLength(300, { each: true })
+  keyIdeas?: string[] | null;
 }

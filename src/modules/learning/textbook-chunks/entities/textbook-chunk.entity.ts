@@ -1,3 +1,4 @@
+import { ApiHideProperty } from "@nestjs/swagger";
 import {
   Column,
   Entity,
@@ -7,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { SchoolScope } from "../../../../common/scope/school-scope";
+import { EMBEDDING_DIMENSION } from "../../../ai/ai.config";
 import { Topic } from "../../topics/entities/topic.entity";
 
 @SchoolScope("global")
@@ -26,6 +28,22 @@ export class TextbookChunk {
   @Column({ name: "page", type: "smallint", nullable: true })
   page: number | null;
 
+  /** Order of the chunk inside its topic (set by content:load) */
+  @Column({ name: "position", type: "smallint", nullable: true })
+  position: number | null;
+
   @Column({ name: "content", type: "text" })
   content: string;
+
+  /** pgvector embedding for retrieval; written by content:load, never returned by the API */
+  @ApiHideProperty()
+  @Index("IDX_textbook_chunks_embedding_hnsw", { synchronize: false })
+  @Column({
+    name: "embedding",
+    type: "vector",
+    length: EMBEDDING_DIMENSION,
+    nullable: true,
+    select: false,
+  })
+  embedding?: string | null;
 }

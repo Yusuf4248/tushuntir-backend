@@ -26,6 +26,19 @@ export class CreateTextbookChunkDto {
   @Max(2000)
   page?: number | null;
 
+  @ApiPropertyOptional({
+    example: 1,
+    minimum: 1,
+    maximum: 500,
+    description: "Order of the chunk inside its topic",
+    nullable: true,
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(500)
+  position?: number | null;
+
   @ApiProperty({
     example:
       "To add fractions with the same denominator, add the numerators...",

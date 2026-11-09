@@ -3,8 +3,9 @@ import { ConfigService } from "@nestjs/config";
 import { AI_CONFIG, AiConfig, readAiConfig } from "./ai.config";
 import { LlmService } from "./llm.service";
 import { AnthropicLlmService } from "./providers/anthropic-llm.service";
+import { RetrievalService } from "./retrieval.service";
 
-function createLlmService(config: AiConfig): LlmService {
+export function createLlmService(config: AiConfig): LlmService {
   switch (config.provider) {
     case "anthropic":
       return new AnthropicLlmService(config);
@@ -20,7 +21,8 @@ function createLlmService(config: AiConfig): LlmService {
   providers: [
     { provide: AI_CONFIG, useFactory: readAiConfig, inject: [ConfigService] },
     { provide: LlmService, useFactory: createLlmService, inject: [AI_CONFIG] },
+    RetrievalService,
   ],
-  exports: [LlmService, AI_CONFIG],
+  exports: [LlmService, RetrievalService, AI_CONFIG],
 })
 export class AiModule {}

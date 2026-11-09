@@ -35,4 +35,8 @@ export class Topic {
     default: false,
   })
   isExamTopic: boolean | null;
+
+  /** Main ideas a student must be able to explain (used by the voice checkpoint) */
+  @Column({ name: "key_ideas", type: "jsonb", nullable: true })
+  keyIdeas: string[] | null;
 }
