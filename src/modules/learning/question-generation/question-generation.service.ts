@@ -7,6 +7,7 @@ import {
 import { DataSource } from "typeorm";
 import * as z from "zod";
 import { QuestionStatus, QuestionType } from "../../../common/enums";
+import { shuffle } from "../../../common/shuffle";
 import { LlmService } from "../../ai/llm.service";
 import {
   PromptChunk,
@@ -278,7 +279,10 @@ export class QuestionGenerationService {
           ? QuestionType.MULTIPLE_CHOICE
           : QuestionType.SHORT_ANSWER,
         prompt: q.prompt.trim(),
-        options: multipleChoice ? q.options.map((o) => o.trim()) : null,
+        // Models tend to list the correct option first.
+        options: multipleChoice
+          ? shuffle(q.options.map((o) => o.trim()))
+          : null,
         correctAnswer: answer,
         hint: q.hints[0].trim(),
         hints: q.hints.map((h) => h.trim()),

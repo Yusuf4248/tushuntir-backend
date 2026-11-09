@@ -41,6 +41,7 @@ import { SupportGroupStudentsModule } from "./modules/support/support-group-stud
 import { NotificationsModule } from "./modules/support/notifications/notifications.module";
 import { AiModule } from "./modules/ai/ai.module";
 import { DemoModule } from "./modules/demo/demo.module";
+import { MeModule } from "./modules/me/me.module";
 import { MailModule } from "./shared/mail/mail.module";
 import { FileModule } from "./shared/file/file.module";
 
@@ -88,6 +89,7 @@ import { FileModule } from "./shared/file/file.module";
     NotificationsModule,
     AiModule,
     DemoModule,
+    MeModule,
     MailModule,
     FileModule,
   ],
