@@ -40,7 +40,7 @@ export class VectorExtensionInitializer implements OnApplicationBootstrap {
         password: config.getOrThrow<string>("PG_PASSWORD"),
         database: config.getOrThrow<string>("PG_DB"),
         autoLoadEntities: true,
-        synchronize: true,
+        synchronize: false,
       }),
     }),
   ],
