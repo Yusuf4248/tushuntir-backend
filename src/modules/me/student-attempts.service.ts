@@ -38,7 +38,7 @@ const ShortAnswerVerdict = z.object({
   feedback: z.string(),
 });
 
-interface AttemptRow {
+export interface AttemptRow {
   id: number;
   quiz_id: number;
   title: string | null;
@@ -49,7 +49,7 @@ interface AttemptRow {
   due_at: Date | null;
 }
 
-interface AnswerRow {
+export interface AnswerRow {
   answerId: number;
   questionId: number;
   answer: string | null;
@@ -64,6 +64,11 @@ interface AnswerRow {
   hints: string[] | null;
   explanation: string | null;
   optionMisconceptions: Record<string, string> | null;
+  topicId: number;
+  difficulty: number | null;
+  page: number | null;
+  mistakeExplanation: string | null;
+  fixedAt: Date | null;
 }
 
 /** Write side of the student quiz loop: start, answer, hint, submit. Students only see their own attempts. */
@@ -115,7 +120,7 @@ export class StudentAttemptsService {
       );
       if (open) return open.id as number;
       const pool: { id: number }[] = await manager.query(
-        `SELECT id FROM questions WHERE topic_id = $1 AND status = $2`,
+        `SELECT id FROM questions WHERE topic_id = $1 AND status = $2 AND variant_of_id IS NULL`,
         [topicId, QuestionStatus.APPROVED],
       );
       if (!pool.length) {
@@ -335,13 +340,13 @@ export class StudentAttemptsService {
   }
 
   /** Option order is shuffled per attempt answer, so it differs between students but stays stable. */
-  private optionsFor(row: AnswerRow): string[] | null {
+  optionsFor(row: Pick<AnswerRow, "options" | "answerId">): string[] | null {
     return row.options ? seededShuffle(row.options, row.answerId) : null;
   }
 
   /** Normalized match first; the AI decides only when that fails. If the AI is down, the match result stands. */
-  private async checkShortAnswer(
-    row: AnswerRow,
+  async checkShortAnswer(
+    row: Pick<AnswerRow, "prompt" | "correctAnswer" | "questionId">,
     given: string,
   ): Promise<{ isCorrect: boolean; feedback: string | null }> {
     if (answersMatch(given, row.correctAnswer)) {
@@ -379,10 +384,7 @@ export class StudentAttemptsService {
     }
   }
 
-  private async ownAttempt(
-    attemptId: number,
-    user: AuthUser,
-  ): Promise<AttemptRow> {
+  async ownAttempt(attemptId: number, user: AuthUser): Promise<AttemptRow> {
     const [attempt]: AttemptRow[] = await this.dataSource.query(
       `SELECT attempt.id, attempt.quiz_id, quiz.title, quiz.topic_id, attempt.started_at,
               attempt.finished_at, attempt.score_percent,
@@ -414,19 +416,19 @@ export class StudentAttemptsService {
     }
   }
 
-  private answers(
-    manager: EntityManager,
-    attemptId: number,
-  ): Promise<AnswerRow[]> {
+  answers(manager: EntityManager, attemptId: number): Promise<AnswerRow[]> {
     return manager.query(
       `SELECT answer.id AS "answerId", answer.question_id AS "questionId", answer.answer,
               answer.is_correct AS "isCorrect", answer.hints_used AS "hintsUsed",
               answer.ai_feedback AS "aiFeedback",
               question.type, question.prompt, question.options,
               question.correct_answer AS "correctAnswer", question.hint, question.hints,
-              question.explanation, question.option_misconceptions AS "optionMisconceptions"
+              question.explanation, question.option_misconceptions AS "optionMisconceptions",
+              question.topic_id AS "topicId", question.difficulty, chunk.page,
+              answer.mistake_explanation AS "mistakeExplanation", answer.fixed_at AS "fixedAt"
          FROM attempt_answers answer
          JOIN questions question ON question.id = answer.question_id
+         LEFT JOIN textbook_chunks chunk ON chunk.id = question.source_chunk_id
         WHERE answer.attempt_id = $1
         ORDER BY answer.id`,
       [attemptId],

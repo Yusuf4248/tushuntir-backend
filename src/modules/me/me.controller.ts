@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Logger,
   HttpCode,
   HttpStatus,
   Param,
@@ -29,7 +30,9 @@ import {
   SubmitResultDto,
   TodayDto,
 } from "./dto/me-responses.dto";
+import { ConfirmDto, ConfirmResultDto, ReviewDto } from "./dto/review.dto";
 import { StudentAttemptsService } from "./student-attempts.service";
+import { StudentReviewService } from "./student-review.service";
 import { StudentScheduleService } from "./student-schedule.service";
 
 @ApiTags("Student · Me")
@@ -38,9 +41,12 @@ import { StudentScheduleService } from "./student-schedule.service";
 @Roles(UserRole.STUDENT)
 @Controller("me")
 export class MeController {
+  private readonly logger = new Logger(MeController.name);
+
   constructor(
     private readonly schedule: StudentScheduleService,
     private readonly attempts: StudentAttemptsService,
+    private readonly reviews: StudentReviewService,
   ) {}
 
   @Get("today")
@@ -125,8 +131,53 @@ export class MeController {
       "Updates topic_mastery (home score); submitting again returns the same result.",
   })
   @ApiOkResponse({ type: SubmitResultDto })
-  submit(@Param("id", ParseIntPipe) id: number, @CurrentUser() user: AuthUser) {
-    return this.attempts.submit(id, user);
+  async submit(
+    @Param("id", ParseIntPipe) id: number,
+    @CurrentUser() user: AuthUser,
+  ) {
+    const result = await this.attempts.submit(id, user);
+    if (result.correctCount < result.totalQuestions) {
+      // Prepare the mistake review (explanations, confirmation questions) in the background.
+      this.reviews
+        .review(id, user)
+        .catch((error: Error) =>
+          this.logger.warn(
+            `review prewarm for attempt ${id} failed: ${error.message}`,
+          ),
+        );
+    }
+    return result;
+  }
+
+  @Get("attempts/:id/review")
+  @ApiOperation({
+    summary: "Mistake review of a submitted attempt",
+    description:
+      "For each wrong or unanswered question: the student's answer, the correct answer, a short explanation of the " +
+      "specific misconception, the textbook page, and one confirmation question (same skill, new numbers). " +
+      "Explanations and confirmation questions are generated once and cached. 409 before submit.",
+  })
+  @ApiOkResponse({ type: ReviewDto })
+  review(@Param("id", ParseIntPipe) id: number, @CurrentUser() user: AuthUser) {
+    return this.reviews.review(id, user);
+  }
+
+  @Post("attempts/:id/confirm/:questionId")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: "Answer a mistake's confirmation question",
+    description:
+      "`questionId` is the original question (the mistake). A correct answer marks the mistake as fixed; " +
+      "a wrong one returns a hint and can be retried.",
+  })
+  @ApiOkResponse({ type: ConfirmResultDto })
+  confirm(
+    @Param("id", ParseIntPipe) id: number,
+    @Param("questionId", ParseIntPipe) questionId: number,
+    @Body() dto: ConfirmDto,
+    @CurrentUser() user: AuthUser,
+  ) {
+    return this.reviews.confirm(id, questionId, dto.answer, user);
   }
 
   @Get("mastery")

@@ -441,7 +441,7 @@ async function seedQuestions(
   );
   for (const topic of topics) {
     const [{ usable }] = await dataSource.query(
-      `SELECT count(*)::int AS usable FROM questions WHERE topic_id = $1 AND status IN ('draft', 'approved')`,
+      `SELECT count(*)::int AS usable FROM questions WHERE topic_id = $1 AND status IN ('draft', 'approved') AND variant_of_id IS NULL`,
       [topic.id],
     );
     let line = `  topic ${topic.id} "${topic.title}": `;

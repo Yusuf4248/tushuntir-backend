@@ -14,6 +14,7 @@ import {
   QUESTION_GENERATION_SYSTEM,
   questionGenerationMessage,
 } from "../../ai/prompts/question-generation.prompt";
+import { confirmationQuestionMessage } from "../../ai/prompts/confirmation-question.prompt";
 import {
   QUESTION_SELF_CHECK_SYSTEM,
   questionSelfCheckMessage,
@@ -32,6 +33,10 @@ export function statesResult(text: string, answer: string): boolean {
     .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
     .replace(/\s+/g, "\\s*");
   return new RegExp(`=\\s*${pattern}(?![\\w/^]|[.,]\\d)`, "i").test(text);
+}
+
+function questionKey(prompt: string, options: string[]): string {
+  return [prompt, ...[...options].sort()].map(normalizeAnswer).join("|");
 }
 
 /** ~25 questions per run: per difficulty, how many multiple choice and short answer. */
@@ -55,11 +60,28 @@ const GeneratedQuestion = z.object({
   source_chunk_id: z.number(),
 });
 const GeneratedBatch = z.object({ questions: z.array(GeneratedQuestion) });
+const VariantBatch = z.object({
+  questions: z.array(GeneratedQuestion.extend({ original_id: z.number() })),
+});
 const SelfCheck = z.object({
   answers: z.array(z.object({ index: z.number(), answer: z.string() })),
 });
 
-type Generated = z.infer<typeof GeneratedQuestion> & { difficulty: number };
+type Generated = z.infer<typeof GeneratedQuestion> & {
+  difficulty: number;
+  variantOfId?: number;
+};
+
+/** A question a student got wrong, as input for its confirmation question. */
+export interface VariantSource {
+  id: number;
+  topicId: number;
+  type: string;
+  prompt: string;
+  options: string[] | null;
+  correctAnswer: string;
+  difficulty: number | null;
+}
 
 export interface DroppedQuestion {
   prompt: string;
@@ -89,21 +111,7 @@ export class QuestionGenerationService {
   ) {}
 
   async generate(topicId: number): Promise<GenerationResult> {
-    const [topic]: { id: number; title: string; key_ideas: string[] | null }[] =
-      await this.dataSource.query(
-        `SELECT id, title, key_ideas FROM topics WHERE id = $1`,
-        [topicId],
-      );
-    if (!topic) throw new NotFoundException(`Topic ${topicId} not found`);
-    const chunks: PromptChunk[] = await this.dataSource.query(
-      `SELECT id, page, content FROM textbook_chunks WHERE topic_id = $1 ORDER BY position NULLS LAST, id`,
-      [topicId],
-    );
-    if (!chunks.length) {
-      throw new BadRequestException(
-        `Topic ${topicId} has no textbook text; load it with npm run content:load`,
-      );
-    }
+    const { topic, chunks } = await this.loadTopic(topicId);
 
     const batches = await Promise.all(
       PLAN.map(async (plan) => {
@@ -162,6 +170,86 @@ export class QuestionGenerationService {
     };
   }
 
+  /**
+   * One confirmation question per original (same skill, new numbers), self-checked and saved
+   * as a draft with variant_of_id set, which also caches it. Returns original id → variant;
+   * originals whose variant failed the checks are missing from the map.
+   */
+  async generateVariants(
+    originals: VariantSource[],
+  ): Promise<Map<number, Question>> {
+    const variants = new Map<number, Question>();
+    const byTopic = new Map<number, VariantSource[]>();
+    for (const original of originals) {
+      byTopic.set(original.topicId, [
+        ...(byTopic.get(original.topicId) ?? []),
+        original,
+      ]);
+    }
+    for (const [topicId, items] of byTopic) {
+      const { topic, chunks } = await this.loadTopic(topicId);
+      const batch = await this.llm.chatJson({
+        purpose: "confirmation-questions",
+        system: QUESTION_GENERATION_SYSTEM,
+        messages: [
+          {
+            role: "user",
+            content: confirmationQuestionMessage({
+              topicTitle: topic.title,
+              chunks,
+              originals: items,
+            }),
+          },
+        ],
+        schema: VariantBatch,
+        effort: "medium",
+        maxTokens: 16_000,
+        timeoutMs: GENERATION_TIMEOUT_MS,
+      });
+      const wanted = new Map(items.map((item) => [item.id, item]));
+      const chunkIds = new Set(chunks.map((c) => c.id));
+      // A variant may not repeat its original.
+      const seen = new Set(
+        items.map((item) => questionKey(item.prompt, item.options ?? [])),
+      );
+      const valid: Generated[] = [];
+      for (const { original_id, ...question } of batch.questions) {
+        const original = wanted.get(original_id);
+        if (
+          !original ||
+          question.type !== original.type ||
+          valid.some((v) => v.variantOfId === original_id) ||
+          answersMatch(question.correct_answer, original.correctAnswer)
+        ) {
+          continue;
+        }
+        const candidate: Generated = {
+          ...question,
+          difficulty: original.difficulty ?? 2,
+          variantOfId: original_id,
+        };
+        const reason = this.problemWith(candidate, chunkIds, seen);
+        if (reason) {
+          this.logger.warn(
+            `variant of question ${original_id} dropped: ${reason}`,
+          );
+        } else {
+          valid.push(candidate);
+        }
+      }
+      const checked = await this.selfCheck(valid, chunks);
+      for (const failed of checked.failed) {
+        this.logger.warn(`variant dropped by self-check: ${failed.reason}`);
+      }
+      const saved = checked.passed.length
+        ? await this.save(topicId, checked.passed)
+        : [];
+      for (const question of saved)
+        variants.set(question.variantOfId!, question);
+    }
+    return variants;
+  }
+
   /** Approves every draft question of a topic; returns how many changed. */
   async approveAll(topicId: number, userId: number): Promise<number> {
     const [topic] = await this.dataSource.query(
@@ -178,6 +266,28 @@ export class QuestionGenerationService {
     return approved;
   }
 
+  private async loadTopic(topicId: number): Promise<{
+    topic: { id: number; title: string; key_ideas: string[] | null };
+    chunks: PromptChunk[];
+  }> {
+    const [topic]: { id: number; title: string; key_ideas: string[] | null }[] =
+      await this.dataSource.query(
+        `SELECT id, title, key_ideas FROM topics WHERE id = $1`,
+        [topicId],
+      );
+    if (!topic) throw new NotFoundException(`Topic ${topicId} not found`);
+    const chunks: PromptChunk[] = await this.dataSource.query(
+      `SELECT id, page, content FROM textbook_chunks WHERE topic_id = $1 ORDER BY position NULLS LAST, id`,
+      [topicId],
+    );
+    if (!chunks.length) {
+      throw new BadRequestException(
+        `Topic ${topicId} has no textbook text; load it with npm run content:load`,
+      );
+    }
+    return { topic, chunks };
+  }
+
   /** Structural checks; returns the reason to drop the question, or null to keep it. */
   private problemWith(
     question: Generated,
@@ -187,7 +297,8 @@ export class QuestionGenerationService {
     const prompt = question.prompt.trim();
     const answer = question.correct_answer.trim();
     if (!prompt || !answer) return "empty prompt or answer";
-    const key = normalizeAnswer(prompt);
+    // Same wording with different options is a different question.
+    const key = questionKey(prompt, question.options);
     if (seen.has(key)) return "duplicate question";
     if (question.hints.length !== 3 || question.hints.some((h) => !h.trim())) {
       return "needs exactly 3 hints";
@@ -311,6 +422,7 @@ export class QuestionGenerationService {
           : null,
         difficulty: q.difficulty,
         sourceChunkId: q.source_chunk_id,
+        variantOfId: q.variantOfId ?? null,
         generatedByAi: true,
         status: QuestionStatus.DRAFT,
       });

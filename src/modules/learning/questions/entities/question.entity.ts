@@ -35,6 +35,15 @@ export class Question {
   @JoinColumn({ name: "source_chunk_id" })
   sourceChunk: TextbookChunk | null;
 
+  /** Set on a confirmation question: the question whose mistake it confirms. Never in quiz pools. */
+  @Index("IDX_questions_variant_of_id")
+  @Column({ name: "variant_of_id", type: "int", nullable: true })
+  variantOfId: number | null;
+
+  @ManyToOne(() => Question, { nullable: true, onDelete: "CASCADE" })
+  @JoinColumn({ name: "variant_of_id" })
+  variantOf: Question | null;
+
   @Column({ name: "approved_by", type: "int", nullable: true })
   approvedBy: number | null;
 

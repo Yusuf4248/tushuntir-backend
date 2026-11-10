@@ -31,6 +31,17 @@ export class CreateQuestionDto {
   @Min(1)
   sourceChunkId?: number | null;
 
+  @ApiPropertyOptional({
+    example: null,
+    description:
+      "Confirmation question only: the question whose mistake it confirms (kept out of quiz pools)",
+    nullable: true,
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  variantOfId?: number | null;
+
   @ApiProperty({ example: QuestionType.MULTIPLE_CHOICE, enum: QuestionType })
   @IsEnum(QuestionType)
   type: QuestionType;

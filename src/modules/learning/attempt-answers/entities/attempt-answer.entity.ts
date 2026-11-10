@@ -54,4 +54,12 @@ export class AttemptAnswer {
   /** AI check for short answers */
   @Column({ name: "ai_feedback", type: "text", nullable: true })
   aiFeedback: string | null;
+
+  /** Short explanation of the student's specific mistake (cached by the mistake review) */
+  @Column({ name: "mistake_explanation", type: "text", nullable: true })
+  mistakeExplanation: string | null;
+
+  /** When the student answered the mistake's confirmation question correctly */
+  @Column({ name: "fixed_at", type: "timestamptz", nullable: true })
+  fixedAt: Date | null;
 }

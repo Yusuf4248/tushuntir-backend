@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import {
+  IsDateString,
   IsBoolean,
   IsInt,
   IsNumber,
@@ -52,4 +53,22 @@ export class CreateAttemptAnswerDto {
   @IsOptional()
   @IsString()
   aiFeedback?: string | null;
+
+  @ApiPropertyOptional({
+    example: "Minus ishorasini faqat birinchi hadga qo'llagansiz.",
+    description: "Short explanation of the student's specific mistake",
+    nullable: true,
+  })
+  @IsOptional()
+  @IsString()
+  mistakeExplanation?: string | null;
+
+  @ApiPropertyOptional({
+    example: "2026-11-10T10:00:00+05:00",
+    description: "When the mistake was confirmed as fixed",
+    nullable: true,
+  })
+  @IsOptional()
+  @IsDateString()
+  fixedAt?: string | null;
 }

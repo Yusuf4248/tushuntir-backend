@@ -26,6 +26,7 @@ export class QuestionsService extends CrudService<Question> {
     references: {
       topicId: { entity: () => Topic, label: "Topic" },
       sourceChunkId: { entity: () => TextbookChunk, label: "Source chunk" },
+      variantOfId: { entity: () => Question, label: "Original question" },
     },
   };
 
