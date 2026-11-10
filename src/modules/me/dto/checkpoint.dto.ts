@@ -72,6 +72,17 @@ export class CheckpointDto {
   createdAt: Date;
 }
 
+export class NextTopicDto {
+  @ApiProperty({ example: 8 })
+  topicId: number;
+
+  @ApiProperty({ example: "Ko'phadlarni qo'shish va ayirish" })
+  title: string;
+
+  @ApiProperty({ example: true })
+  unlocked: boolean;
+}
+
 export enum CheckpointOutcome {
   FOLLOW_UP = "follow_up",
   PASSED = "passed",
@@ -146,6 +157,12 @@ export class CheckpointAnswerResultDto {
       "True when this answer was the 3rd not_yet since the last pass and the teacher was notified",
   })
   teacherNotified: boolean;
+  @ApiProperty({
+    type: NextTopicDto,
+    nullable: true,
+    description: "passed: the next topic of the textbook, now unlocked",
+  })
+  nextTopic: NextTopicDto | null;
 }
 
 export class CheckpointStatusDto {
@@ -160,6 +177,13 @@ export class CheckpointStatusDto {
 
   @ApiProperty({ example: true, description: "topic_mastery.is_mastered" })
   mastered: boolean;
+
+  @ApiProperty({
+    example: true,
+    description:
+      "First topic of its textbook or the previous topic is mastered (information only)",
+  })
+  unlocked: boolean;
 
   @ApiProperty({ example: 2, description: "Judged tries" })
   tries: number;

@@ -27,6 +27,12 @@ export const QUESTIONS_PER_ATTEMPT = 10;
 /** Quiz score (percent) needed for a topic to count as in progress rather than needing practice. */
 export const MASTERY_PASS_PERCENT = 80;
 
+/** One-line summary of the rules, returned with /me/mastery (details: docs/mastery-rules.md). */
+export const MASTERY_RULE =
+  "mastered: passed the Tushuntir checkpoint; needs_help: 3+ failed checkpoint tries since the last pass; " +
+  "not_started: no quiz yet; in_progress: latest quiz >= 80%; needs_practice: latest quiz < 80%. " +
+  "unlocked: the first topic of a textbook, or the topic before it is mastered (information only, nothing is blocked)";
+
 export enum CheckpointResult {
   PASSED = "passed",
   NOT_YET = "not_yet",

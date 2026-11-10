@@ -24,6 +24,7 @@ import {
   CheckpointOutcome,
   CheckpointStage,
   CheckpointStatusDto,
+  NextTopicDto,
   SardorLineDto,
 } from "./dto/checkpoint.dto";
 import {
@@ -237,6 +238,7 @@ export class StudentCheckpointService {
         next: null,
         masteryStatus: await this.schedule.topicStatus(user.id, topic.id),
         teacherNotified: false,
+        nextTopic: null,
       };
     }
 
@@ -302,25 +304,33 @@ export class StudentCheckpointService {
         ? MasteryStatus.MASTERED
         : await this.schedule.topicStatus(user.id, topic.id),
       teacherNotified,
+      nextTopic: passed ? await this.unlockedNext(topic.id) : null,
     };
+  }
+
+  /** Passing masters this topic, which unlocks the next one in the textbook. */
+  private async unlockedNext(topicId: number): Promise<NextTopicDto | null> {
+    const next = await this.schedule.nextTopic(topicId);
+    return next ? { ...next, unlocked: true } : null;
   }
 
   async status(topicId: number, user: AuthUser): Promise<CheckpointStatusDto> {
     const topic = await this.schedule.topicFor(topicId, user.id);
     if (!topic) throw new NotFoundException(`Topic ${topicId} not found`);
-    const [mastery] = await this.dataSource.query(
-      `SELECT is_mastered FROM topic_mastery WHERE student_id = $1 AND topic_id = $2`,
-      [user.id, topic.id],
-    );
     const stats = (
       await this.schedule.checkpointStats(user.id, [topic.id])
     ).get(topic.id);
     const notYet = stats?.notYetSinceLastPass ?? 0;
+    // topicFor and the mastery list use the same filter, so the topic is listed.
+    const listed = (await this.schedule.mastery(user.id)).topics.find(
+      (t) => t.topicId === topic.id,
+    )!;
     return {
       topicId: topic.id,
       topicTitle: topic.title,
-      masteryStatus: await this.schedule.topicStatus(user.id, topic.id),
-      mastered: mastery?.is_mastered === true,
+      masteryStatus: listed.status,
+      mastered: listed.status === MasteryStatus.MASTERED,
+      unlocked: listed.unlocked,
       tries: stats?.tries ?? 0,
       lastResult: (stats?.lastResult as CheckpointResult | null) ?? null,
       lastTriedAt: stats?.lastTriedAt ?? null,

@@ -355,10 +355,13 @@ export class MeController {
 
   @Get("mastery")
   @ApiOperation({
-    summary: "Topic mastery for the student's subjects",
+    summary: "Topic mastery and unlock state for the student's subjects",
     description:
-      "not_started: no quiz yet; in_progress: latest quiz score ≥ 80%; needs_practice: below 80%; " +
-      "mastered: passed the voice checkpoint (part 2).",
+      "Topics in book order. status: mastered (passed the Tushuntir checkpoint) > needs_help (3+ failed " +
+      "checkpoint tries since the last pass; the teacher was notified) > not_started (no quiz yet) / " +
+      "in_progress (latest quiz ≥ 80%) / needs_practice (latest quiz < 80%). unlocked: the first topic of its " +
+      "textbook, or the previous topic is mastered. unlocked is information only: lessons, the textbook, " +
+      "quizzes, practice and the checkpoint stay open for every topic. Full rules: docs/mastery-rules.md.",
   })
   @ApiOkResponse({ type: MasteryListDto })
   mastery(@CurrentUser() user: AuthUser) {

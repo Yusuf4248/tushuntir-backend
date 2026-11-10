@@ -10,7 +10,7 @@ import {
 } from "./dto/me-responses.dto";
 import {
   LessonStatus,
-  MASTERY_PASS_PERCENT,
+  MASTERY_RULE,
   MasteryStatus,
   masteryStatus,
   StudentQuizStatus,
@@ -112,6 +112,25 @@ export class StudentScheduleService {
       topicId,
     );
     return masteryStatus(row, stats?.notYetSinceLastPass);
+  }
+
+  /** The topic after this one in its textbook (chapter number, then position), if any. */
+  async nextTopic(
+    topicId: number,
+  ): Promise<{ topicId: number; title: string } | null> {
+    const [next] = await this.dataSource.query(
+      `WITH ordered AS (
+         SELECT topic.id, topic.title, chapter.textbook_id,
+                row_number() OVER (PARTITION BY chapter.textbook_id
+                                   ORDER BY chapter.number NULLS LAST, topic.position NULLS LAST, topic.id) AS n
+           FROM topics topic JOIN chapters chapter ON chapter.id = topic.chapter_id)
+       SELECT next.id AS "topicId", next.title
+         FROM ordered current
+         JOIN ordered next ON next.textbook_id = current.textbook_id AND next.n = current.n + 1
+        WHERE current.id = $1`,
+      [topicId],
+    );
+    return next ?? null;
   }
 
   /** The topic when it belongs to the student's class subjects and grade, else null. */
@@ -262,11 +281,12 @@ export class StudentScheduleService {
 
   /** Every topic of the textbooks for the subjects taught to the student's class, with its status. */
   async mastery(studentId: number): Promise<MasteryListDto> {
-    const rule = `not_started: no quiz yet; in_progress: latest quiz ≥ ${MASTERY_PASS_PERCENT}%; needs_practice: latest quiz < ${MASTERY_PASS_PERCENT}%; mastered: passed the voice checkpoint`;
+    const rule = MASTERY_RULE;
     const studentClass = await this.classOf(studentId);
     if (!studentClass) return { rule, topics: [] };
     const rows: {
       topicId: number;
+      textbookId: number;
       title: string;
       chapter: string | null;
       subject: string;
@@ -277,9 +297,9 @@ export class StudentScheduleService {
       updated_at: Date | null;
       has_row: boolean;
     }[] = await this.dataSource.query(
-      `SELECT topic.id AS "topicId", topic.title, chapter.title AS chapter, subject.name AS subject,
-              progress.mastery, progress.home_score, progress.exam_score, progress.is_mastered,
-              progress.updated_at, progress.id IS NOT NULL AS has_row
+      `SELECT topic.id AS "topicId", textbook.id AS "textbookId", topic.title, chapter.title AS chapter,
+              subject.name AS subject, progress.mastery, progress.home_score, progress.exam_score,
+              progress.is_mastered, progress.updated_at, progress.id IS NOT NULL AS has_row
          FROM topics topic
          JOIN chapters chapter ON chapter.id = topic.chapter_id
          JOIN textbooks textbook ON textbook.id = chapter.textbook_id
@@ -290,21 +310,39 @@ export class StudentScheduleService {
         ORDER BY subject.name, textbook.id, chapter.number NULLS LAST, topic.position NULLS LAST, topic.id`,
       [studentId, studentClass.grade, studentClass.id],
     );
+    const checkpoints = await this.checkpointStats(studentId);
     const number = (v: string | number | null) =>
       v === null ? null : Number(v);
+    // Book order: a topic unlocks when it is the first of its textbook or the one before is mastered.
+    let previous: { textbookId: number; mastered: boolean } | null = null;
     return {
       rule,
-      topics: rows.map((row) => ({
-        topicId: row.topicId,
-        title: row.title,
-        chapter: row.chapter,
-        subject: row.subject,
-        status: masteryStatus(row.has_row ? row : undefined),
-        mastery: row.mastery,
-        homeScore: number(row.home_score),
-        examScore: number(row.exam_score),
-        updatedAt: row.updated_at,
-      })),
+      topics: rows.map((row) => {
+        const stats = checkpoints.get(row.topicId);
+        const status = masteryStatus(
+          row.has_row ? row : undefined,
+          stats?.notYetSinceLastPass,
+        );
+        const unlocked =
+          previous?.textbookId !== row.textbookId || previous.mastered;
+        previous = {
+          textbookId: row.textbookId,
+          mastered: status === MasteryStatus.MASTERED,
+        };
+        return {
+          topicId: row.topicId,
+          title: row.title,
+          chapter: row.chapter,
+          subject: row.subject,
+          status,
+          unlocked,
+          checkpointTries: stats?.tries ?? 0,
+          mastery: row.mastery,
+          homeScore: number(row.home_score),
+          examScore: number(row.exam_score),
+          updatedAt: row.updated_at,
+        };
+      }),
     };
   }
 

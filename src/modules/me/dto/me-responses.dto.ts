@@ -1,5 +1,10 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { LessonStatus, MasteryStatus, StudentQuizStatus } from "../me.types";
+import {
+  LessonStatus,
+  MASTERY_RULE,
+  MasteryStatus,
+  StudentQuizStatus,
+} from "../me.types";
 
 export class RefDto {
   @ApiProperty({ example: 3 })
@@ -357,8 +362,24 @@ export class MasteryTopicDto {
   @ApiProperty({ example: "Algebra" })
   subject: string;
 
-  @ApiProperty({ enum: MasteryStatus, example: MasteryStatus.NOT_STARTED })
+  @ApiProperty({
+    enum: MasteryStatus,
+    example: MasteryStatus.NOT_STARTED,
+    description:
+      "mastered > needs_help > not_started / in_progress / needs_practice (docs/mastery-rules.md)",
+  })
   status: MasteryStatus;
+
+  @ApiProperty({
+    example: true,
+    description:
+      "First topic of its textbook, or the previous topic is mastered. Information only: lessons, the " +
+      "textbook, quizzes, practice and the checkpoint stay open for locked topics too.",
+  })
+  unlocked: boolean;
+
+  @ApiProperty({ example: 0, description: "Judged checkpoint tries" })
+  checkpointTries: number;
 
   @ApiProperty({ example: null, nullable: true, description: "0-100" })
   mastery: number | null;
@@ -374,10 +395,7 @@ export class MasteryTopicDto {
 }
 
 export class MasteryListDto {
-  @ApiProperty({
-    example:
-      "not_started: no quiz yet; in_progress: latest quiz ≥ 80%; needs_practice: latest quiz < 80%; mastered: passed the voice checkpoint",
-  })
+  @ApiProperty({ example: MASTERY_RULE })
   rule: string;
 
   @ApiProperty({ type: [MasteryTopicDto] })

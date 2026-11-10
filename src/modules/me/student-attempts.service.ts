@@ -307,7 +307,10 @@ export class StudentAttemptsService {
         attempt.topic_id && progress
           ? {
               topicId: attempt.topic_id,
-              status: masteryStatus(progress),
+              status: await this.schedule.topicStatus(
+                user.id,
+                attempt.topic_id,
+              ),
               homeScore: Number(progress.home_score),
             }
           : null,
