@@ -22,6 +22,18 @@ import {
 import { answersMatch, normalizeAnswer } from "../questions/answer-match";
 import { Question } from "../questions/entities/question.entity";
 
+/**
+ * True when the text shows "= <answer>" as a complete result, e.g. a worked example that
+ * happens to end with the same number. Catches short answers the substring check skips.
+ */
+export function statesResult(text: string, answer: string): boolean {
+  const pattern = answer
+    .trim()
+    .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+    .replace(/\s+/g, "\\s*");
+  return new RegExp(`=\\s*${pattern}(?![\\w/^]|[.,]\\d)`, "i").test(text);
+}
+
 /** ~25 questions per run: per difficulty, how many multiple choice and short answer. */
 const PLAN = [
   { difficulty: 1, multipleChoice: 6, shortAnswer: 3 },
@@ -202,8 +214,11 @@ export class QuestionGenerationService {
     }
     const normalizedAnswer = normalizeAnswer(answer);
     if (
-      normalizedAnswer.length >= 3 &&
-      question.hints.some((h) => normalizeAnswer(h).includes(normalizedAnswer))
+      (normalizedAnswer.length >= 3 &&
+        question.hints.some((h) =>
+          normalizeAnswer(h).includes(normalizedAnswer),
+        )) ||
+      question.hints.some((h) => statesResult(h, answer))
     ) {
       return "a hint gives away the answer";
     }
