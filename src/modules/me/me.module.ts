@@ -3,6 +3,7 @@ import { AiModule } from "../ai/ai.module";
 import { QuestionGenerationModule } from "../learning/question-generation/question-generation.module";
 import { MeController } from "./me.controller";
 import { StudentAttemptsService } from "./student-attempts.service";
+import { StudentChatService } from "./student-chat.service";
 import { StudentReviewService } from "./student-review.service";
 import { StudentScheduleService } from "./student-schedule.service";
 
@@ -14,6 +15,7 @@ import { StudentScheduleService } from "./student-schedule.service";
     StudentScheduleService,
     StudentAttemptsService,
     StudentReviewService,
+    StudentChatService,
   ],
 })
 export class MeModule {}

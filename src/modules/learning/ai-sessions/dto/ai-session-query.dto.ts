@@ -27,10 +27,10 @@ export class AiSessionQueryDto extends PaginationQueryDto {
 
   @ApiPropertyOptional({
     example: "extra_lesson",
-    enum: ["study_weak_topic", "extra_lesson"],
+    enum: ["study", "study_weak_topic", "extra_lesson"],
     nullable: true,
   })
   @IsOptional()
-  @IsIn(["study_weak_topic", "extra_lesson"])
+  @IsIn(["study", "study_weak_topic", "extra_lesson"])
   kind?: string;
 }

@@ -11,6 +11,7 @@ import {
 } from "@nestjs/common";
 import {
   ApiBearerAuth,
+  ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
@@ -30,8 +31,16 @@ import {
   SubmitResultDto,
   TodayDto,
 } from "./dto/me-responses.dto";
+import {
+  ChatExchangeDto,
+  ChatMessageDto,
+  ChatSessionDto,
+  CreateChatSessionDto,
+  WeakTopicDto,
+} from "./dto/chat.dto";
 import { ConfirmDto, ConfirmResultDto, ReviewDto } from "./dto/review.dto";
 import { StudentAttemptsService } from "./student-attempts.service";
+import { StudentChatService } from "./student-chat.service";
 import { StudentReviewService } from "./student-review.service";
 import { StudentScheduleService } from "./student-schedule.service";
 
@@ -47,6 +56,7 @@ export class MeController {
     private readonly schedule: StudentScheduleService,
     private readonly attempts: StudentAttemptsService,
     private readonly reviews: StudentReviewService,
+    private readonly chat: StudentChatService,
   ) {}
 
   @Get("today")
@@ -178,6 +188,57 @@ export class MeController {
     @CurrentUser() user: AuthUser,
   ) {
     return this.reviews.confirm(id, questionId, dto.answer, user);
+  }
+
+  @Post("chat/sessions")
+  @ApiOperation({ summary: "Start a self-study chat about a topic" })
+  @ApiCreatedResponse({ type: ChatSessionDto })
+  createChatSession(
+    @Body() dto: CreateChatSessionDto,
+    @CurrentUser() user: AuthUser,
+  ) {
+    return this.chat.createSession(dto.topicId, user);
+  }
+
+  @Get("chat/sessions/:id")
+  @ApiOperation({ summary: "A chat session with its messages" })
+  @ApiOkResponse({ type: ChatSessionDto })
+  chatSession(
+    @Param("id", ParseIntPipe) id: number,
+    @CurrentUser() user: AuthUser,
+  ) {
+    return this.chat.session(id, user);
+  }
+
+  @Post("chat/sessions/:id/messages")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: "Ask the study helper (grounded in the textbook)",
+    description:
+      "Answers only from the topic's textbook text (plus `selectedText`), in simple Uzbek, or Russian when asked " +
+      "or with action `in_russian`. Returns the source pages; says so when the text does not cover the question. " +
+      "Stays on school topics and refuses to solve the student's open quiz questions. " +
+      "Quick actions: explain_simple, real_life_example, in_russian, quiz_me. Messages are saved in ai_messages.",
+  })
+  @ApiOkResponse({ type: ChatExchangeDto })
+  sendChatMessage(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() dto: ChatMessageDto,
+    @CurrentUser() user: AuthUser,
+  ) {
+    return this.chat.send(id, dto, user);
+  }
+
+  @Get("weak-topics")
+  @ApiOperation({
+    summary: "Topics that need practice, with the sub-skills that went wrong",
+    description:
+      "Topics with status needs_practice (or needs_help); subSkills lists what went wrong in the student's " +
+      "unfixed mistakes there, latest first.",
+  })
+  @ApiOkResponse({ type: [WeakTopicDto] })
+  weakTopics(@CurrentUser() user: AuthUser) {
+    return this.chat.weakTopics(user);
   }
 
   @Get("mastery")

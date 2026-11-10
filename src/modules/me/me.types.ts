@@ -16,6 +16,8 @@ export enum MasteryStatus {
   NOT_STARTED = "not_started",
   IN_PROGRESS = "in_progress",
   NEEDS_PRACTICE = "needs_practice",
+  /** Three failed checkpoint tries since the last pass; the teacher is notified */
+  NEEDS_HELP = "needs_help",
   MASTERED = "mastered",
 }
 
