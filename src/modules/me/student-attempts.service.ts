@@ -314,10 +314,7 @@ export class StudentAttemptsService {
     };
   }
 
-  private async view(
-    attemptId: number,
-    user: AuthUser,
-  ): Promise<AttemptViewDto> {
+  async view(attemptId: number, user: AuthUser): Promise<AttemptViewDto> {
     const attempt = await this.ownAttempt(attemptId, user);
     const rows = await this.answers(this.dataSource.manager, attempt.id);
     return {

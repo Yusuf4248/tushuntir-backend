@@ -41,6 +41,7 @@ import {
 import { ConfirmDto, ConfirmResultDto, ReviewDto } from "./dto/review.dto";
 import { StudentAttemptsService } from "./student-attempts.service";
 import { StudentChatService } from "./student-chat.service";
+import { StudentPracticeService } from "./student-practice.service";
 import { StudentReviewService } from "./student-review.service";
 import { StudentScheduleService } from "./student-schedule.service";
 
@@ -57,6 +58,7 @@ export class MeController {
     private readonly attempts: StudentAttemptsService,
     private readonly reviews: StudentReviewService,
     private readonly chat: StudentChatService,
+    private readonly practice: StudentPracticeService,
   ) {}
 
   @Get("today")
@@ -239,6 +241,23 @@ export class MeController {
   @ApiOkResponse({ type: [WeakTopicDto] })
   weakTopics(@CurrentUser() user: AuthUser) {
     return this.chat.weakTopics(user);
+  }
+
+  @Post("topics/:id/practice")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: "Start a 5-question practice quiz on a topic",
+    description:
+      "Aimed at the student's past mistakes in the topic: unseen approved questions of the same type and difficulty " +
+      "as the mistakes come first; new questions are generated (with the self-check) only when the pool runs out. " +
+      "Then use the normal answers / hint / submit / review endpoints; submit updates mastery.",
+  })
+  @ApiOkResponse({ type: AttemptViewDto })
+  startPractice(
+    @Param("id", ParseIntPipe) id: number,
+    @CurrentUser() user: AuthUser,
+  ) {
+    return this.practice.start(id, user);
   }
 
   @Get("mastery")

@@ -4,6 +4,7 @@ import { QuestionGenerationModule } from "../learning/question-generation/questi
 import { MeController } from "./me.controller";
 import { StudentAttemptsService } from "./student-attempts.service";
 import { StudentChatService } from "./student-chat.service";
+import { StudentPracticeService } from "./student-practice.service";
 import { StudentReviewService } from "./student-review.service";
 import { StudentScheduleService } from "./student-schedule.service";
 
@@ -16,6 +17,7 @@ import { StudentScheduleService } from "./student-schedule.service";
     StudentAttemptsService,
     StudentReviewService,
     StudentChatService,
+    StudentPracticeService,
   ],
 })
 export class MeModule {}

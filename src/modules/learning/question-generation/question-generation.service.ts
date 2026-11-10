@@ -39,8 +39,14 @@ function questionKey(prompt: string, options: string[]): string {
   return [prompt, ...[...options].sort()].map(normalizeAnswer).join("|");
 }
 
+export interface GenerationPlanItem {
+  difficulty: number;
+  multipleChoice: number;
+  shortAnswer: number;
+}
+
 /** ~25 questions per run: per difficulty, how many multiple choice and short answer. */
-const PLAN = [
+const PLAN: GenerationPlanItem[] = [
   { difficulty: 1, multipleChoice: 6, shortAnswer: 3 },
   { difficulty: 2, multipleChoice: 6, shortAnswer: 2 },
   { difficulty: 3, multipleChoice: 6, shortAnswer: 2 },
@@ -110,11 +116,15 @@ export class QuestionGenerationService {
     private readonly dataSource: DataSource,
   ) {}
 
-  async generate(topicId: number): Promise<GenerationResult> {
+  /** `plan` defaults to ~25 questions over three difficulties (one AI call per item, in parallel). */
+  async generate(
+    topicId: number,
+    plan: GenerationPlanItem[] = PLAN,
+  ): Promise<GenerationResult> {
     const { topic, chunks } = await this.loadTopic(topicId);
 
     const batches = await Promise.all(
-      PLAN.map(async (plan) => {
+      plan.map(async (plan) => {
         const batch = await this.llm.chatJson({
           purpose: `question-generation:d${plan.difficulty}`,
           system: QUESTION_GENERATION_SYSTEM,
