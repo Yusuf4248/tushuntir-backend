@@ -8,9 +8,14 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  UploadedFile,
+  UseInterceptors,
 } from "@nestjs/common";
+import { FileInterceptor } from "@nestjs/platform-express";
 import {
   ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
@@ -38,12 +43,21 @@ import {
   CreateChatSessionDto,
   WeakTopicDto,
 } from "./dto/chat.dto";
+import {
+  CheckpointAnswerDto,
+  CheckpointAnswerResultDto,
+  CheckpointDto,
+  CheckpointStatusDto,
+} from "./dto/checkpoint.dto";
 import { ConfirmDto, ConfirmResultDto, ReviewDto } from "./dto/review.dto";
 import { StudentAttemptsService } from "./student-attempts.service";
 import { StudentChatService } from "./student-chat.service";
+import { StudentCheckpointService } from "./student-checkpoint.service";
 import { StudentPracticeService } from "./student-practice.service";
 import { StudentReviewService } from "./student-review.service";
 import { StudentScheduleService } from "./student-schedule.service";
+
+const CHECKPOINT_AUDIO_BYTES = 25 * 1024 * 1024;
 
 @ApiTags("Student · Me")
 @ApiBearerAuth("JWT-auth")
@@ -59,6 +73,7 @@ export class MeController {
     private readonly reviews: StudentReviewService,
     private readonly chat: StudentChatService,
     private readonly practice: StudentPracticeService,
+    private readonly checkpoints: StudentCheckpointService,
   ) {}
 
   @Get("today")
@@ -258,6 +273,84 @@ export class MeController {
     @CurrentUser() user: AuthUser,
   ) {
     return this.practice.start(id, user);
+  }
+
+  @Post("topics/:id/checkpoint/start")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: "Start the Tushuntir checkpoint (or resume the open try)",
+    description:
+      "The AI classmate Sardor states a misconception of the topic (the student's own latest mistake there, " +
+      "otherwise a common one) and asks to be taught. Returns the line as text and as audio (`audioUrl`, mp3). " +
+      "409 when the topic has no key ideas yet.",
+  })
+  @ApiOkResponse({ type: CheckpointDto })
+  startCheckpoint(
+    @Param("id", ParseIntPipe) id: number,
+    @CurrentUser() user: AuthUser,
+  ) {
+    return this.checkpoints.start(id, user);
+  }
+
+  @Post("checkpoints/:id/answer")
+  @HttpCode(HttpStatus.OK)
+  @UseInterceptors(
+    FileInterceptor("audio", { limits: { fileSize: CHECKPOINT_AUDIO_BYTES } }),
+  )
+  @ApiConsumes("multipart/form-data", "application/json")
+  @ApiBody({
+    description:
+      "Either a recording (multipart field `audio`: webm, ogg, m4a, mp4, mp3 or wav, max 25 MB) or JSON `{ text }`.",
+    schema: {
+      type: "object",
+      properties: {
+        audio: { type: "string", format: "binary" },
+        text: { type: "string", maxLength: 4000 },
+      },
+    },
+  })
+  @ApiOperation({
+    summary: "Answer Sardor by voice or text",
+    description:
+      "Audio is transcribed (speech-to-text) and deleted; only the transcript is kept. The explanation is judged " +
+      "against the topic's key ideas by meaning (Uzbek-Russian mixing is fine). Passing needs at least 80% of the " +
+      "key ideas and no wrong statement. Missing ideas on the first answer → outcome `follow_up`: Sardor asks one " +
+      "question, answer it with this endpoint. Then `passed` (topic mastered) or `not_yet` (a short explanation and " +
+      "the next try in `next`; tries are unlimited). The 3rd not_yet since the last pass notifies the teacher.",
+  })
+  @ApiOkResponse({ type: CheckpointAnswerResultDto })
+  answerCheckpoint(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() dto: CheckpointAnswerDto,
+    @UploadedFile() audio: Express.Multer.File | undefined,
+    @CurrentUser() user: AuthUser,
+  ) {
+    return this.checkpoints.answer(
+      id,
+      {
+        text: dto.text,
+        audio: audio && {
+          buffer: audio.buffer,
+          mimeType: audio.mimetype,
+          originalName: audio.originalname,
+        },
+      },
+      user,
+    );
+  }
+
+  @Get("topics/:id/checkpoint/status")
+  @ApiOperation({
+    summary: "Checkpoint status of a topic",
+    description:
+      "Judged tries, the last result, failed tries since the last pass, needs_help and the open try.",
+  })
+  @ApiOkResponse({ type: CheckpointStatusDto })
+  checkpointStatus(
+    @Param("id", ParseIntPipe) id: number,
+    @CurrentUser() user: AuthUser,
+  ) {
+    return this.checkpoints.status(id, user);
   }
 
   @Get("mastery")

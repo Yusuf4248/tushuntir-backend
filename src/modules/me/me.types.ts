@@ -27,20 +27,36 @@ export const QUESTIONS_PER_ATTEMPT = 10;
 /** Quiz score (percent) needed for a topic to count as in progress rather than needing practice. */
 export const MASTERY_PASS_PERCENT = 80;
 
+export enum CheckpointResult {
+  PASSED = "passed",
+  NOT_YET = "not_yet",
+}
+
+/** Share of a topic's key ideas a checkpoint explanation must cover (and no wrong statement). */
+export const CHECKPOINT_PASS_SHARE = 0.8;
+
+/** Failed checkpoint tries since the last pass after which the topic needs the teacher's help. */
+export const NEEDS_HELP_AFTER_TRIES = 3;
+
 /**
- * Topic mastery rule (part 1):
+ * Topic mastery rule:
+ * - is_mastered (set when the Tushuntir checkpoint is passed) → mastered
+ * - 3 or more not_yet checkpoint tries since the last pass → needs_help
  * - no topic_mastery row → not_started
- * - is_mastered (set by the voice checkpoint in part 2) → mastered
- * - latest home quiz score ≥ 80% → in_progress
+ * - latest quiz score ≥ 80% → in_progress
  * - otherwise → needs_practice
  */
 export function masteryStatus(
   row:
     | { is_mastered: boolean | null; home_score: string | number | null }
     | undefined,
+  notYetSinceLastPass = 0,
 ): MasteryStatus {
+  if (row?.is_mastered) return MasteryStatus.MASTERED;
+  if (notYetSinceLastPass >= NEEDS_HELP_AFTER_TRIES) {
+    return MasteryStatus.NEEDS_HELP;
+  }
   if (!row) return MasteryStatus.NOT_STARTED;
-  if (row.is_mastered) return MasteryStatus.MASTERED;
   if (
     row.home_score !== null &&
     Number(row.home_score) >= MASTERY_PASS_PERCENT

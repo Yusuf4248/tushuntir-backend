@@ -40,18 +40,7 @@ export class StudentPracticeService {
   ) {}
 
   async start(topicId: number, user: AuthUser): Promise<AttemptViewDto> {
-    const studentClass = await this.schedule.classOf(user.id);
-    const [topic] = studentClass
-      ? await this.dataSource.query(
-          `SELECT topic.id, topic.title
-             FROM topics topic
-             JOIN chapters chapter ON chapter.id = topic.chapter_id
-             JOIN textbooks textbook ON textbook.id = chapter.textbook_id
-            WHERE topic.id = $1 AND textbook.grade = $2
-              AND textbook.subject_id IN (SELECT subject_id FROM teacher_assignments WHERE class_id = $3)`,
-          [topicId, studentClass.grade, studentClass.id],
-        )
-      : [];
+    const topic = await this.schedule.topicFor(topicId, user.id);
     if (!topic) throw new NotFoundException(`Topic ${topicId} not found`);
 
     const mistakes: {
@@ -97,7 +86,7 @@ export class StudentPracticeService {
       const [{ id: quizId }] = await manager.query(
         `INSERT INTO quizzes (topic_id, class_id, kind, title, shuffle_questions, created_by)
          VALUES ($1, $2, 'practice', $3, true, $4) RETURNING id`,
-        [topicId, studentClass!.id, `${topic.title}: mashq`, user.id],
+        [topicId, topic.class_id, `${topic.title}: mashq`, user.id],
       );
       const [{ id }] = await manager.query(
         `INSERT INTO attempts (quiz_id, student_id, mode, started_at) VALUES ($1, $2, 'home', now()) RETURNING id`,

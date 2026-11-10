@@ -13,10 +13,24 @@ export class NotificationQueryDto extends PaginationQueryDto {
 
   @ApiPropertyOptional({
     example: "absence",
-    enum: ["grade", "homework_due", "absence", "weekly_progress", "flag"],
+    enum: [
+      "grade",
+      "homework_due",
+      "absence",
+      "weekly_progress",
+      "flag",
+      "needs_help",
+    ],
     nullable: true,
   })
   @IsOptional()
-  @IsIn(["grade", "homework_due", "absence", "weekly_progress", "flag"])
+  @IsIn([
+    "grade",
+    "homework_due",
+    "absence",
+    "weekly_progress",
+    "flag",
+    "needs_help",
+  ])
   type?: string;
 }

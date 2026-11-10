@@ -11,6 +11,7 @@ import {
 import {
   LessonStatus,
   MASTERY_PASS_PERCENT,
+  MasteryStatus,
   masteryStatus,
   StudentQuizStatus,
 } from "./me.types";
@@ -19,6 +20,24 @@ export interface StudentClass {
   id: number;
   grade: number;
   letter: string;
+}
+
+/** A topic of one of the student's class subjects, at the class grade. */
+export interface StudentTopic {
+  id: number;
+  title: string;
+  subject_id: number;
+  key_ideas: string[] | null;
+  class_id: number;
+}
+
+/** Checkpoint tries of one student in one topic. */
+export interface CheckpointStats {
+  tries: number;
+  lastResult: string | null;
+  lastTriedAt: Date | null;
+  notYetSinceLastPass: number;
+  openCheckpointId: number | null;
 }
 
 interface QuizRow {
@@ -56,6 +75,62 @@ export class StudentScheduleService {
       [studentId],
     );
     return row ?? null;
+  }
+
+  /** Checkpoint tries per topic for a student (topics without tries are absent). */
+  async checkpointStats(
+    studentId: number,
+    topicIds?: number[],
+  ): Promise<Map<number, CheckpointStats>> {
+    const rows: (CheckpointStats & { topicId: number })[] =
+      await this.dataSource.query(
+        `SELECT topic_id AS "topicId",
+                count(*) FILTER (WHERE result IS NOT NULL)::int AS tries,
+                (array_agg(result ORDER BY id DESC) FILTER (WHERE result IS NOT NULL))[1] AS "lastResult",
+                max(judged_at) AS "lastTriedAt",
+                count(*) FILTER (WHERE result = 'not_yet' AND id > COALESCE(last_pass, 0))::int AS "notYetSinceLastPass",
+                max(id) FILTER (WHERE result IS NULL) AS "openCheckpointId"
+           FROM (SELECT *, max(id) FILTER (WHERE result = 'passed') OVER (PARTITION BY topic_id) AS last_pass
+                   FROM checkpoint_attempts
+                  WHERE student_id = $1 AND ($2::int[] IS NULL OR topic_id = ANY($2))) tries
+          GROUP BY topic_id`,
+        [studentId, topicIds ?? null],
+      );
+    return new Map(rows.map(({ topicId, ...stats }) => [topicId, stats]));
+  }
+
+  /** One topic's mastery status, including needs_help from checkpoint tries. */
+  async topicStatus(
+    studentId: number,
+    topicId: number,
+  ): Promise<MasteryStatus> {
+    const [row] = await this.dataSource.query(
+      `SELECT is_mastered, home_score FROM topic_mastery WHERE student_id = $1 AND topic_id = $2`,
+      [studentId, topicId],
+    );
+    const stats = (await this.checkpointStats(studentId, [topicId])).get(
+      topicId,
+    );
+    return masteryStatus(row, stats?.notYetSinceLastPass);
+  }
+
+  /** The topic when it belongs to the student's class subjects and grade, else null. */
+  async topicFor(
+    topicId: number,
+    studentId: number,
+  ): Promise<StudentTopic | null> {
+    const studentClass = await this.classOf(studentId);
+    if (!studentClass) return null;
+    const [topic] = await this.dataSource.query(
+      `SELECT topic.id, topic.title, textbook.subject_id, topic.key_ideas, $3::int AS class_id
+         FROM topics topic
+         JOIN chapters chapter ON chapter.id = topic.chapter_id
+         JOIN textbooks textbook ON textbook.id = chapter.textbook_id
+        WHERE topic.id = $1 AND textbook.grade = $2
+          AND textbook.subject_id IN (SELECT subject_id FROM teacher_assignments WHERE class_id = $3)`,
+      [topicId, studentClass.grade, studentClass.id],
+    );
+    return topic ?? null;
   }
 
   /** Every lesson quiz of the student's class (linked through homework), with its state for this student. */
