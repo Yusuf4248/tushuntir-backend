@@ -32,24 +32,6 @@ async function start() {
     );
     app.useGlobalFilters(new AllExceptionFilter());
     app.setGlobalPrefix("api");
-    // app.enableCors({
-    //   origin: (origin, callback) => {
-    //     const allowedOrigin = [
-    //       "http://localhost:6969",
-    //       "http://localhost:5173",
-    //       "http://185.191.141.200:6969",
-    //       "http://185.191.141.200:3030",
-    //       "https://erp-edu.uz",
-    //     ];
-    //     if (!origin || allowedOrigin.includes(origin)) {
-    //       callback(null, true);
-    //     } else {
-    //       callback(new BadRequestException("Not allowed by CORS"));
-    //     }
-    //   },
-    //   methods: "GET, HEAD, PUT, PATCH, POST, DELETE",
-    //   credentials: true,
-    // });
     app.enableCors({
       origin: true,
       credentials: true,
