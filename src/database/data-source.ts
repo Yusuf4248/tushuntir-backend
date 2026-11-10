@@ -3,11 +3,12 @@
  * The app itself connects through DatabaseModule; both read the same PG_* variables.
  */
 import "reflect-metadata";
-import { existsSync } from "fs";
+import { config as loadEnv } from "dotenv";
 import { join } from "path";
 import { DataSource } from "typeorm";
 
-if (existsSync(".env")) process.loadEnvFile(".env");
+// Same parser as @nestjs/config, so scripts read .env exactly like the app (inline # comments included).
+loadEnv();
 
 function required(name: string): string {
   const value = process.env[name]?.trim();

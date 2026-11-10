@@ -5,6 +5,7 @@ import { EmbeddingInput } from "../llm.service";
 
 const VOYAGE_URL = "https://api.voyageai.com/v1/embeddings";
 const BATCH_SIZE = 128;
+const MAX_RATE_LIMIT_WAIT_MS = 20_000;
 
 interface VoyageResponse {
   data: { embedding: number[]; index: number }[];
@@ -38,30 +39,18 @@ export class VoyageEmbeddings {
     input: EmbeddingInput,
   ): Promise<number[][]> {
     const started = Date.now();
-    let response: Response;
-    try {
-      response = await fetch(VOYAGE_URL, {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-          authorization: `Bearer ${this.config.embeddingApiKey}`,
-        },
-        body: JSON.stringify({
-          input: texts,
-          model: this.config.embeddingModel,
-          input_type: input,
-          output_dimension: EMBEDDING_DIMENSION,
-        }),
-        signal: AbortSignal.timeout(this.config.timeoutMs),
-      });
-    } catch (error) {
-      const timedOut = error instanceof Error && error.name === "TimeoutError";
-      this.logger.error(`embedding request failed: ${String(error)}`);
-      throw new AiUnavailableException(
-        timedOut
-          ? "embedding request timed out"
-          : "embedding service unreachable",
+    let response = await this.post(texts, input);
+    if (response.status === 429) {
+      // Low-tier Voyage keys allow only a few requests a minute: wait once as told, then retry.
+      const waitMs = Math.min(
+        (Number(response.headers.get("retry-after")) || 20) * 1000,
+        MAX_RATE_LIMIT_WAIT_MS,
       );
+      this.logger.warn(
+        `embedding rate limit reached; retrying in ${waitMs / 1000}s`,
+      );
+      await new Promise((resolve) => setTimeout(resolve, waitMs));
+      response = await this.post(texts, input);
     }
     if (!response.ok) {
       const detail = (await response.text()).slice(0, 300);
@@ -92,5 +81,35 @@ export class VoyageEmbeddings {
       `purpose=embed:${input} model=${this.config.embeddingModel} texts=${texts.length} tokens=${body.usage?.total_tokens ?? "?"} ms=${Date.now() - started}`,
     );
     return vectors;
+  }
+
+  private async post(
+    texts: string[],
+    input: EmbeddingInput,
+  ): Promise<Response> {
+    try {
+      return await fetch(VOYAGE_URL, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          authorization: `Bearer ${this.config.embeddingApiKey}`,
+        },
+        body: JSON.stringify({
+          input: texts,
+          model: this.config.embeddingModel,
+          input_type: input,
+          output_dimension: EMBEDDING_DIMENSION,
+        }),
+        signal: AbortSignal.timeout(this.config.timeoutMs),
+      });
+    } catch (error) {
+      const timedOut = error instanceof Error && error.name === "TimeoutError";
+      this.logger.error(`embedding request failed: ${String(error)}`);
+      throw new AiUnavailableException(
+        timedOut
+          ? "embedding request timed out"
+          : "embedding service unreachable",
+      );
+    }
   }
 }

@@ -5,7 +5,7 @@
  */
 import "reflect-metadata";
 import * as bcrypt from "bcrypt";
-import { existsSync } from "fs";
+import { config as loadEnv } from "dotenv";
 import { DataSource } from "typeorm";
 import { UserRole } from "../common/enums";
 import { School } from "../modules/school/schools/entities/school.entity";
@@ -19,7 +19,7 @@ function required(name: string): string {
 }
 
 async function main() {
-  if (existsSync(".env")) process.loadEnvFile(".env");
+  loadEnv(); // same parser as @nestjs/config
   const phone = required("SEED_ADMIN_PHONE");
   const password = required("SEED_ADMIN_PASSWORD");
   if (password.length < 8)

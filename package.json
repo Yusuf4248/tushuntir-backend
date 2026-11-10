@@ -45,6 +45,7 @@
     "cookie-parser": "^1.4.7",
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
+    "dotenv": "16.4.7",
     "express": "^5.1.0",
     "express-basic-auth": "^1.2.1",
     "handlebars": "^4.7.8",
