@@ -31,7 +31,8 @@ export const MASTERY_PASS_PERCENT = 80;
 export const MASTERY_RULE =
   "mastered: passed the Tushuntir checkpoint; needs_help: 3+ failed checkpoint tries since the last pass; " +
   "not_started: no quiz yet; in_progress: latest quiz >= 80%; needs_practice: latest quiz < 80%. " +
-  "unlocked: the first topic of a textbook, or the topic before it is mastered (information only, nothing is blocked)";
+  "unlocked: the first topic of a textbook, a mastered topic, or the topic before it is mastered " +
+  "(information only, nothing is blocked)";
 
 export enum CheckpointResult {
   PASSED = "passed",

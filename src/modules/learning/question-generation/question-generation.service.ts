@@ -20,7 +20,11 @@ import {
   questionSelfCheckMessage,
   UNANSWERABLE,
 } from "../../ai/prompts/question-self-check.prompt";
-import { answersMatch, normalizeAnswer } from "../questions/answer-match";
+import {
+  answersMatch,
+  explanationReaches,
+  normalizeAnswer,
+} from "../questions/answer-match";
 import { Question } from "../questions/entities/question.entity";
 
 /**
@@ -332,6 +336,14 @@ export class QuestionGenerationService {
     } else {
       if (question.options.length) return "short answer must have no options";
       if (answer.length > 40) return "short answer is too long to check";
+      // The self-check answers blind and can repeat the generator's slip; the generator's own
+      // working must at least arrive at its key.
+      if (
+        question.explanation.trim() &&
+        !explanationReaches(question.explanation, answer)
+      ) {
+        return "the explanation does not reach the answer key";
+      }
     }
     const normalizedAnswer = normalizeAnswer(answer);
     if (

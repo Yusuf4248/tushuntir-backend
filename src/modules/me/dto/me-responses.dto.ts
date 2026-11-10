@@ -373,7 +373,7 @@ export class MasteryTopicDto {
   @ApiProperty({
     example: true,
     description:
-      "First topic of its textbook, or the previous topic is mastered. Information only: lessons, the " +
+      "First topic of its textbook, mastered itself, or the previous topic is mastered. Information only: lessons, the " +
       "textbook, quizzes, practice and the checkpoint stay open for locked topics too.",
   })
   unlocked: boolean;

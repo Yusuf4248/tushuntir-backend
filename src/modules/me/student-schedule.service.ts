@@ -313,7 +313,8 @@ export class StudentScheduleService {
     const checkpoints = await this.checkpointStats(studentId);
     const number = (v: string | number | null) =>
       v === null ? null : Number(v);
-    // Book order: a topic unlocks when it is the first of its textbook or the one before is mastered.
+    // Book order: a topic is unlocked when it is the first of its textbook, the one before is
+    // mastered, or it is mastered itself (the timetable may teach topics out of book order).
     let previous: { textbookId: number; mastered: boolean } | null = null;
     return {
       rule,
@@ -324,7 +325,9 @@ export class StudentScheduleService {
           stats?.notYetSinceLastPass,
         );
         const unlocked =
-          previous?.textbookId !== row.textbookId || previous.mastered;
+          status === MasteryStatus.MASTERED ||
+          previous?.textbookId !== row.textbookId ||
+          previous.mastered;
         previous = {
           textbookId: row.textbookId,
           mastered: status === MasteryStatus.MASTERED,

@@ -30,7 +30,10 @@ Notes:
 
 ## Unlock rule
 
-- A topic is **unlocked** when it is the first topic of its textbook, or when the topic before it is `mastered`.
+- A topic is **unlocked** when any of these holds:
+  - it is the first topic of its textbook;
+  - the topic before it is `mastered`;
+  - it is `mastered` itself. The timetable can teach topics out of book order, and a mastered topic is never shown as locked.
 - **Book order:** chapter number, then topic position, then id.
 - `unlocked` is **information only**. Lessons, the textbook, quizzes, practice and the checkpoint stay open for locked topics too, because the timetable decides what is taught each day. The app can show a lock icon or "Avvalgi mavzuni o'zlashtiring" ("Master the previous topic first").
 - A passed checkpoint returns `nextTopic` with the topic it unlocked.

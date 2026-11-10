@@ -181,7 +181,7 @@ export class CheckpointStatusDto {
   @ApiProperty({
     example: true,
     description:
-      "First topic of its textbook or the previous topic is mastered (information only)",
+      "First topic of its textbook, mastered itself, or the previous topic is mastered (information only)",
   })
   unlocked: boolean;
 
