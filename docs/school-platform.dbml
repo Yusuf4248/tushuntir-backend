@@ -1,0 +1,452 @@
+// School learning platform - database schema (PostgreSQL)
+// Paste this whole file into https://dbdiagram.io (free) to see and edit the diagram.
+// Tables marked [MVP] are the minimum for the UzHack demo.
+
+Project school_platform {
+  database_type: 'PostgreSQL'
+  Note: 'Grades 5-11. Roles: super_admin, admin, teacher, student, parent. Needs the pgvector extension for textbook_chunks.embedding.'
+}
+
+// ============ 1. Schools and people ============
+
+Enum user_role {
+  super_admin
+  admin
+  teacher
+  student
+  parent
+}
+
+Enum school_type {
+  public
+  private
+}
+
+Table schools { // [MVP]
+  id uuid [pk]
+  name varchar [not null]
+  region varchar [not null, note: 'e.g. Fergana']
+  district varchar [not null, note: 'e.g. Kokand city, Rishtan; used by the city dashboard']
+  type school_type [not null]
+  emaktab_id varchar [null, note: 'for a future eMaktab connection']
+  created_at timestamptz [default: `now()`]
+}
+
+Table academic_years {
+  id uuid [pk]
+  school_id uuid [ref: > schools.id, not null]
+  name varchar [note: '2026/2027']
+  starts_on date
+  ends_on date
+  is_current boolean [default: false]
+}
+
+Table terms {
+  id uuid [pk]
+  academic_year_id uuid [ref: > academic_years.id, not null]
+  name varchar [note: 'Term 1 ... Term 4']
+  starts_on date
+  ends_on date
+}
+
+Table users { // [MVP]
+  id uuid [pk]
+  school_id uuid [ref: > schools.id, null, note: 'null only for super_admin']
+  role user_role [not null]
+  first_name varchar [not null]
+  last_name varchar [not null]
+  phone varchar [unique]
+  email varchar [unique, null]
+  password_hash varchar [not null]
+  language varchar [default: 'uz', note: 'uz, ru, en']
+  is_active boolean [default: true]
+  last_login_at timestamptz
+  created_at timestamptz [default: `now()`]
+}
+
+Table parent_students { // [MVP]
+  parent_id uuid [ref: > users.id]
+  student_id uuid [ref: > users.id]
+  relation varchar [note: 'mother, father, guardian']
+  indexes {
+    (parent_id, student_id) [pk]
+  }
+}
+
+// ============ 2. Classes, timetable, daily school work ============
+
+Enum shift {
+  first
+  second
+  third
+}
+
+Enum room_type {
+  classroom
+  computer_lab
+  other
+}
+
+Enum attendance_status {
+  present
+  absent
+  late
+  excused
+}
+
+Table subjects { // [MVP]
+  id uuid [pk]
+  name varchar [not null, note: 'Mathematics, Physics, English...']
+  code varchar [unique]
+}
+
+Table classes { // [MVP]
+  id uuid [pk]
+  school_id uuid [ref: > schools.id, not null]
+  academic_year_id uuid [ref: > academic_years.id, not null]
+  grade smallint [not null, note: '5-11']
+  letter varchar [not null, note: 'A, B, V...']
+  homeroom_teacher_id uuid [ref: > users.id, null]
+  shift shift [default: 'first']
+}
+
+Table class_students { // [MVP]
+  class_id uuid [ref: > classes.id]
+  student_id uuid [ref: > users.id]
+  joined_on date
+  indexes {
+    (class_id, student_id) [pk]
+  }
+}
+
+Table teacher_assignments { // [MVP]
+  id uuid [pk]
+  teacher_id uuid [ref: > users.id, not null]
+  class_id uuid [ref: > classes.id, not null]
+  subject_id uuid [ref: > subjects.id, not null]
+  note: 'Which teacher teaches which subject to which class'
+}
+
+Table rooms {
+  id uuid [pk]
+  school_id uuid [ref: > schools.id, not null]
+  name varchar [note: 'Room 204, Computer lab 1']
+  type room_type [default: 'classroom']
+  seats smallint
+}
+
+Table timetable_slots {
+  id uuid [pk]
+  teacher_assignment_id uuid [ref: > teacher_assignments.id, not null]
+  room_id uuid [ref: > rooms.id, null]
+  term_id uuid [ref: > terms.id, null]
+  weekday smallint [note: '1 = Monday ... 6 = Saturday']
+  period smallint [note: 'lesson number in the day']
+  starts_at time
+  ends_at time
+}
+
+Table lessons { // [MVP]
+  id uuid [pk]
+  teacher_assignment_id uuid [ref: > teacher_assignments.id, not null]
+  timetable_slot_id uuid [ref: > timetable_slots.id, null]
+  topic_id uuid [ref: > topics.id, null, note: 'what was taught; links the lesson to the AI quiz']
+  date date [not null]
+  notes text
+}
+
+Table attendance {
+  id uuid [pk]
+  lesson_id uuid [ref: > lessons.id, not null]
+  student_id uuid [ref: > users.id, not null]
+  status attendance_status [not null]
+  note varchar
+  indexes {
+    (lesson_id, student_id) [unique]
+  }
+}
+
+Table grades {
+  id uuid [pk]
+  student_id uuid [ref: > users.id, not null]
+  teacher_assignment_id uuid [ref: > teacher_assignments.id, not null]
+  lesson_id uuid [ref: > lessons.id, null]
+  kind varchar [note: 'classwork, homework, quiz, exam, term']
+  value smallint [note: '2-5 scale']
+  comment varchar
+  created_at timestamptz [default: `now()`]
+}
+
+// ============ 3. Homework and media ============
+
+Enum submission_status {
+  submitted
+  checked
+  returned
+  late
+}
+
+Table homework { // [MVP]
+  id uuid [pk]
+  lesson_id uuid [ref: > lessons.id, not null]
+  title varchar [not null]
+  description text
+  quiz_id uuid [ref: > quizzes.id, null, note: 'optional AI quiz attached to the homework']
+  due_at timestamptz
+  created_by uuid [ref: > users.id]
+}
+
+Table homework_submissions { // [MVP]
+  id uuid [pk]
+  homework_id uuid [ref: > homework.id, not null]
+  student_id uuid [ref: > users.id, not null]
+  answer_text text
+  status submission_status [default: 'submitted']
+  score smallint
+  feedback text
+  checked_by uuid [ref: > users.id, null]
+  submitted_at timestamptz [default: `now()`]
+  checked_at timestamptz
+  indexes {
+    (homework_id, student_id) [unique]
+  }
+}
+
+Table media_files {
+  id uuid [pk]
+  uploaded_by uuid [ref: > users.id]
+  url varchar [not null, note: 'file in object storage (S3/MinIO)']
+  mime_type varchar
+  size_bytes bigint
+  created_at timestamptz [default: `now()`]
+}
+
+Table attachments {
+  id uuid [pk]
+  media_file_id uuid [ref: > media_files.id, not null]
+  entity_type varchar [note: 'homework, submission, lesson, topic']
+  entity_id uuid [note: 'id of that homework / submission / lesson / topic']
+}
+
+// ============ 4. Curriculum and the AI learning loop ============
+
+Enum question_type {
+  multiple_choice
+  short_answer
+}
+
+Enum question_status {
+  draft
+  approved
+  rejected
+}
+
+Enum quiz_kind {
+  practice
+  homework
+  extra_lesson
+  monthly_exam
+}
+
+Enum attempt_mode {
+  home
+  exam
+}
+
+Table textbooks { // [MVP]
+  id uuid [pk]
+  subject_id uuid [ref: > subjects.id, not null]
+  grade smallint [not null]
+  title varchar
+  language varchar [note: 'uz, ru']
+  edition_year smallint
+}
+
+Table chapters { // [MVP]
+  id uuid [pk]
+  textbook_id uuid [ref: > textbooks.id, not null]
+  number smallint
+  title varchar
+}
+
+Table topics { // [MVP]
+  id uuid [pk]
+  chapter_id uuid [ref: > chapters.id, not null]
+  position smallint
+  title varchar [not null, note: 'e.g. Adding fractions']
+  is_exam_topic boolean [default: false, note: 'appears in the university entrance exam']
+}
+
+Table textbook_chunks { // [MVP]
+  id uuid [pk]
+  topic_id uuid [ref: > topics.id, not null]
+  page smallint
+  content text [not null]
+  embedding vector(1536) [note: 'pgvector; used to find the right textbook text for the AI']
+}
+
+Table questions { // [MVP]
+  id uuid [pk]
+  topic_id uuid [ref: > topics.id, not null]
+  type question_type [not null]
+  prompt text [not null]
+  options jsonb [note: 'for multiple choice: ["A ...", "B ..."]']
+  correct_answer text [not null]
+  hint text
+  difficulty smallint [note: '1-3']
+  source_chunk_id uuid [ref: > textbook_chunks.id, null]
+  generated_by_ai boolean [default: true]
+  status question_status [default: 'draft', note: 'teacher must approve before students see it']
+  approved_by uuid [ref: > users.id, null]
+  approved_at timestamptz
+}
+
+Table quizzes { // [MVP]
+  id uuid [pk]
+  topic_id uuid [ref: > topics.id, null]
+  class_id uuid [ref: > classes.id, null]
+  kind quiz_kind [not null]
+  title varchar
+  time_limit_min smallint
+  shuffle_questions boolean [default: true, note: 'each student gets a different order']
+  created_by uuid [ref: > users.id]
+  created_at timestamptz [default: `now()`]
+}
+
+Table quiz_questions { // [MVP]
+  quiz_id uuid [ref: > quizzes.id]
+  question_id uuid [ref: > questions.id]
+  position smallint
+  points smallint [default: 1]
+  indexes {
+    (quiz_id, question_id) [pk]
+  }
+}
+
+Table attempts { // [MVP]
+  id uuid [pk]
+  quiz_id uuid [ref: > quizzes.id, not null]
+  student_id uuid [ref: > users.id, not null]
+  mode attempt_mode [not null, note: 'home = practice, exam = supervised computer room']
+  exam_session_id uuid [ref: > exam_sessions.id, null]
+  score_percent numeric(5,2)
+  started_at timestamptz [default: `now()`]
+  finished_at timestamptz
+}
+
+Table attempt_answers { // [MVP]
+  id uuid [pk]
+  attempt_id uuid [ref: > attempts.id, not null]
+  question_id uuid [ref: > questions.id, not null]
+  answer text
+  is_correct boolean
+  hints_used smallint [default: 0]
+  points_earned numeric(5,2)
+  ai_feedback text [note: 'AI check for short answers']
+}
+
+Table topic_mastery { // [MVP]
+  student_id uuid [ref: > users.id]
+  topic_id uuid [ref: > topics.id]
+  mastery smallint [note: '0-100; the heart of the parent view, teacher gap view and city dashboard']
+  home_score numeric(5,2) [note: 'latest practice result']
+  exam_score numeric(5,2) [note: 'latest supervised exam result']
+  is_mastered boolean [default: false]
+  updated_at timestamptz
+  indexes {
+    (student_id, topic_id) [pk]
+  }
+}
+
+Table ai_sessions {
+  id uuid [pk]
+  student_id uuid [ref: > users.id, not null]
+  subject_id uuid [ref: > subjects.id, not null]
+  topic_id uuid [ref: > topics.id, null]
+  kind varchar [note: 'study_weak_topic or extra_lesson']
+  started_at timestamptz [default: `now()`]
+  ended_at timestamptz
+}
+
+Table ai_messages {
+  id uuid [pk]
+  session_id uuid [ref: > ai_sessions.id, not null]
+  role varchar [note: 'student or assistant']
+  content text [not null]
+  created_at timestamptz [default: `now()`]
+}
+
+// ============ 5. Exams, support classes, notifications ============
+
+Enum flag_status {
+  open
+  reviewed
+  dismissed
+}
+
+Table exam_sessions { // [MVP]
+  id uuid [pk]
+  school_id uuid [ref: > schools.id, not null]
+  quiz_id uuid [ref: > quizzes.id, not null, note: 'a quiz of kind monthly_exam']
+  room_id uuid [ref: > rooms.id, null]
+  supervisor_id uuid [ref: > users.id]
+  starts_at timestamptz
+  ends_at timestamptz
+  access_code varchar [note: 'entered on the lab computer to unlock exam mode']
+}
+
+Table exam_session_students {
+  exam_session_id uuid [ref: > exam_sessions.id]
+  student_id uuid [ref: > users.id]
+  seat varchar
+  status varchar [note: 'present, absent']
+  indexes {
+    (exam_session_id, student_id) [pk]
+  }
+}
+
+Table integrity_flags { // [MVP]
+  id uuid [pk]
+  student_id uuid [ref: > users.id, not null]
+  topic_id uuid [ref: > topics.id, not null]
+  exam_session_id uuid [ref: > exam_sessions.id, not null]
+  home_score numeric(5,2)
+  exam_score numeric(5,2)
+  gap numeric(5,2) [note: 'home minus exam; flag when above a threshold, e.g. 30']
+  status flag_status [default: 'open']
+  reviewed_by uuid [ref: > users.id, null]
+  created_at timestamptz [default: `now()`]
+}
+
+Table support_groups {
+  id uuid [pk]
+  school_id uuid [ref: > schools.id, not null]
+  topic_id uuid [ref: > topics.id, not null]
+  teacher_id uuid [ref: > users.id, not null]
+  room_id uuid [ref: > rooms.id, null]
+  scheduled_at timestamptz
+  status varchar [note: 'planned, done, cancelled']
+}
+
+Table support_group_students {
+  support_group_id uuid [ref: > support_groups.id]
+  student_id uuid [ref: > users.id]
+  attended boolean
+  indexes {
+    (support_group_id, student_id) [pk]
+  }
+}
+
+Table notifications {
+  id uuid [pk]
+  user_id uuid [ref: > users.id, not null]
+  type varchar [note: 'grade, homework_due, absence, weekly_progress, flag']
+  title varchar
+  body text
+  read_at timestamptz
+  created_at timestamptz [default: `now()`]
+}
+
+// City dashboard: no extra tables. Build a materialized view from
+// topic_mastery + class_students + classes + schools, grouped by
+// region, district, school, grade and topic. Only aggregated numbers, never single students.
