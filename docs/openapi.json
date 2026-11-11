@@ -28686,6 +28686,28 @@
             "nullable": true,
             "example": null,
             "description": "The open try, if any (answer it or start resumes it)"
+          },
+          "lastFeedback": {
+            "type": "string",
+            "nullable": true,
+            "example": "Rahmat, tushuntirganing uchun! Endi tushundim: o'xshash hadlarni qo'shganda faqat koeffitsiyentlar qo'shiladi.",
+            "description": "Latest judged try: Sardor's thanks when passed, the short explanation when not yet; null before any judged try"
+          },
+          "lastMatchedIdeas": {
+            "nullable": true,
+            "description": "Latest judged try: key ideas the student covered; null before any judged try",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "lastMissingIdeas": {
+            "nullable": true,
+            "description": "Latest judged try: key ideas still missing; null before any judged try",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "required": [
@@ -28699,7 +28721,10 @@
           "lastTriedAt",
           "notYetSinceLastPass",
           "needsHelp",
-          "openCheckpointId"
+          "openCheckpointId",
+          "lastFeedback",
+          "lastMatchedIdeas",
+          "lastMissingIdeas"
         ]
       },
       "StudentSubjectDto": {

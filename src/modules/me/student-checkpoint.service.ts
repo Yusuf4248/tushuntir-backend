@@ -326,6 +326,16 @@ export class StudentCheckpointService {
     const listed = (await this.schedule.mastery(user.id)).topics.find(
       (t) => t.topicId === topic.id,
     )!;
+    const [last]: {
+      feedback: string | null;
+      matched_ideas: string[] | null;
+      missing_ideas: string[] | null;
+    }[] = await this.dataSource.query(
+      `SELECT feedback, matched_ideas, missing_ideas FROM checkpoint_attempts
+        WHERE student_id = $1 AND topic_id = $2 AND result IS NOT NULL
+        ORDER BY id DESC LIMIT 1`,
+      [user.id, topic.id],
+    );
     return {
       topicId: topic.id,
       topicTitle: topic.title,
@@ -338,6 +348,9 @@ export class StudentCheckpointService {
       notYetSinceLastPass: notYet,
       needsHelp: notYet >= NEEDS_HELP_AFTER_TRIES,
       openCheckpointId: stats?.openCheckpointId ?? null,
+      lastFeedback: last ? last.feedback : null,
+      lastMatchedIdeas: last ? (last.matched_ideas ?? []) : null,
+      lastMissingIdeas: last ? (last.missing_ideas ?? []) : null,
     };
   }
 

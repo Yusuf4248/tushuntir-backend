@@ -214,4 +214,29 @@ export class CheckpointStatusDto {
     description: "The open try, if any (answer it or start resumes it)",
   })
   openCheckpointId: number | null;
+
+  @ApiProperty({
+    example:
+      "Rahmat, tushuntirganing uchun! Endi tushundim: o'xshash hadlarni qo'shganda faqat koeffitsiyentlar qo'shiladi.",
+    nullable: true,
+    description:
+      "Latest judged try: Sardor's thanks when passed, the short explanation when not yet; null before any judged try",
+  })
+  lastFeedback: string | null;
+
+  @ApiProperty({
+    type: [String],
+    nullable: true,
+    description:
+      "Latest judged try: key ideas the student covered; null before any judged try",
+  })
+  lastMatchedIdeas: string[] | null;
+
+  @ApiProperty({
+    type: [String],
+    nullable: true,
+    description:
+      "Latest judged try: key ideas still missing; null before any judged try",
+  })
+  lastMissingIdeas: string[] | null;
 }
