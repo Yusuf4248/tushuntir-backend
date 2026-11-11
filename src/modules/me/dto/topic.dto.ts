@@ -1,5 +1,7 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { MasteryStatus } from "../me.types";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { Type } from "class-transformer";
+import { IsInt, IsOptional, Max, Min } from "class-validator";
+import { MASTERY_PASS_PERCENT, MasteryStatus } from "../me.types";
 
 export class SubjectRefDto {
   @ApiProperty({ example: 8 })
@@ -98,4 +100,90 @@ export class TopicDetailDto {
 
   @ApiProperty({ example: 9, nullable: true })
   nextTopicId: number | null;
+}
+
+export class AttemptsQueryDto {
+  @ApiPropertyOptional({ example: 20, minimum: 1, maximum: 100, default: 20 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  limit?: number;
+
+  @ApiPropertyOptional({ example: 8, description: "Only this topic" })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  topicId?: number;
+}
+
+export enum AttemptKind {
+  LESSON_QUIZ = "lesson_quiz",
+  PRACTICE = "practice",
+  CHECKPOINT = "checkpoint",
+}
+
+export class TopicRefDto {
+  @ApiProperty({ example: 8 })
+  id: number;
+
+  @ApiProperty({ example: "Ko'phadlarni qo'shish va ayirish" })
+  title: string;
+}
+
+export class AttemptHistoryItemDto {
+  @ApiProperty({
+    example: 35,
+    description:
+      "Attempt id for quizzes (use with /me/attempts/:id/review), checkpoint id for checkpoints",
+  })
+  id: number;
+
+  @ApiProperty({ enum: AttemptKind, example: AttemptKind.LESSON_QUIZ })
+  kind: AttemptKind;
+
+  @ApiProperty({
+    example: 15,
+    nullable: true,
+    description: "null for checkpoints",
+  })
+  quizId: number | null;
+
+  @ApiProperty({ type: TopicRefDto, nullable: true })
+  topic: TopicRefDto | null;
+
+  @ApiProperty({ type: SubjectRefDto, nullable: true })
+  subject: SubjectRefDto | null;
+
+  @ApiProperty({ nullable: true })
+  startedAt: Date | null;
+
+  @ApiProperty({ nullable: true, description: "null while open" })
+  finishedAt: Date | null;
+
+  @ApiProperty({
+    example: 60,
+    nullable: true,
+    description:
+      "Quiz score, or for a checkpoint the share of key ideas covered",
+  })
+  scorePercent: number | null;
+
+  @ApiProperty({
+    enum: ["passed", "not_yet"],
+    nullable: true,
+    example: "not_yet",
+    description: `Quizzes: passed at ${MASTERY_PASS_PERCENT}% or more; checkpoints: the judged result; null while open`,
+  })
+  result: "passed" | "not_yet" | null;
+
+  @ApiProperty({
+    example: 3,
+    nullable: true,
+    description:
+      "Submitted quizzes: wrong answers not yet fixed by a confirmation question; checkpoints: 0; null while open",
+  })
+  openMistakes: number | null;
 }

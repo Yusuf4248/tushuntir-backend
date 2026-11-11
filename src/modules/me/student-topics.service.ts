@@ -1,7 +1,13 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { DataSource } from "typeorm";
 import { AuthUser } from "../../common/auth/auth-user";
-import { ParagraphDto, TopicDetailDto } from "./dto/topic.dto";
+import {
+  AttemptHistoryItemDto,
+  AttemptKind,
+  ParagraphDto,
+  TopicDetailDto,
+} from "./dto/topic.dto";
+import { MASTERY_PASS_PERCENT } from "./me.types";
 import { StudentScheduleService } from "./student-schedule.service";
 
 interface TopicRow {
@@ -74,6 +80,80 @@ export class StudentTopicsService {
       prevTopicId: prev?.topicId ?? null,
       nextTopicId: next?.topicId ?? null,
     };
+  }
+
+  /** Lesson quizzes, practice quizzes and checkpoint tries, newest first. Exams are not listed. */
+  async attempts(
+    user: AuthUser,
+    query: { limit?: number; topicId?: number },
+  ): Promise<AttemptHistoryItemDto[]> {
+    const rows: {
+      id: number;
+      kind: AttemptKind;
+      quiz_id: number | null;
+      topic_id: number | null;
+      topic_title: string | null;
+      subject_id: number | null;
+      subject_name: string | null;
+      started_at: Date | null;
+      finished_at: Date | null;
+      score_percent: string | null;
+      result: "passed" | "not_yet" | null;
+      open_mistakes: number | null;
+    }[] = await this.dataSource.query(
+      `WITH history AS (
+         SELECT attempt.id,
+                CASE quiz.kind WHEN 'practice' THEN 'practice' ELSE 'lesson_quiz' END AS kind,
+                quiz.id AS quiz_id, quiz.topic_id, attempt.started_at, attempt.finished_at,
+                attempt.score_percent,
+                CASE WHEN attempt.finished_at IS NULL THEN NULL
+                     WHEN attempt.score_percent >= $3 THEN 'passed' ELSE 'not_yet' END AS result,
+                CASE WHEN attempt.finished_at IS NULL THEN NULL
+                     ELSE (SELECT count(*)::int FROM attempt_answers answer
+                            WHERE answer.attempt_id = attempt.id
+                              AND answer.is_correct IS NOT TRUE AND answer.fixed_at IS NULL) END AS open_mistakes
+           FROM attempts attempt JOIN quizzes quiz ON quiz.id = attempt.quiz_id
+          WHERE attempt.student_id = $1 AND quiz.kind IN ('homework', 'practice')
+         UNION ALL
+         SELECT checkpoint.id, 'checkpoint', NULL, checkpoint.topic_id, checkpoint.created_at, checkpoint.judged_at,
+                CASE WHEN checkpoint.result IS NULL THEN NULL
+                     ELSE round(100.0 * jsonb_array_length(checkpoint.matched_ideas)
+                                / NULLIF(jsonb_array_length(checkpoint.matched_ideas)
+                                         + jsonb_array_length(checkpoint.missing_ideas), 0), 2) END,
+                checkpoint.result,
+                CASE WHEN checkpoint.result IS NULL THEN NULL ELSE 0 END
+           FROM checkpoint_attempts checkpoint
+          WHERE checkpoint.student_id = $1)
+       SELECT history.*, topic.title AS topic_title, subject.id AS subject_id, subject.name AS subject_name
+         FROM history
+         LEFT JOIN topics topic ON topic.id = history.topic_id
+         LEFT JOIN chapters chapter ON chapter.id = topic.chapter_id
+         LEFT JOIN textbooks textbook ON textbook.id = chapter.textbook_id
+         LEFT JOIN subjects subject ON subject.id = textbook.subject_id
+        WHERE $4::int IS NULL OR history.topic_id = $4
+        ORDER BY history.started_at DESC NULLS LAST, history.id DESC
+        LIMIT $2`,
+      [user.id, query.limit ?? 20, MASTERY_PASS_PERCENT, query.topicId ?? null],
+    );
+    return rows.map((row) => ({
+      id: row.id,
+      kind: row.kind,
+      quizId: row.quiz_id,
+      topic:
+        row.topic_id !== null
+          ? { id: row.topic_id, title: row.topic_title! }
+          : null,
+      subject:
+        row.subject_id !== null
+          ? { id: row.subject_id, name: row.subject_name! }
+          : null,
+      startedAt: row.started_at,
+      finishedAt: row.finished_at,
+      scorePercent:
+        row.score_percent === null ? null : Number(row.score_percent),
+      result: row.result,
+      openMistakes: row.open_mistakes,
+    }));
   }
 
   /**

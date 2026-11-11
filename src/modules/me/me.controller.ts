@@ -8,6 +8,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Query,
   UploadedFile,
   UseInterceptors,
 } from "@nestjs/common";
@@ -57,7 +58,11 @@ import { StudentPracticeService } from "./student-practice.service";
 import { StudentReviewService } from "./student-review.service";
 import { StudentScheduleService } from "./student-schedule.service";
 import { StudentTopicsService } from "./student-topics.service";
-import { TopicDetailDto } from "./dto/topic.dto";
+import {
+  AttemptHistoryItemDto,
+  AttemptsQueryDto,
+  TopicDetailDto,
+} from "./dto/topic.dto";
 
 const CHECKPOINT_AUDIO_BYTES = 25 * 1024 * 1024;
 
@@ -115,6 +120,21 @@ export class MeController {
   @ApiOkResponse({ type: AttemptViewDto })
   start(@Param("id", ParseIntPipe) id: number, @CurrentUser() user: AuthUser) {
     return this.attempts.start(id, user);
+  }
+
+  @Get("attempts")
+  @ApiOperation({
+    summary: "The student's quiz and checkpoint history, newest first",
+    description:
+      "Lesson quizzes, practice quizzes and Tushuntir checkpoint tries (exams are not listed). " +
+      "For quizzes `id` is the attempt id (open the review with it); for checkpoints it is the checkpoint id.",
+  })
+  @ApiOkResponse({ type: [AttemptHistoryItemDto] })
+  attemptHistory(
+    @Query() query: AttemptsQueryDto,
+    @CurrentUser() user: AuthUser,
+  ) {
+    return this.topics.attempts(user, query);
   }
 
   @Post("attempts/:id/answers")
