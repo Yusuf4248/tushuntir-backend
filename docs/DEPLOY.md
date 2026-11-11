@@ -53,49 +53,53 @@ The local repository's `origin` still points to the old ERP repository, so add t
 
 ### Environment variables (names only)
 
-**Required in production**
+Legend:
+- **Required:** without it the service fails or a core feature breaks.
+- **New for prod:** generate a fresh value for production. Never reuse the local one.
+- **Render:** set it on Render, or only on your laptop for the one-time seed scripts.
 
-| Variable | Value / note |
-|---|---|
-| `NODE_ENV` | `production` |
-| `DATABASE_URL` | Neon connection string (step 2) |
-| `CORS_ORIGINS` | the Vercel URL(s), see step 6 |
-| `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET` | two different long random strings (e.g. `openssl rand -hex 32`) |
-| `JWT_ACCESS_TTL`, `JWT_REFRESH_TTL` | e.g. `15m` and `7d`; there is no default, and login fails without them |
-| `AI_API_KEY` | Anthropic key (chat, judging, question generation) |
-| `AI_EMBEDDING_API_KEY` | Voyage key (embeddings) |
-| `STT_API_KEY` | OpenAI key (speech-to-text) |
-| `SWAGGER_USER`, `SWAGGER_PASSWORD` | Swagger UI login; without both the docs are switched off in production |
+| Variable | Required | New for prod | Render | Value / note |
+|---|---|---|---|---|
+| `NODE_ENV` | yes | – | yes | `production` |
+| `DATABASE_URL` | yes | **yes** | yes | Neon direct connection string with `sslmode=require` (step 2); secret |
+| `CORS_ORIGINS` | yes | – | yes | the Vercel URL(s), comma-separated (step 6) |
+| `JWT_ACCESS_SECRET` | yes | **yes** | yes | long random string, different from the refresh secret |
+| `JWT_REFRESH_SECRET` | yes | **yes** | yes | long random string |
+| `JWT_ACCESS_TTL` | yes | – | yes | e.g. `15m` (no default; login fails without it) |
+| `JWT_REFRESH_TTL` | yes | – | yes | e.g. `7d` (no default) |
+| `AI_API_KEY` | yes | recommended | yes | Anthropic key (chat, judging, question generation); a separate production key makes its cost easy to see |
+| `AI_EMBEDDING_API_KEY` | yes | recommended | yes | Voyage key |
+| `STT_API_KEY` | yes | recommended | yes | OpenAI key (speech-to-text) |
+| `SWAGGER_USER` | yes | **yes** | yes | Swagger login; without both Swagger variables `/api/docs` is off in production |
+| `SWAGGER_PASSWORD` | yes | **yes** | yes | Swagger password |
+| `DEMO_MODE` | for the demo | – | yes | `true` enables `POST /api/demo/finish-lesson/:id` and `demo:reset`; default `false` |
+| `AI_MODEL` | optional | – | yes | default `claude-haiku-5-5`; local development used `claude-sonnet-5-5` |
+| `AI_PROVIDER` | optional | – | yes | default `anthropic` |
+| `AI_EMBEDDING_MODEL` | optional | – | yes | default `voyage-4` |
+| `AI_TIMEOUT_MS` | optional | – | yes | default `60000` |
+| `STT_PROVIDER` | optional | – | yes | default `openai` |
+| `STT_MODEL` | optional | – | yes | default `gpt-transcribe` |
+| `STT_TIMEOUT_MS` | optional | – | yes | default `60000` |
+| `TTS_VOICE` | optional | – | yes | default `uz-UZ-SardorNeural` |
+| `FFMPEG_PATH` | optional | – | yes | default: the `ffmpeg-static` binary |
+| `APP_TIMEZONE` | optional | – | yes | default `Asia/Tashkent` |
+| `QUIZ_DEADLINE_TIME` | optional | – | yes | default `22:00` |
+| `UPLOADS_DIR` | optional | – | yes | default `./uploads` (see "What is lost on restart") |
+| `LOG_TO_FILE` | optional | – | yes | default `false` when `NODE_ENV=production` |
+| `PORT` | – | – | **no** | Render sets it |
+| `PG_SSL` | optional | – | yes | only for the `PG_*` style; a Neon URL with `sslmode=require` needs nothing |
+| `PG_HOST`, `PG_PORT`, `PG_USER`, `PG_PASSWORD`, `PG_DB` | optional | – | no | alternative to `DATABASE_URL`, which wins when set |
+| `SMTP_HOST`, `SMTP_USER`, `SMTP_PASSWORD` | optional | – | no | nothing sends mail yet |
+| `SEED_ADMIN_PHONE` | for `seed:admin` | your choice | **no** | the first super admin's phone (laptop only) |
+| `SEED_ADMIN_PASSWORD` | for `seed:admin` | **yes** | **no** | at least 8 characters (laptop only) |
+| `SEED_ADMIN_FIRST_NAME`, `SEED_ADMIN_LAST_NAME` | optional | – | **no** | laptop only |
+| `SEED_DEMO_PASSWORD` | for `seed:mvp` | **yes** | **no** | password of all demo users in production (laptop only) |
 
-**Usually set**
-
-| Variable | Default when unset |
-|---|---|
-| `AI_MODEL` | `claude-haiku-5-5` (local development used `claude-sonnet-5-5`) |
-| `DEMO_MODE` | `false`. Set `true` for the demo: it enables `POST /api/demo/finish-lesson/:id` |
-| `APP_TIMEZONE` | `Asia/Tashkent` |
-| `QUIZ_DEADLINE_TIME` | `22:00` |
-| `STT_PROVIDER` / `STT_MODEL` | `openai` / `gpt-transcribe` |
-
-**Optional**
-
-| Variable | Default when unset |
-|---|---|
-| `PORT` | set by Render; do not set it yourself |
-| `AI_PROVIDER`, `AI_EMBEDDING_MODEL`, `AI_TIMEOUT_MS` | `anthropic`, `voyage-4`, `60000` |
-| `STT_TIMEOUT_MS`, `TTS_VOICE` | `60000`, `uz-UZ-SardorNeural` |
-| `FFMPEG_PATH` | the `ffmpeg-static` binary |
-| `UPLOADS_DIR` | `./uploads` (see "What is lost on restart") |
-| `LOG_TO_FILE` | `false` when `NODE_ENV=production`; Render shows the logs from stdout |
-| `PG_SSL` | only for the `PG_*` style; not needed with a Neon URL that has `sslmode=require` |
-| `PG_HOST`, `PG_PORT`, `PG_USER`, `PG_PASSWORD`, `PG_DB` | alternative to `DATABASE_URL`; ignored when it is set |
-| `SMTP_HOST`, `SMTP_USER`, `SMTP_PASSWORD` | mail settings; nothing sends mail yet, so they can stay empty |
-
-**Never on Render (laptop only, for the seed scripts):** `SEED_ADMIN_PHONE`, `SEED_ADMIN_PASSWORD`, `SEED_ADMIN_FIRST_NAME`, `SEED_ADMIN_LAST_NAME`, `SEED_DEMO_PASSWORD`.
+Generate a secret with `openssl rand -hex 32` (or `-base64 24` for a password). Keep production values in a password manager, never in a file inside this repository.
 
 ### Check the deploy
 
-1. The deploy log should show `migration:run` (the first deploy runs all 8 migrations), then `Nest application successfully started`.
+1. The deploy log should show `migration:run` (the first deploy runs all 9 migrations), then `Nest application successfully started`.
 2. Check the health endpoint:
    ```bash
    curl https://<service>.onrender.com/api/health
