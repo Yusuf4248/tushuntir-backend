@@ -153,6 +153,7 @@ Table lessons { // [MVP]
   topic_id uuid [ref: > topics.id, null, note: 'what was taught; links the lesson to the AI quiz']
   date date [not null]
   notes text
+  ended_at timestamptz [note: 'set when the teacher ends the lesson (or the demo endpoint); the lesson quiz unlocks then. NULL: the timetable slot end time is used']
 }
 
 Table attendance {
@@ -275,14 +276,18 @@ Table topics { // [MVP]
   position smallint
   title varchar [not null, note: 'e.g. Adding fractions']
   is_exam_topic boolean [default: false, note: 'appears in the university entrance exam']
+  key_ideas jsonb [note: 'main ideas a student must be able to explain; the Tushuntir checkpoint is judged against them']
+  summary text [note: 'short summary for the student topic page; from the content file, else written once by the AI in content:load']
 }
 
 Table textbook_chunks { // [MVP]
   id uuid [pk]
   topic_id uuid [ref: > topics.id, not null]
-  page smallint
-  content text [not null]
-  embedding vector(1536) [note: 'pgvector; used to find the right textbook text for the AI']
+  page smallint [note: 'page the chunk starts on']
+  position smallint [note: 'order of the chunk inside its topic (set by content:load)']
+  content text [not null, note: 'paragraphs separated by a blank line']
+  paragraph_pages jsonb [note: 'page of each paragraph of content; a chunk can span two pages']
+  embedding vector(1024) [note: 'pgvector (HNSW index); used to find the right textbook text for the AI']
 }
 
 Table questions { // [MVP]
@@ -293,12 +298,17 @@ Table questions { // [MVP]
   options jsonb [note: 'for multiple choice: ["A ...", "B ..."]']
   correct_answer text [not null]
   hint text
+  hints jsonb [note: 'three hint levels: a guiding question, the method, a worked example with other numbers; never the answer']
+  explanation text [note: 'worked solution shown after submit']
+  option_misconceptions jsonb [note: 'multiple choice: wrong option -> the misconception it shows']
   difficulty smallint [note: '1-3']
   source_chunk_id uuid [ref: > textbook_chunks.id, null]
   generated_by_ai boolean [default: true]
   status question_status [default: 'draft', note: 'teacher must approve before students see it']
   approved_by uuid [ref: > users.id, null]
   approved_at timestamptz
+  variant_of_id uuid [ref: > questions.id, null, note: 'set on a confirmation question: the question whose mistake it confirms; never in quiz pools']
+  confirmation_unavailable_at timestamptz [note: 'no confirmation question tests the same skill; the mistake review skips it']
 }
 
 Table quizzes { // [MVP]
@@ -343,6 +353,8 @@ Table attempt_answers { // [MVP]
   hints_used smallint [default: 0]
   points_earned numeric(5,2)
   ai_feedback text [note: 'AI check for short answers']
+  mistake_explanation text [note: 'cached AI explanation of the misconception, shown in the mistake review']
+  fixed_at timestamptz [note: 'the confirmation question was answered correctly']
 }
 
 Table topic_mastery { // [MVP]
@@ -358,12 +370,35 @@ Table topic_mastery { // [MVP]
   }
 }
 
+Table checkpoint_attempts { // [MVP]
+  id uuid [pk]
+  student_id uuid [ref: > users.id, not null]
+  topic_id uuid [ref: > topics.id, not null]
+  try_number smallint [not null, note: '1, 2, 3, ... per student and topic']
+  mode varchar [note: 'voice or text; set when the student answers']
+  prompt text [not null, note: 'what the AI classmate Sardor says to open the try']
+  transcript text [note: 'the student explanation: typed, or speech-to-text (the audio is deleted)']
+  follow_up text [note: 'Sardor follow-up question when key ideas were missing (max one per try)']
+  follow_up_transcript text
+  result varchar [note: 'passed or not_yet; NULL while the try is open']
+  matched_ideas jsonb [note: 'key ideas the student covered']
+  missing_ideas jsonb
+  wrong_statements jsonb [note: 'any one means not passed']
+  feedback text [note: 'passed: Sardor thanks; not_yet: a short new explanation']
+  created_at timestamptz [default: `now()`]
+  judged_at timestamptz
+  indexes {
+    (student_id, topic_id)
+  }
+  Note: 'Tushuntir voice checkpoint. Pass: at least 80% of topics.key_ideas and no wrong statement; sets topic_mastery.is_mastered'
+}
+
 Table ai_sessions {
   id uuid [pk]
   student_id uuid [ref: > users.id, not null]
   subject_id uuid [ref: > subjects.id, not null]
   topic_id uuid [ref: > topics.id, null]
-  kind varchar [note: 'study_weak_topic or extra_lesson']
+  kind varchar [note: 'study (self-study chat on a topic), study_weak_topic or extra_lesson']
   started_at timestamptz [default: `now()`]
   ended_at timestamptz
 }
@@ -440,7 +475,7 @@ Table support_group_students {
 Table notifications {
   id uuid [pk]
   user_id uuid [ref: > users.id, not null]
-  type varchar [note: 'grade, homework_due, absence, weekly_progress, flag']
+  type varchar [note: 'grade, homework_due, absence, weekly_progress, flag, needs_help (3 failed Tushuntir checkpoint tries)']
   title varchar
   body text
   read_at timestamptz
