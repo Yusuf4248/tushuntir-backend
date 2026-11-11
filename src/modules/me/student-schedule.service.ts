@@ -114,23 +114,31 @@ export class StudentScheduleService {
     return masteryStatus(row, stats?.notYetSinceLastPass);
   }
 
-  /** The topic after this one in its textbook (chapter number, then position), if any. */
-  async nextTopic(
-    topicId: number,
-  ): Promise<{ topicId: number; title: string } | null> {
-    const [next] = await this.dataSource.query(
-      `WITH ordered AS (
-         SELECT topic.id, topic.title, chapter.textbook_id,
-                row_number() OVER (PARTITION BY chapter.textbook_id
-                                   ORDER BY chapter.number NULLS LAST, topic.position NULLS LAST, topic.id) AS n
-           FROM topics topic JOIN chapters chapter ON chapter.id = topic.chapter_id)
-       SELECT next.id AS "topicId", next.title
-         FROM ordered current
-         JOIN ordered next ON next.textbook_id = current.textbook_id AND next.n = current.n + 1
-        WHERE current.id = $1`,
-      [topicId],
-    );
-    return next ?? null;
+  /** The topics before and after this one in its textbook (chapter number, then position). */
+  async neighbours(topicId: number): Promise<{
+    prev: { topicId: number; title: string } | null;
+    next: { topicId: number; title: string } | null;
+  }> {
+    const rows: { topicId: number; title: string; side: "prev" | "next" }[] =
+      await this.dataSource.query(
+        `WITH ordered AS (
+           SELECT topic.id, topic.title, chapter.textbook_id,
+                  row_number() OVER (PARTITION BY chapter.textbook_id
+                                     ORDER BY chapter.number NULLS LAST, topic.position NULLS LAST, topic.id) AS n
+             FROM topics topic JOIN chapters chapter ON chapter.id = topic.chapter_id)
+         SELECT other.id AS "topicId", other.title,
+                CASE WHEN other.n < current.n THEN 'prev' ELSE 'next' END AS side
+           FROM ordered current
+           JOIN ordered other ON other.textbook_id = current.textbook_id
+                             AND other.n IN (current.n - 1, current.n + 1)
+          WHERE current.id = $1`,
+        [topicId],
+      );
+    const pick = (side: "prev" | "next") => {
+      const row = rows.find((r) => r.side === side);
+      return row ? { topicId: row.topicId, title: row.title } : null;
+    };
+    return { prev: pick("prev"), next: pick("next") };
   }
 
   /** The topic when it belongs to the student's class subjects and grade, else null. */

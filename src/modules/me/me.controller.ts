@@ -56,6 +56,8 @@ import { StudentCheckpointService } from "./student-checkpoint.service";
 import { StudentPracticeService } from "./student-practice.service";
 import { StudentReviewService } from "./student-review.service";
 import { StudentScheduleService } from "./student-schedule.service";
+import { StudentTopicsService } from "./student-topics.service";
+import { TopicDetailDto } from "./dto/topic.dto";
 
 const CHECKPOINT_AUDIO_BYTES = 25 * 1024 * 1024;
 
@@ -74,6 +76,7 @@ export class MeController {
     private readonly chat: StudentChatService,
     private readonly practice: StudentPracticeService,
     private readonly checkpoints: StudentCheckpointService,
+    private readonly topics: StudentTopicsService,
   ) {}
 
   @Get("today")
@@ -256,6 +259,19 @@ export class MeController {
   @ApiOkResponse({ type: [WeakTopicDto] })
   weakTopics(@CurrentUser() user: AuthUser) {
     return this.chat.weakTopics(user);
+  }
+
+  @Get("topics/:id")
+  @ApiOperation({
+    summary: "A textbook topic: summary, key ideas and paragraphs",
+    description:
+      "Only topics of the student's class subjects and grade (else 404). Paragraphs are the topic's textbook " +
+      "text in order, each with its real page. status / unlocked follow docs/mastery-rules.md; " +
+      "prevTopicId / nextTopicId follow book order within the textbook.",
+  })
+  @ApiOkResponse({ type: TopicDetailDto })
+  topic(@Param("id", ParseIntPipe) id: number, @CurrentUser() user: AuthUser) {
+    return this.topics.topic(id, user);
   }
 
   @Post("topics/:id/practice")

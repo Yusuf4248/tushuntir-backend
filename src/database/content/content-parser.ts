@@ -22,7 +22,18 @@ export interface TopicContent {
   title: string;
   examTopic: boolean;
   keyIdeas: string[];
-  chunks: { page: number | null; content: string }[];
+  /** From a "summary:" front matter line; otherwise content:load writes one with the AI. */
+  summary: string | null;
+  chunks: Chunk[];
+}
+
+export interface Chunk {
+  /** Page the chunk starts on */
+  page: number | null;
+  /** Paragraphs joined by a blank line */
+  content: string;
+  /** Page of each paragraph of content */
+  paragraphPages: (number | null)[];
 }
 
 export function parseFrontMatter(text: string, file: string): ParsedFile {
@@ -64,6 +75,7 @@ export function parseTopic(text: string, file: string): TopicContent {
     position: integer("position"),
     title: requireMeta(meta, "title", file),
     examTopic: meta.exam_topic === "true",
+    summary: meta.summary || null,
     keyIdeas: ideasPart
       .split(/\r?\n/)
       .filter((line) => line.trim().startsWith("- "))
@@ -101,12 +113,15 @@ function paragraphsOf(text: string): { page: number | null; text: string }[] {
   return paragraphs;
 }
 
-/** Packs whole paragraphs into chunks of about 800–1,200 characters; a chunk keeps the page it starts on. */
+/**
+ * Packs whole paragraphs into chunks of about 800–1,200 characters. A chunk keeps the page it
+ * starts on, and the page of each paragraph in paragraphPages.
+ */
 function chunkParagraphs(
   paragraphs: { page: number | null; text: string }[],
-): { page: number | null; content: string }[] {
-  const chunks: { page: number | null; content: string }[] = [];
-  let current: { page: number | null; content: string } | null = null;
+): Chunk[] {
+  const chunks: Chunk[] = [];
+  let current: Chunk | null = null;
   for (const paragraph of splitLong(paragraphs)) {
     if (
       current &&
@@ -119,8 +134,13 @@ function chunkParagraphs(
       ? {
           page: current.page,
           content: `${current.content}\n\n${paragraph.text}`,
+          paragraphPages: [...current.paragraphPages, paragraph.page],
         }
-      : { page: paragraph.page, content: paragraph.text };
+      : {
+          page: paragraph.page,
+          content: paragraph.text,
+          paragraphPages: [paragraph.page],
+        };
   }
   if (current) chunks.push(current);
   // A short tail reads better merged into the chunk before it.
@@ -133,6 +153,7 @@ function chunkParagraphs(
     previous.content.length + last.content.length <= CHUNK_MAX_CHARS * 1.3
   ) {
     previous.content = `${previous.content}\n\n${last.content}`;
+    previous.paragraphPages.push(...last.paragraphPages);
     chunks.pop();
   }
   return chunks;

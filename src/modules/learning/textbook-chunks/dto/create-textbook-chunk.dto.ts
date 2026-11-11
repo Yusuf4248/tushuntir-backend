@@ -1,5 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import {
+  ArrayMaxSize,
+  IsArray,
   IsInt,
   IsNotEmpty,
   IsOptional,
@@ -46,4 +48,19 @@ export class CreateTextbookChunkDto {
   @IsString()
   @IsNotEmpty()
   content: string;
+
+  @ApiPropertyOptional({
+    example: [13, 13, 14],
+    description:
+      "Page of each paragraph of content (paragraphs are separated by a blank line)",
+    type: [Number],
+    nullable: true,
+  })
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(200)
+  @IsInt({ each: true })
+  @Min(1, { each: true })
+  @Max(2000, { each: true })
+  paragraphPages?: number[] | null;
 }

@@ -39,4 +39,8 @@ export class Topic {
   /** Main ideas a student must be able to explain (used by the voice checkpoint) */
   @Column({ name: "key_ideas", type: "jsonb", nullable: true })
   keyIdeas: string[] | null;
+
+  /** Short summary for the student's topic page (from the content file, else AI-written once by content:load) */
+  @Column({ name: "summary", type: "text", nullable: true })
+  summary: string | null;
 }

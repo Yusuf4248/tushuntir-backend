@@ -310,7 +310,7 @@ export class StudentCheckpointService {
 
   /** Passing masters this topic, which unlocks the next one in the textbook. */
   private async unlockedNext(topicId: number): Promise<NextTopicDto | null> {
-    const next = await this.schedule.nextTopic(topicId);
+    const { next } = await this.schedule.neighbours(topicId);
     return next ? { ...next, unlocked: true } : null;
   }
 

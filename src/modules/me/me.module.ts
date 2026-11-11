@@ -10,6 +10,7 @@ import { StudentCheckpointService } from "./student-checkpoint.service";
 import { StudentPracticeService } from "./student-practice.service";
 import { StudentReviewService } from "./student-review.service";
 import { StudentScheduleService } from "./student-schedule.service";
+import { StudentTopicsService } from "./student-topics.service";
 
 /** Student app endpoints under /api/me; every query is limited to the logged-in student. */
 @Module({
@@ -26,6 +27,7 @@ import { StudentScheduleService } from "./student-schedule.service";
     StudentChatService,
     StudentPracticeService,
     StudentCheckpointService,
+    StudentTopicsService,
   ],
 })
 export class MeModule {}

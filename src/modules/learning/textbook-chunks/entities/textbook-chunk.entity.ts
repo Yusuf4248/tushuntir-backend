@@ -35,6 +35,13 @@ export class TextbookChunk {
   @Column({ name: "content", type: "text" })
   content: string;
 
+  /**
+   * Page of each paragraph of content (paragraphs are separated by a blank line), set by
+   * content:load; a chunk can span two pages while page keeps only the first.
+   */
+  @Column({ name: "paragraph_pages", type: "jsonb", nullable: true })
+  paragraphPages: (number | null)[] | null;
+
   /** pgvector embedding for retrieval; written by content:load, never returned by the API */
   @ApiHideProperty()
   @Index("IDX_textbook_chunks_embedding_hnsw", { synchronize: false })

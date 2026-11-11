@@ -53,4 +53,15 @@ export class CreateTopicDto {
   @IsNotEmpty({ each: true })
   @MaxLength(300, { each: true })
   keyIdeas?: string[] | null;
+
+  @ApiPropertyOptional({
+    example:
+      "Algebraik ifoda sonlar, harflar va amal belgilaridan tuziladi. Uning qiymatini topish uchun harflar o'rniga sonlar qo'yiladi.",
+    description: "Short summary shown on the student's topic page",
+    nullable: true,
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(2000)
+  summary?: string | null;
 }
