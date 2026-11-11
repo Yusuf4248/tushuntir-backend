@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { DataSource } from "typeorm";
 import { AuthUser } from "../../common/auth/auth-user";
-import { LessonsService } from "../daily/lessons/lessons.service";
+import { UserRole } from "../../common/enums";
 
 /** A demo quiz must stay open for at least this long after the lesson is ended. */
 const MIN_OPEN_MS = 60 * 60 * 1000;
@@ -13,17 +13,25 @@ export function demoModeEnabled(): boolean {
 
 @Injectable()
 export class DemoService {
-  constructor(
-    private readonly lessonsService: LessonsService,
-    private readonly dataSource: DataSource,
-  ) {}
+  constructor(private readonly dataSource: DataSource) {}
 
   async finishLesson(lessonId: number, user: AuthUser) {
     if (!demoModeEnabled()) throw new NotFoundException();
-    // Scope check: users outside the lesson's school get a 404.
-    const lesson = await this.lessonsService.findOne(lessonId, user);
-    const endedAt = lesson.endedAt ?? new Date();
-    if (!lesson.endedAt) {
+    // A student may end a lesson of their own class, a teacher only their own lesson; others get 404.
+    const [lesson]: { ended_at: Date | null }[] = await this.dataSource.query(
+      `SELECT lesson.ended_at
+         FROM lessons lesson
+         JOIN teacher_assignments assignment ON assignment.id = lesson.teacher_assignment_id
+        WHERE lesson.id = $1
+          AND (($2 = $3 AND assignment.teacher_id = $5)
+            OR ($2 = $4 AND EXISTS (SELECT 1 FROM class_students enrolment
+                                     WHERE enrolment.class_id = assignment.class_id
+                                       AND enrolment.student_id = $5)))`,
+      [lessonId, user.role, UserRole.TEACHER, UserRole.STUDENT, user.id],
+    );
+    if (!lesson) throw new NotFoundException(`Lesson ${lessonId} not found`);
+    const endedAt = lesson.ended_at ?? new Date();
+    if (!lesson.ended_at) {
       await this.dataSource.query(
         `UPDATE lessons SET ended_at = $1 WHERE id = $2`,
         [endedAt, lessonId],
