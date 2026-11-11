@@ -70,6 +70,7 @@ interface VariantRow {
 @Injectable()
 export class StudentReviewService {
   private readonly logger = new Logger(StudentReviewService.name);
+  private readonly inFlight = new Map<string, Promise<ReviewDto>>();
 
   constructor(
     private readonly dataSource: DataSource,
@@ -78,7 +79,25 @@ export class StudentReviewService {
     private readonly llm: LlmService,
   ) {}
 
+  /**
+   * A review still being prepared for the same attempt (e.g. the prewarm started at submit) is
+   * shared, so its explanations and confirmation questions are generated once.
+   */
   async review(attemptId: number, user: AuthUser): Promise<ReviewDto> {
+    const key = `${user.id}:${attemptId}`;
+    const running = this.inFlight.get(key);
+    if (running) return running;
+    const review = this.buildReview(attemptId, user).finally(() =>
+      this.inFlight.delete(key),
+    );
+    this.inFlight.set(key, review);
+    return review;
+  }
+
+  private async buildReview(
+    attemptId: number,
+    user: AuthUser,
+  ): Promise<ReviewDto> {
     const attempt = await this.attempts.ownAttempt(attemptId, user);
     if (!attempt.finished_at) {
       throw new ConflictException(

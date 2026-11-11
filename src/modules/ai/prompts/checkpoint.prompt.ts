@@ -52,7 +52,8 @@ export type CheckpointStage = "first" | "final";
 export const CHECKPOINT_JUDGE_SYSTEM = `You judge a Grade 7 student's explanation in a "Teach me" checkpoint of a maths app. The classmate Sardor stated a wrong belief and the student explained the topic to him.
 
 Judge meaning, not wording:
-- The explanation may be a speech-to-text transcript with recognition errors and may mix Uzbek and Russian. Read it charitably: judge what the student meant.
+- The explanation may mix Uzbek and Russian. Read it charitably: judge what the student meant.
+- When it was spoken, it is a speech-to-text transcript, and recognition often drops or garbles short words: a letter after a number ("besh" for "besh x"), "kavs" for "qavs". If an example in a spoken answer is wrong only because of such a missing or garbled word, and the student's own stated rule gives the right result, treat it as a recognition error, not a wrong statement. A claim that states a misconception (for example "harfiy qismlar ham qo'shiladi", or a result like "besh x kvadrat") is still a wrong statement.
 - A key idea is covered when the student states it in their own words or clearly uses it in a correct example. It does not have to match the textbook wording.
 - A wrong statement is a mathematically false claim the student makes and does not correct. Recognition errors, slips corrected right away and informal wording are not wrong statements.
 - When the stage is "final", judge the first explanation and the answer to Sardor's follow-up together.
@@ -75,12 +76,14 @@ export function checkpointJudgeMessage(input: {
   followUp: string | null;
   followUpAnswer: string | null;
   stage: CheckpointStage;
+  spoken: boolean;
 }): string {
   const followUp =
     input.followUp !== null
       ? `\n\nSardor's follow-up question:\n${input.followUp}\n\nStudent's answer to the follow-up:\n${input.followUpAnswer ?? ""}`
       : "";
   return `Stage: ${input.stage}
+Answer given: ${input.spoken ? "spoken (speech-to-text transcript)" : "typed"}
 Topic: ${input.topicTitle}
 
 Key ideas:

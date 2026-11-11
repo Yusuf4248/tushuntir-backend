@@ -176,6 +176,7 @@ export class StudentCheckpointService {
             followUp: row.follow_up,
             followUpAnswer: stage === "final" ? answer : null,
             stage,
+            spoken: mode === "voice",
           }),
         },
       ],
