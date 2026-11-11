@@ -44,6 +44,17 @@ export class Question {
   @JoinColumn({ name: "variant_of_id" })
   variantOf: Question | null;
 
+  /**
+   * Set when no confirmation question for this question could be generated or matched by skill,
+   * so the mistake review does not try again on every open. A variant added later still wins.
+   */
+  @Column({
+    name: "confirmation_unavailable_at",
+    type: "timestamptz",
+    nullable: true,
+  })
+  confirmationUnavailableAt: Date | null;
+
   @Column({ name: "approved_by", type: "int", nullable: true })
   approvedBy: number | null;
 

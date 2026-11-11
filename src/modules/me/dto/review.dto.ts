@@ -1,6 +1,15 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsNotEmpty, IsString, MaxLength } from "class-validator";
 
+export enum ConfirmationStatus {
+  /** confirmation is set */
+  READY = "ready",
+  /** No question tests the same skill: skip to "explain more" */
+  NONE = "none",
+  /** The AI was unavailable; opening the review again tries again */
+  PENDING = "pending",
+}
+
 export class ConfirmationQuestionDto {
   @ApiProperty({ example: 171, description: "Id of the confirmation question" })
   questionId: number;
@@ -78,10 +87,20 @@ export class MistakeDto {
   fixed: boolean;
 
   @ApiProperty({
+    enum: ConfirmationStatus,
+    example: ConfirmationStatus.READY,
+    description:
+      "ready: answer `confirmation`; none: no question tests the same skill, skip to explain more; " +
+      "pending: the AI was unavailable, open the review again later",
+  })
+  confirmationStatus: ConfirmationStatus;
+
+  @ApiProperty({
     type: ConfirmationQuestionDto,
     nullable: true,
     description:
-      "Same skill, new numbers; answer it with POST .../confirm/:questionId. null if none could be made yet",
+      "Same skill (new numbers, or an approved pool question testing that skill); answer it with " +
+      "POST .../confirm/:questionId. null unless confirmationStatus is ready",
   })
   confirmation: ConfirmationQuestionDto | null;
 }

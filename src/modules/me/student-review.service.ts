@@ -15,8 +15,17 @@ import {
   MISTAKE_EXPLANATION_SYSTEM,
   mistakeExplanationMessage,
 } from "../ai/prompts/mistake-explanation.prompt";
+import {
+  SAME_SKILL_MATCH_SYSTEM,
+  sameSkillMatchMessage,
+} from "../ai/prompts/same-skill-match.prompt";
 import { QuestionGenerationService } from "../learning/question-generation/question-generation.service";
-import { ConfirmResultDto, MistakeDto, ReviewDto } from "./dto/review.dto";
+import {
+  ConfirmationStatus,
+  ConfirmResultDto,
+  MistakeDto,
+  ReviewDto,
+} from "./dto/review.dto";
 import { AnswerRow, StudentAttemptsService } from "./student-attempts.service";
 
 const MistakeExplanations = z.object({
@@ -26,6 +35,21 @@ const MistakeExplanations = z.object({
 });
 
 const UNANSWERED = "Bu savolga javob berilmagan.";
+
+const SameSkillMatches = z.object({
+  matches: z.array(
+    z.object({ index: z.number(), candidate_id: z.number().nullable() }),
+  ),
+});
+
+/** Pool questions shown to the matcher per mistake. */
+const MAX_CANDIDATES = 40;
+
+interface VariantResult {
+  variants: Map<number, VariantRow>;
+  /** Originals for which no confirmation question exists (cached as confirmation_unavailable_at) */
+  unavailable: Set<number>;
+}
 
 interface VariantRow {
   id: number;
@@ -69,9 +93,10 @@ export class StudentReviewService {
       .map((row, index) => ({ row, position: index + 1 }))
       .filter(({ row }) => row.isCorrect !== true);
     const explanations = await this.ensureExplanations(wrong.map((w) => w.row));
-    const variants = await this.ensureVariants(
+    const { variants, unavailable } = await this.ensureVariants(
       wrong.map((w) => w.row),
       rows.map((r) => r.questionId),
+      explanations,
     );
     const mistakes: MistakeDto[] = wrong.map(({ row, position }) => {
       const variant = variants.get(row.questionId);
@@ -87,6 +112,11 @@ export class StudentReviewService {
         explanation: row.explanation,
         page: row.page,
         fixed: row.fixedAt !== null,
+        confirmationStatus: variant
+          ? ConfirmationStatus.READY
+          : unavailable.has(row.questionId)
+            ? ConfirmationStatus.NONE
+            : ConfirmationStatus.PENDING,
         confirmation: variant
           ? {
               questionId: variant.id,
@@ -137,15 +167,16 @@ export class StudentReviewService {
         `Question ${questionId} is not a mistake in attempt ${attemptId}`,
       );
     }
-    const variant = (
-      await this.ensureVariants(
-        [row],
-        rows.map((r) => r.questionId),
-      )
-    ).get(questionId);
+    const { variants, unavailable } = await this.ensureVariants(
+      [row],
+      rows.map((r) => r.questionId),
+    );
+    const variant = variants.get(questionId);
     if (!variant) {
       throw new ConflictException(
-        "No confirmation question for this mistake yet; open the review again in a moment",
+        unavailable.has(questionId)
+          ? "This mistake has no confirmation question (confirmationStatus none); continue with the explanation"
+          : "No confirmation question for this mistake yet; open the review again in a moment",
       );
     }
     if (row.fixedAt) {
@@ -272,11 +303,16 @@ export class StudentReviewService {
     return result;
   }
 
-  /** Cached confirmation question per original question; generates the missing ones once. */
+  /**
+   * Cached confirmation question per original question. Missing ones are generated once; when
+   * no generated one passes the checks, an approved pool question testing the same skill is
+   * used, and when none does, the original is marked confirmation_unavailable_at.
+   */
   private async ensureVariants(
     rows: AnswerRow[],
     attemptQuestionIds: number[],
-  ): Promise<Map<number, VariantRow>> {
+    misconceptions = new Map<number, string>(),
+  ): Promise<VariantResult> {
     const ids = rows.map((r) => r.questionId);
     const load = async () =>
       new Map(
@@ -292,64 +328,153 @@ export class StudentReviewService {
         ).map((v) => [v.variant_of_id, v]),
       );
     let variants = await load();
-    const missing = rows.filter((r) => !variants.has(r.questionId));
-    if (missing.length) {
-      try {
-        await this.generation.generateVariants(
-          missing.map((r) => ({
-            id: r.questionId,
-            topicId: r.topicId,
-            type: r.type,
-            prompt: r.prompt,
-            options: r.options,
-            correctAnswer: r.correctAnswer,
-            difficulty: r.difficulty,
-          })),
+    const unavailable = new Set<number>(
+      (
+        (await this.dataSource.query(
+          `SELECT id FROM questions WHERE id = ANY($1) AND confirmation_unavailable_at IS NOT NULL`,
+          [ids],
+        )) as { id: number }[]
+      ).map((r) => r.id),
+    );
+    const missing = rows.filter(
+      (r) => !variants.has(r.questionId) && !unavailable.has(r.questionId),
+    );
+    if (!missing.length) return { variants, unavailable };
+    try {
+      await this.generation.generateVariants(
+        missing.map((r) => ({
+          id: r.questionId,
+          topicId: r.topicId,
+          type: r.type,
+          prompt: r.prompt,
+          options: r.options,
+          correctAnswer: r.correctAnswer,
+          difficulty: r.difficulty,
+        })),
+      );
+      variants = await load();
+      const stillMissing = missing.filter((r) => !variants.has(r.questionId));
+      if (stillMissing.length) {
+        const matches = await this.matchSameSkill(
+          stillMissing,
+          attemptQuestionIds,
+          misconceptions,
         );
+        for (const row of stillMissing) {
+          const candidate = matches.get(row.questionId);
+          if (candidate) {
+            await this.copyAsVariant(candidate, row.questionId);
+          } else {
+            await this.dataSource.query(
+              `UPDATE questions SET confirmation_unavailable_at = now() WHERE id = $1`,
+              [row.questionId],
+            );
+            unavailable.add(row.questionId);
+            this.logger.log(
+              `no confirmation question for ${row.questionId}: nothing in the pool tests the same skill`,
+            );
+          }
+        }
         variants = await load();
-      } catch (error) {
-        if (!(error instanceof AiUnavailableException)) throw error;
-        this.logger.warn(
-          `confirmation questions unavailable: ${error.message}`,
-        );
       }
-      const stillMissing = rows.filter((r) => !variants.has(r.questionId));
-      for (const row of stillMissing) {
-        await this.fallbackVariant(row, attemptQuestionIds);
-      }
-      if (stillMissing.length) variants = await load();
+    } catch (error) {
+      // AI down: leave these pending (not marked) so the next review tries again.
+      if (!(error instanceof AiUnavailableException)) throw error;
+      this.logger.warn(`confirmation questions unavailable: ${error.message}`);
     }
-    return variants;
+    return { variants, unavailable };
   }
 
   /**
-   * When no new variant passes the checks, copy an approved (already self-checked) pool question
-   * of the same topic, type and difficulty that was not in this attempt, and cache it as the
-   * confirmation question, so every mistake gets one and nothing is regenerated on each review.
+   * Asks the AI which approved pool question (same topic, not in this attempt) tests the same
+   * skill as each mistake. Returns original id → pool question id; no entry means none matches.
    */
-  private async fallbackVariant(
-    row: AnswerRow,
+  private async matchSameSkill(
+    rows: AnswerRow[],
     attemptQuestionIds: number[],
-  ): Promise<void> {
-    const [pick] = await this.dataSource.query(
-      `SELECT id FROM questions
-        WHERE topic_id = $1 AND type = $2 AND status = 'approved' AND variant_of_id IS NULL
-          AND id <> ALL($3)
-        ORDER BY (difficulty IS NOT DISTINCT FROM $4) DESC, random()
-        LIMIT 1`,
-      [row.topicId, row.type, attemptQuestionIds, row.difficulty],
+    misconceptions: Map<number, string>,
+  ): Promise<Map<number, number>> {
+    const pool: {
+      id: number;
+      topic_id: number;
+      type: string;
+      prompt: string;
+      options: string[] | null;
+    }[] = await this.dataSource.query(
+      `SELECT id, topic_id, type, prompt, options FROM questions
+        WHERE topic_id = ANY($1) AND status = 'approved' AND variant_of_id IS NULL AND id <> ALL($2)
+        ORDER BY id`,
+      [
+        [...new Set(rows.map((r) => r.topicId))],
+        // Never the mistake itself, nor anything else the student just saw.
+        [...attemptQuestionIds, ...rows.map((r) => r.questionId)],
+      ],
     );
-    if (!pick) return;
+    const items = rows
+      .map((row) => ({
+        row,
+        candidates: pool
+          .filter((q) => q.topic_id === row.topicId)
+          .slice(0, MAX_CANDIDATES),
+      }))
+      .filter((item) => item.candidates.length);
+    const result = new Map<number, number>();
+    if (!items.length) return result;
+    const { matches } = await this.llm.chatJson({
+      purpose: "confirmation-same-skill",
+      system: SAME_SKILL_MATCH_SYSTEM,
+      messages: [
+        {
+          role: "user",
+          content: sameSkillMatchMessage(
+            items.map(({ row, candidates }, index) => ({
+              index,
+              prompt: row.prompt,
+              correctAnswer: row.correctAnswer,
+              studentAnswer: row.answer,
+              misconception:
+                misconceptions.get(row.answerId) ??
+                row.mistakeExplanation ??
+                (row.answer
+                  ? (row.optionMisconceptions?.[row.answer] ?? null)
+                  : null),
+              candidates,
+            })),
+          ),
+        },
+      ],
+      schema: SameSkillMatches,
+      effort: "medium",
+      maxTokens: 2_000,
+    });
+    for (const { index, candidate_id } of matches) {
+      const item = items[index];
+      if (
+        item &&
+        candidate_id !== null &&
+        item.candidates.some((c) => c.id === candidate_id)
+      ) {
+        result.set(item.row.questionId, candidate_id);
+      }
+    }
+    return result;
+  }
+
+  /** Caches a pool question (already approved and self-checked) as the confirmation question. */
+  private async copyAsVariant(
+    poolId: number,
+    originalId: number,
+  ): Promise<void> {
     await this.dataSource.query(
       `INSERT INTO questions (topic_id, type, prompt, options, correct_answer, hint, hints, explanation,
                               option_misconceptions, difficulty, source_chunk_id, generated_by_ai, status, variant_of_id)
        SELECT topic_id, type, prompt, options, correct_answer, hint, hints, explanation,
               option_misconceptions, difficulty, source_chunk_id, generated_by_ai, 'draft', $2
          FROM questions WHERE id = $1`,
-      [pick.id, row.questionId],
+      [poolId, originalId],
     );
     this.logger.log(
-      `confirmation question for ${row.questionId}: copied pool question ${pick.id}`,
+      `confirmation question for ${originalId}: pool question ${poolId} tests the same skill`,
     );
   }
 }
