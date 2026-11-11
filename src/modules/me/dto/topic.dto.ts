@@ -187,3 +187,20 @@ export class AttemptHistoryItemDto {
   })
   openMistakes: number | null;
 }
+
+export class StudentSubjectDto {
+  @ApiProperty({ example: 8 })
+  id: number;
+
+  @ApiProperty({ example: "Algebra" })
+  name: string;
+
+  @ApiProperty({
+    example: 6,
+    description: "Topics of the subject's textbook(s) at the class grade",
+  })
+  topicsTotal: number;
+
+  @ApiProperty({ example: 1 })
+  topicsMastered: number;
+}

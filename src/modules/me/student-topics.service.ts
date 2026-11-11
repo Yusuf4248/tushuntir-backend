@@ -5,9 +5,10 @@ import {
   AttemptHistoryItemDto,
   AttemptKind,
   ParagraphDto,
+  StudentSubjectDto,
   TopicDetailDto,
 } from "./dto/topic.dto";
-import { MASTERY_PASS_PERCENT } from "./me.types";
+import { MASTERY_PASS_PERCENT, MasteryStatus } from "./me.types";
 import { StudentScheduleService } from "./student-schedule.service";
 
 interface TopicRow {
@@ -80,6 +81,36 @@ export class StudentTopicsService {
       prevTopicId: prev?.topicId ?? null,
       nextTopicId: next?.topicId ?? null,
     };
+  }
+
+  /** Subjects taught to the student's class, with topic progress (0/0 without a textbook). */
+  async subjects(user: AuthUser): Promise<StudentSubjectDto[]> {
+    const studentClass = await this.schedule.classOf(user.id);
+    if (!studentClass) return [];
+    const [subjects, mastery]: [
+      { id: number; name: string }[],
+      Awaited<ReturnType<StudentScheduleService["mastery"]>>,
+    ] = await Promise.all([
+      this.dataSource.query(
+        `SELECT DISTINCT subject.id, subject.name
+           FROM teacher_assignments assignment JOIN subjects subject ON subject.id = assignment.subject_id
+          WHERE assignment.class_id = $1
+          ORDER BY subject.name, subject.id`,
+        [studentClass.id],
+      ),
+      this.schedule.mastery(user.id),
+    ]);
+    return subjects.map((subject) => {
+      const topics = mastery.topics.filter((t) => t.subjectId === subject.id);
+      return {
+        id: subject.id,
+        name: subject.name,
+        topicsTotal: topics.length,
+        topicsMastered: topics.filter(
+          (t) => t.status === MasteryStatus.MASTERED,
+        ).length,
+      };
+    });
   }
 
   /** Lesson quizzes, practice quizzes and checkpoint tries, newest first. Exams are not listed. */

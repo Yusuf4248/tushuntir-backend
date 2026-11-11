@@ -61,6 +61,7 @@ import { StudentTopicsService } from "./student-topics.service";
 import {
   AttemptHistoryItemDto,
   AttemptsQueryDto,
+  StudentSubjectDto,
   TopicDetailDto,
 } from "./dto/topic.dto";
 
@@ -387,6 +388,18 @@ export class MeController {
     @CurrentUser() user: AuthUser,
   ) {
     return this.checkpoints.status(id, user);
+  }
+
+  @Get("subjects")
+  @ApiOperation({
+    summary: "Subjects of the student's class with topic progress",
+    description:
+      "topicsTotal counts the topics of the subject's textbook(s) at the class grade (0 when there is no " +
+      "textbook yet); topicsMastered counts those with status mastered.",
+  })
+  @ApiOkResponse({ type: [StudentSubjectDto] })
+  subjects(@CurrentUser() user: AuthUser) {
+    return this.topics.subjects(user);
   }
 
   @Get("mastery")
