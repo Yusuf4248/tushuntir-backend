@@ -295,6 +295,9 @@ export class StudentScheduleService {
     const rows: {
       topicId: number;
       textbookId: number;
+      subjectId: number;
+      chapterId: number;
+      chapterPosition: number | null;
       title: string;
       chapter: string | null;
       subject: string;
@@ -305,7 +308,8 @@ export class StudentScheduleService {
       updated_at: Date | null;
       has_row: boolean;
     }[] = await this.dataSource.query(
-      `SELECT topic.id AS "topicId", textbook.id AS "textbookId", topic.title, chapter.title AS chapter,
+      `SELECT topic.id AS "topicId", textbook.id AS "textbookId", subject.id AS "subjectId",
+              chapter.id AS "chapterId", chapter.number AS "chapterPosition", topic.title, chapter.title AS chapter,
               subject.name AS subject, progress.mastery, progress.home_score, progress.exam_score,
               progress.is_mastered, progress.updated_at, progress.id IS NOT NULL AS has_row
          FROM topics topic
@@ -343,8 +347,11 @@ export class StudentScheduleService {
         return {
           topicId: row.topicId,
           title: row.title,
-          chapter: row.chapter,
+          subjectId: row.subjectId,
           subject: row.subject,
+          chapterId: row.chapterId,
+          chapterPosition: row.chapterPosition,
+          chapter: row.chapter,
           status,
           unlocked,
           checkpointTries: stats?.tries ?? 0,

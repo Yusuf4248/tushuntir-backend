@@ -356,8 +356,21 @@ export class MasteryTopicDto {
   @ApiProperty({ example: "Algebraik ifoda va uning qiymati" })
   title: string;
 
+  @ApiProperty({ example: 6 })
+  chapterId: number;
+
+  @ApiProperty({
+    example: 1,
+    nullable: true,
+    description: "Chapter number in the textbook",
+  })
+  chapterPosition: number | null;
+
   @ApiProperty({ example: "Algebraik ifodalar", nullable: true })
   chapter: string | null;
+
+  @ApiProperty({ example: 8 })
+  subjectId: number;
 
   @ApiProperty({ example: "Algebra" })
   subject: string;
