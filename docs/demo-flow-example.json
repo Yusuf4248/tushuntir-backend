@@ -1,0 +1,1706 @@
+{
+  "description": "Real responses of the student demo flow, recorded on 2026-11-11 against a production build (npm run start:prod, NODE_ENV=production) of this API with the demo seed data. Use them as response examples; ids, dates and AI-written texts will differ in your own runs.",
+  "student": "Demo student of class 7-A (seed:mvp). Login is not included; send Authorization: Bearer <accessToken> from POST /api/auth/login.",
+  "flow": "health -> today -> subjects -> topic page -> finish-lesson (demo) -> quiz start -> wrong answer -> 2 hints -> 9 more answers -> submit (60%) -> mistake review -> confirmation question (wrong, then right) -> study chat with a selected paragraph -> practice quiz (5 right) -> Tushuntir checkpoint: Sardor opens -> weak typed answer -> follow-up -> wrong typed answer (not_yet, next try) -> voice answer (passed) -> checkpoint status -> mastery -> history -> subjects",
+  "notes": [
+    "Each step: label, request, body (JSON requests), status, ms (time to the response) and response.",
+    "The voice answer was a multipart upload (field audio) of an ogg/opus recording synthesized from voiceAnswerScript with a female Uzbek voice; response.transcript is what speech-to-text heard.",
+    "audioUrl values are relative to the API origin (e.g. https://<api>/uploads/tts/<hash>.mp3).",
+    "Correct answers were read from the database by the test script only to drive the run; the API never sends them before submit."
+  ],
+  "voiceAnswerScript": "Sardor, sen adashding. Ko'phad bu birhadlarning yig'indisi, birhadlar esa uning hadlari deyiladi. O'xshash hadlarni qo'shganda faqat koeffitsiyentlar qo'shiladi, harfiy qism o'zgarmaydi. Masalan, uch x plyus ikki x besh x bo'ladi. Agar qavs oldida minus tursa, qavsni ochganda ichidagi har bir hadning ishorasi o'zgaradi, faqat birinchisining emas. Shuning uchun bir ko'phaddan ikkinchisini ayirganda ayriluvchi ko'phadning hamma hadlari ishorasini o'zgartiramiz. Masalan, besh a dan, qavs ichida ikki a minus uch ni ayirsak, uch a plyus uch chiqadi. Oxirida javobni tekshirish uchun a o'rniga bir sonni qo'yib ko'ramiz.",
+  "steps": [
+    {
+      "label": "0. health (no login)",
+      "request": "GET /api/health",
+      "status": 200,
+      "response": {
+        "status": "ok",
+        "database": true,
+        "vector": true
+      }
+    },
+    {
+      "label": "1. today",
+      "request": "GET /api/me/today",
+      "status": 200,
+      "ms": 30,
+      "response": {
+        "date": "2026-11-11",
+        "timezone": "Asia/Tashkent",
+        "class": {
+          "id": 7,
+          "name": "7-A"
+        },
+        "lessons": [
+          {
+            "lessonId": 15,
+            "period": 1,
+            "startsAt": "08:00",
+            "endsAt": "08:45",
+            "status": "finished",
+            "subject": {
+              "id": 12,
+              "name": "Fizika"
+            },
+            "topic": null,
+            "teacher": {
+              "id": 25,
+              "firstName": "Rustam",
+              "lastName": "Qosimov"
+            },
+            "room": "7-A xonasi",
+            "quiz": null
+          },
+          {
+            "lessonId": 16,
+            "period": 2,
+            "startsAt": "08:55",
+            "endsAt": "09:40",
+            "status": "finished",
+            "subject": {
+              "id": 10,
+              "name": "Ona tili"
+            },
+            "topic": null,
+            "teacher": {
+              "id": 23,
+              "firstName": "Gulnora",
+              "lastName": "Saidova"
+            },
+            "room": "7-A xonasi",
+            "quiz": null
+          },
+          {
+            "lessonId": 17,
+            "period": 3,
+            "startsAt": "09:50",
+            "endsAt": "10:35",
+            "status": "finished",
+            "subject": {
+              "id": 8,
+              "name": "Algebra"
+            },
+            "topic": {
+              "id": 8,
+              "title": "Ko'phadlarni qo'shish va ayirish"
+            },
+            "teacher": {
+              "id": 22,
+              "firstName": "Dilnoza",
+              "lastName": "Karimova"
+            },
+            "room": "7-A xonasi",
+            "quiz": {
+              "quizId": 15,
+              "title": "Ko'phadlarni qo'shish va ayirish: dars bo'yicha test",
+              "topic": {
+                "id": 8,
+                "title": "Ko'phadlarni qo'shish va ayirish"
+              },
+              "subject": {
+                "id": 8,
+                "name": "Algebra"
+              },
+              "lessonId": 17,
+              "lessonDate": "2026-11-11",
+              "unlocksAt": "2026-11-11T05:35:00.000Z",
+              "dueAt": "2026-11-11T17:00:00.000Z",
+              "status": "available",
+              "attempt": null
+            }
+          },
+          {
+            "lessonId": 18,
+            "period": 4,
+            "startsAt": "10:45",
+            "endsAt": "11:30",
+            "status": "in_progress",
+            "subject": {
+              "id": 13,
+              "name": "Tarix"
+            },
+            "topic": null,
+            "teacher": {
+              "id": 26,
+              "firstName": "Bahodir",
+              "lastName": "Ergashev"
+            },
+            "room": "7-A xonasi",
+            "quiz": null
+          }
+        ],
+        "quizzes": [
+          {
+            "quizId": 15,
+            "title": "Ko'phadlarni qo'shish va ayirish: dars bo'yicha test",
+            "topic": {
+              "id": 8,
+              "title": "Ko'phadlarni qo'shish va ayirish"
+            },
+            "subject": {
+              "id": 8,
+              "name": "Algebra"
+            },
+            "lessonId": 17,
+            "lessonDate": "2026-11-11",
+            "unlocksAt": "2026-11-11T05:35:00.000Z",
+            "dueAt": "2026-11-11T17:00:00.000Z",
+            "status": "available",
+            "attempt": null
+          }
+        ]
+      }
+    },
+    {
+      "label": "1b. subjects",
+      "request": "GET /api/me/subjects",
+      "status": 200,
+      "ms": 15,
+      "response": [
+        {
+          "id": 8,
+          "name": "Algebra",
+          "topicsTotal": 6,
+          "topicsMastered": 0
+        },
+        {
+          "id": 12,
+          "name": "Fizika",
+          "topicsTotal": 0,
+          "topicsMastered": 0
+        },
+        {
+          "id": 11,
+          "name": "Ingliz tili",
+          "topicsTotal": 0,
+          "topicsMastered": 0
+        },
+        {
+          "id": 10,
+          "name": "Ona tili",
+          "topicsTotal": 0,
+          "topicsMastered": 0
+        },
+        {
+          "id": 13,
+          "name": "Tarix",
+          "topicsTotal": 0,
+          "topicsMastered": 0
+        }
+      ]
+    },
+    {
+      "label": "1c. topic page",
+      "request": "GET /api/me/topics/8",
+      "status": 200,
+      "ms": 9,
+      "response": {
+        "topicId": 8,
+        "title": "Ko'phadlarni qo'shish va ayirish",
+        "subject": {
+          "id": 8,
+          "name": "Algebra"
+        },
+        "chapter": {
+          "id": 6,
+          "title": "Algebraik ifodalar",
+          "position": 1
+        },
+        "position": 3,
+        "status": "not_started",
+        "unlocked": false,
+        "summary": "Ko'phad birhadlarning yig'indisidir, o'xshash hadlar esa koeffitsiyentlarini qo'shib ixchamlanadi. Qavs oldida plyus bo'lsa, ishoralar o'zgarmaydi; minus bo'lsa, qavs ichidagi har bir hadning ishorasi o'zgaradi. Ko'phadlarni qo'shish va ayirish uchun qavslar ochiladi va o'xshash hadlar ixchamlanadi.",
+        "keyIdeas": [
+          "Ko'phad birhadlar yig'indisi; birhadlar uning hadlari deyiladi.",
+          "O'xshash hadlarni ixchamlashda koeffitsiyentlar qo'shiladi, harfiy qism o'zgarmaydi.",
+          "Qavs oldida minus bo'lsa, qavs ichidagi har bir hadning ishorasi o'zgaradi.",
+          "Ko'phadlarni ayirishda ayriluvchi ko'phadning barcha hadlari ishorasi o'zgaradi.",
+          "Natijani o'zgaruvchiga son qo'yib tekshirish mumkin."
+        ],
+        "paragraphs": [
+          {
+            "id": "10-1",
+            "chunkId": 10,
+            "page": 13,
+            "position": 1,
+            "content": "Bir nechta birhadning yig'indisi ko'phad deyiladi. Ko'phadni tashkil etgan birhadlar uning hadlari deyiladi. Masalan, 3x^2 - 5x + 2 ko'phadning hadlari: 3x^2, -5x va 2. Ikki hadli ko'phad ikkihad, uch hadli ko'phad esa uchhad deb ham ataladi."
+          },
+          {
+            "id": "10-2",
+            "chunkId": 10,
+            "page": 13,
+            "position": 2,
+            "content": "O'xshash hadlarni ixchamlash uchun ularning koeffitsiyentlari qo'shiladi, harfiy qismi esa o'zgarmaydi. Masalan, 4a + 7b - a + 2b = (4 - 1)a + (7 + 2)b = 3a + 9b."
+          },
+          {
+            "id": "10-3",
+            "chunkId": 10,
+            "page": 13,
+            "position": 3,
+            "content": "Barcha hadlari standart shakldagi birhadlar bo'lgan va o'xshash hadlari ixchamlangan ko'phad standart shakldagi ko'phad deyiladi. Standart shakldagi ko'phadning darajasi uning hadlari darajalarining eng kattasiga teng. Masalan, 3x^2 - 5x + 2 ko'phadning darajasi 2."
+          },
+          {
+            "id": "10-4",
+            "chunkId": 10,
+            "page": 14,
+            "position": 4,
+            "content": "Qavslarni ochish qoidalari:\n- Qavs oldida plyus ishorasi tursa, qavs ichidagi hadlarning ishorasi o'zgarmaydi: a + (b - c) = a + b - c.\n- Qavs oldida minus ishorasi tursa, qavs ichidagi har bir hadning ishorasi qarama-qarshisiga o'zgaradi: a - (b - c) = a - b + c."
+          },
+          {
+            "id": "10-5",
+            "chunkId": 10,
+            "page": 14,
+            "position": 5,
+            "content": "Ko'phadlarni qo'shish uchun qavslar ochiladi va o'xshash hadlar ixchamlanadi."
+          },
+          {
+            "id": "10-6",
+            "chunkId": 10,
+            "page": 14,
+            "position": 6,
+            "content": "### 1-misol\n(2x^2 + 3x - 1) + (x^2 - 5x + 4) = 2x^2 + 3x - 1 + x^2 - 5x + 4 = 3x^2 - 2x + 3."
+          },
+          {
+            "id": "11-1",
+            "chunkId": 11,
+            "page": 14,
+            "position": 7,
+            "content": "Ko'phadlarni ayirishda ayriluvchi ko'phad qavsga olinadi. Qavs oldidagi minus tufayli uning barcha hadlarining ishorasi o'zgaradi."
+          },
+          {
+            "id": "11-2",
+            "chunkId": 11,
+            "page": 14,
+            "position": 8,
+            "content": "### 2-misol\n(5a^2 - 2a + 7) - (3a^2 - 4a + 1) = 5a^2 - 2a + 7 - 3a^2 + 4a - 1 = 2a^2 + 2a + 6."
+          },
+          {
+            "id": "11-3",
+            "chunkId": 11,
+            "page": 16,
+            "position": 9,
+            "content": "Eng ko'p uchraydigan xato: minus ishorasini faqat birinchi hadga qo'llash. 5a^2 - 2a + 7 - 3a^2 - 4a + 1 deb yozish noto'g'ri, chunki -4a va +1 ning ishoralari ham o'zgarishi kerak edi."
+          },
+          {
+            "id": "11-4",
+            "chunkId": 11,
+            "page": 16,
+            "position": 10,
+            "content": "Tekshirish usuli: o'zgaruvchi o'rniga biror son, masalan a = 1, qo'yib ko'ring. Boshlang'ich ifoda: (5 - 2 + 7) - (3 - 4 + 1) = 10 - 0 = 10. Natija: 2 + 2 + 6 = 10. Qiymatlar teng chiqdi, demak shakl almashtirishda xato bo'lmagan bo'lishi mumkin."
+          }
+        ],
+        "prevTopicId": 7,
+        "nextTopicId": 9
+      }
+    },
+    {
+      "label": "2. teacher ends the lesson",
+      "request": "POST /api/demo/finish-lesson/17",
+      "status": 200,
+      "ms": 5,
+      "response": {
+        "lessonId": 17,
+        "endedAt": "2026-11-11T05:50:14.588Z",
+        "quiz": {
+          "id": 15,
+          "title": "Ko'phadlarni qo'shish va ayirish: dars bo'yicha test",
+          "dueAt": "2026-11-11T17:00:00.000Z"
+        }
+      }
+    },
+    {
+      "label": "3. start quiz",
+      "request": "POST /api/me/quizzes/15/start",
+      "status": 200,
+      "ms": 12,
+      "response": {
+        "attemptId": 50,
+        "quizId": 15,
+        "title": "Ko'phadlarni qo'shish va ayirish: dars bo'yicha test",
+        "dueAt": "2026-11-11T17:00:00.000Z",
+        "startedAt": "2026-11-11T05:50:14.596Z",
+        "questions": [
+          {
+            "questionId": 91,
+            "position": 1,
+            "type": "multiple_choice",
+            "prompt": "Talaba (5a^2 - 2a + 7) - (3a^2 - 4a + 1) ni 5a^2 - 2a + 7 - 3a^2 - 4a + 1 deb yozdi. Uning xatosi nima?",
+            "options": [
+              "O'xshash hadlar noto'g'ri qo'shilgan",
+              "Qavs umuman ochilmagan",
+              "-4a va +1 ning ishoralari o'zgarmagan",
+              "5a^2 ning ishorasi o'zgargan"
+            ],
+            "answer": null,
+            "hintsUsed": 0,
+            "hintsAvailable": 3
+          },
+          {
+            "questionId": 76,
+            "position": 2,
+            "type": "multiple_choice",
+            "prompt": "Qavs oldida minus bo'lsa, a - (b - c) qavsni ochgandan keyin qanday bo'ladi?",
+            "options": [
+              "a - b - c",
+              "a - b + c",
+              "a + b + c",
+              "a + b - c"
+            ],
+            "answer": null,
+            "hintsUsed": 0,
+            "hintsAvailable": 3
+          },
+          {
+            "questionId": 96,
+            "position": 3,
+            "type": "short_answer",
+            "prompt": "(5a^2 - 2a + 7) - (3a^2 - 4a + 1) ni ixchamlang. Sonli had nechaga teng?",
+            "options": null,
+            "answer": null,
+            "hintsUsed": 0,
+            "hintsAvailable": 3
+          },
+          {
+            "questionId": 94,
+            "position": 4,
+            "type": "multiple_choice",
+            "prompt": "Birinchi chiziq uzunligi (3x + 2) m, ikkinchisi (x^2 - x + 4) m. Ularning yig'indisi qaysi ko'phad?",
+            "options": [
+              "x^2 + 2x + 2",
+              "x^2 + 2x + 6",
+              "4x^2 + 6",
+              "x^2 + 4x + 6"
+            ],
+            "answer": null,
+            "hintsUsed": 0,
+            "hintsAvailable": 3
+          },
+          {
+            "questionId": 89,
+            "position": 5,
+            "type": "multiple_choice",
+            "prompt": "(3x^2 + 2x - 5) + (x^2 - 6x + 8) ko'phadni ixchamlang.",
+            "options": [
+              "4x^2 - 4x - 3",
+              "4x^2 - 4x + 3",
+              "2x^2 - 4x + 3",
+              "4x^2 + 8x + 3"
+            ],
+            "answer": null,
+            "hintsUsed": 0,
+            "hintsAvailable": 3
+          },
+          {
+            "questionId": 87,
+            "position": 6,
+            "type": "short_answer",
+            "prompt": "(2x^2 + 3x - 1) + (x^2 - 5x + 4) ni ixchamlab, x ning koeffitsiyentini yozing.",
+            "options": null,
+            "answer": null,
+            "hintsUsed": 0,
+            "hintsAvailable": 3
+          },
+          {
+            "questionId": 90,
+            "position": 7,
+            "type": "multiple_choice",
+            "prompt": "(6a^2 - 3a + 4) - (2a^2 - 5a + 9) ayirmani ixchamlang.",
+            "options": [
+              "4a^2 + 2a + 13",
+              "4a^2 + 2a - 5",
+              "4a^2 - 8a - 5",
+              "4a^2 - 8a + 13"
+            ],
+            "answer": null,
+            "hintsUsed": 0,
+            "hintsAvailable": 3
+          },
+          {
+            "questionId": 74,
+            "position": 8,
+            "type": "multiple_choice",
+            "prompt": "3x^2 - 5x + 2 ko'phadning hadlari qaysi qatorda to'g'ri yozilgan?",
+            "options": [
+              "3x, -5x, 2",
+              "3x^2, 5x, 2",
+              "3x^2, -5x, 2",
+              "x^2, x, 2"
+            ],
+            "answer": null,
+            "hintsUsed": 0,
+            "hintsAvailable": 3
+          },
+          {
+            "questionId": 85,
+            "position": 9,
+            "type": "multiple_choice",
+            "prompt": "(2b^2 + 5b - 3) - (b^2 - 4b + 6) ifodani qavssiz yozganda qaysi biri to'g'ri bo'ladi?",
+            "options": [
+              "2b^2 + 5b - 3 - b^2 - 4b + 6",
+              "2b^2 + 5b - 3 + b^2 - 4b + 6",
+              "2b^2 + 5b - 3 - b^2 + 4b - 6",
+              "2b^2 + 5b - 3 - b^2 - 4b - 6"
+            ],
+            "answer": null,
+            "hintsUsed": 0,
+            "hintsAvailable": 3
+          },
+          {
+            "questionId": 79,
+            "position": 10,
+            "type": "short_answer",
+            "prompt": "4a + 7b - a + 2b ni ixchamlang.",
+            "options": null,
+            "answer": null,
+            "hintsUsed": 0,
+            "hintsAvailable": 3
+          }
+        ]
+      }
+    },
+    {
+      "label": "4a. answer (wrong option)",
+      "request": "POST /api/me/attempts/50/answers",
+      "body": {
+        "questionId": 91,
+        "answer": "O'xshash hadlar noto'g'ri qo'shilgan"
+      },
+      "status": 200,
+      "ms": 5,
+      "response": {
+        "questionId": 91,
+        "answer": "O'xshash hadlar noto'g'ri qo'shilgan",
+        "answeredCount": 1,
+        "totalQuestions": 10
+      }
+    },
+    {
+      "label": "4b. hint level 1",
+      "request": "POST /api/me/attempts/50/questions/91/hint",
+      "status": 200,
+      "ms": 4,
+      "response": {
+        "questionId": 91,
+        "level": 1,
+        "hint": "Ayriluvchi qavsning har bir hadini tekshiring.",
+        "misconception": "Xatoni ixchamlashda deb o'ylagan, aslida xato qavsni ochishda.",
+        "hintsUsed": 1,
+        "hintsRemaining": 2
+      }
+    },
+    {
+      "label": "4c. hint level 2",
+      "request": "POST /api/me/attempts/50/questions/91/hint",
+      "status": 200,
+      "ms": 3,
+      "response": {
+        "questionId": 91,
+        "level": 2,
+        "hint": "Qavs oldida minus bo'lsa, qavs ichidagi barcha hadlarning ishorasi o'zgaradi.",
+        "misconception": "Xatoni ixchamlashda deb o'ylagan, aslida xato qavsni ochishda.",
+        "hintsUsed": 2,
+        "hintsRemaining": 1
+      }
+    },
+    {
+      "label": "4. answer q76 (wrong)",
+      "request": "POST /api/me/attempts/50/answers",
+      "body": {
+        "questionId": 76,
+        "answer": "a - b - c"
+      },
+      "status": 200,
+      "ms": 3,
+      "response": {
+        "questionId": 76,
+        "answer": "a - b - c",
+        "answeredCount": 2,
+        "totalQuestions": 10
+      }
+    },
+    {
+      "label": "4. answer q96 (wrong)",
+      "request": "POST /api/me/attempts/50/answers",
+      "body": {
+        "questionId": 96,
+        "answer": "0"
+      },
+      "status": 200,
+      "ms": 2864,
+      "response": {
+        "questionId": 96,
+        "answer": "0",
+        "answeredCount": 3,
+        "totalQuestions": 10
+      }
+    },
+    {
+      "label": "4. answer q94 (wrong)",
+      "request": "POST /api/me/attempts/50/answers",
+      "body": {
+        "questionId": 94,
+        "answer": "x^2 + 2x + 2"
+      },
+      "status": 200,
+      "ms": 9,
+      "response": {
+        "questionId": 94,
+        "answer": "x^2 + 2x + 2",
+        "answeredCount": 4,
+        "totalQuestions": 10
+      }
+    },
+    {
+      "label": "4. answer q89",
+      "request": "POST /api/me/attempts/50/answers",
+      "body": {
+        "questionId": 89,
+        "answer": "4x^2 - 4x + 3"
+      },
+      "status": 200,
+      "ms": 5,
+      "response": {
+        "questionId": 89,
+        "answer": "4x^2 - 4x + 3",
+        "answeredCount": 5,
+        "totalQuestions": 10
+      }
+    },
+    {
+      "label": "4. answer q87",
+      "request": "POST /api/me/attempts/50/answers",
+      "body": {
+        "questionId": 87,
+        "answer": "-2"
+      },
+      "status": 200,
+      "ms": 4,
+      "response": {
+        "questionId": 87,
+        "answer": "-2",
+        "answeredCount": 6,
+        "totalQuestions": 10
+      }
+    },
+    {
+      "label": "4. answer q90",
+      "request": "POST /api/me/attempts/50/answers",
+      "body": {
+        "questionId": 90,
+        "answer": "4a^2 + 2a - 5"
+      },
+      "status": 200,
+      "ms": 5,
+      "response": {
+        "questionId": 90,
+        "answer": "4a^2 + 2a - 5",
+        "answeredCount": 7,
+        "totalQuestions": 10
+      }
+    },
+    {
+      "label": "4. answer q74",
+      "request": "POST /api/me/attempts/50/answers",
+      "body": {
+        "questionId": 74,
+        "answer": "3x^2, -5x, 2"
+      },
+      "status": 200,
+      "ms": 5,
+      "response": {
+        "questionId": 74,
+        "answer": "3x^2, -5x, 2",
+        "answeredCount": 8,
+        "totalQuestions": 10
+      }
+    },
+    {
+      "label": "4. answer q85",
+      "request": "POST /api/me/attempts/50/answers",
+      "body": {
+        "questionId": 85,
+        "answer": "2b^2 + 5b - 3 - b^2 + 4b - 6"
+      },
+      "status": 200,
+      "ms": 4,
+      "response": {
+        "questionId": 85,
+        "answer": "2b^2 + 5b - 3 - b^2 + 4b - 6",
+        "answeredCount": 9,
+        "totalQuestions": 10
+      }
+    },
+    {
+      "label": "4. answer q79",
+      "request": "POST /api/me/attempts/50/answers",
+      "body": {
+        "questionId": 79,
+        "answer": "3a + 9b"
+      },
+      "status": 200,
+      "ms": 3,
+      "response": {
+        "questionId": 79,
+        "answer": "3a + 9b",
+        "answeredCount": 10,
+        "totalQuestions": 10
+      }
+    },
+    {
+      "label": "5. submit",
+      "request": "POST /api/me/attempts/50/submit",
+      "status": 200,
+      "ms": 9,
+      "response": {
+        "attemptId": 50,
+        "quizId": 15,
+        "scorePercent": 60,
+        "correctCount": 6,
+        "totalQuestions": 10,
+        "hintsUsed": 2,
+        "finishedAt": "2026-11-11T05:50:17.521Z",
+        "questions": [
+          {
+            "questionId": 91,
+            "position": 1,
+            "type": "multiple_choice",
+            "prompt": "Talaba (5a^2 - 2a + 7) - (3a^2 - 4a + 1) ni 5a^2 - 2a + 7 - 3a^2 - 4a + 1 deb yozdi. Uning xatosi nima?",
+            "options": [
+              "O'xshash hadlar noto'g'ri qo'shilgan",
+              "Qavs umuman ochilmagan",
+              "-4a va +1 ning ishoralari o'zgarmagan",
+              "5a^2 ning ishorasi o'zgargan"
+            ],
+            "yourAnswer": "O'xshash hadlar noto'g'ri qo'shilgan",
+            "isCorrect": false,
+            "correctAnswer": "-4a va +1 ning ishoralari o'zgarmagan",
+            "explanation": "Talaba minus ishorasini faqat 3a^2 ga qo'llagan. To'g'risi: -3a^2 + 4a - 1. Shuning uchun -4a va +1 ning ishoralari ham o'zgarishi kerak edi.",
+            "hintsUsed": 2,
+            "aiFeedback": null
+          },
+          {
+            "questionId": 76,
+            "position": 2,
+            "type": "multiple_choice",
+            "prompt": "Qavs oldida minus bo'lsa, a - (b - c) qavsni ochgandan keyin qanday bo'ladi?",
+            "options": [
+              "a - b - c",
+              "a - b + c",
+              "a + b + c",
+              "a + b - c"
+            ],
+            "yourAnswer": "a - b - c",
+            "isCorrect": false,
+            "correctAnswer": "a - b + c",
+            "explanation": "Minus qavs ichidagi har bir hadning ishorasini o'zgartiradi. b ning oldida minus, -c esa +c bo'ladi.",
+            "hintsUsed": 0,
+            "aiFeedback": null
+          },
+          {
+            "questionId": 96,
+            "position": 3,
+            "type": "short_answer",
+            "prompt": "(5a^2 - 2a + 7) - (3a^2 - 4a + 1) ni ixchamlang. Sonli had nechaga teng?",
+            "options": null,
+            "yourAnswer": "0",
+            "isCorrect": false,
+            "correctAnswer": "6",
+            "explanation": "Qavsni ochsak: 5a^2 - 2a + 7 - 3a^2 + 4a - 1. Sonli hadlar: 7 - 1 = 6. Natija 2a^2 + 2a + 6.",
+            "hintsUsed": 0,
+            "aiFeedback": "Javobingiz noto'g'ri, ehtimol ikkinchi qavsni ochishda ishoralarni o'zgartirganda yoki sonli hadlarni ayirishda xatoga yo'l qo'ydingiz; 7 va 1 ustida yana bir bor ehtiyotkorlik bilan ishlab ko'ring."
+          },
+          {
+            "questionId": 94,
+            "position": 4,
+            "type": "multiple_choice",
+            "prompt": "Birinchi chiziq uzunligi (3x + 2) m, ikkinchisi (x^2 - x + 4) m. Ularning yig'indisi qaysi ko'phad?",
+            "options": [
+              "x^2 + 2x + 2",
+              "x^2 + 2x + 6",
+              "4x^2 + 6",
+              "x^2 + 4x + 6"
+            ],
+            "yourAnswer": "x^2 + 2x + 2",
+            "isCorrect": false,
+            "correctAnswer": "x^2 + 2x + 6",
+            "explanation": "(3x + 2) + (x^2 - x + 4) = x^2 + 3x - x + 2 + 4. x li hadlar: 3x - x = 2x. Sonlar: 6. Natija x^2 + 2x + 6.",
+            "hintsUsed": 0,
+            "aiFeedback": null
+          },
+          {
+            "questionId": 89,
+            "position": 5,
+            "type": "multiple_choice",
+            "prompt": "(3x^2 + 2x - 5) + (x^2 - 6x + 8) ko'phadni ixchamlang.",
+            "options": [
+              "4x^2 - 4x - 3",
+              "4x^2 - 4x + 3",
+              "2x^2 - 4x + 3",
+              "4x^2 + 8x + 3"
+            ],
+            "yourAnswer": "4x^2 - 4x + 3",
+            "isCorrect": true,
+            "correctAnswer": "4x^2 - 4x + 3",
+            "explanation": "Qavslar ochilganda ishoralar o'zgarmaydi. x^2 li hadlar: 3 + 1 = 4. x li hadlar: 2 - 6 = -4. Sonlar: -5 + 8 = 3. Natija 4x^2 - 4x + 3.",
+            "hintsUsed": 0,
+            "aiFeedback": null
+          },
+          {
+            "questionId": 87,
+            "position": 6,
+            "type": "short_answer",
+            "prompt": "(2x^2 + 3x - 1) + (x^2 - 5x + 4) ni ixchamlab, x ning koeffitsiyentini yozing.",
+            "options": null,
+            "yourAnswer": "-2",
+            "isCorrect": true,
+            "correctAnswer": "-2",
+            "explanation": "x li hadlar 3x va -5x. Koeffitsiyentlar qo'shiladi: 3 + (-5) = -2.",
+            "hintsUsed": 0,
+            "aiFeedback": null
+          },
+          {
+            "questionId": 90,
+            "position": 7,
+            "type": "multiple_choice",
+            "prompt": "(6a^2 - 3a + 4) - (2a^2 - 5a + 9) ayirmani ixchamlang.",
+            "options": [
+              "4a^2 + 2a + 13",
+              "4a^2 + 2a - 5",
+              "4a^2 - 8a - 5",
+              "4a^2 - 8a + 13"
+            ],
+            "yourAnswer": "4a^2 + 2a - 5",
+            "isCorrect": true,
+            "correctAnswer": "4a^2 + 2a - 5",
+            "explanation": "Qavs ochilganda: 6a^2 - 3a + 4 - 2a^2 + 5a - 9. a^2 li hadlar: 4a^2. a li hadlar: -3a + 5a = 2a. Sonlar: 4 - 9 = -5.",
+            "hintsUsed": 0,
+            "aiFeedback": null
+          },
+          {
+            "questionId": 74,
+            "position": 8,
+            "type": "multiple_choice",
+            "prompt": "3x^2 - 5x + 2 ko'phadning hadlari qaysi qatorda to'g'ri yozilgan?",
+            "options": [
+              "3x, -5x, 2",
+              "3x^2, 5x, 2",
+              "3x^2, -5x, 2",
+              "x^2, x, 2"
+            ],
+            "yourAnswer": "3x^2, -5x, 2",
+            "isCorrect": true,
+            "correctAnswer": "3x^2, -5x, 2",
+            "explanation": "Matnda bu ko'phadning hadlari 3x^2, -5x va 2 deb berilgan. Ishora hadning tarkibiga kiradi.",
+            "hintsUsed": 0,
+            "aiFeedback": null
+          },
+          {
+            "questionId": 85,
+            "position": 9,
+            "type": "multiple_choice",
+            "prompt": "(2b^2 + 5b - 3) - (b^2 - 4b + 6) ifodani qavssiz yozganda qaysi biri to'g'ri bo'ladi?",
+            "options": [
+              "2b^2 + 5b - 3 - b^2 - 4b + 6",
+              "2b^2 + 5b - 3 + b^2 - 4b + 6",
+              "2b^2 + 5b - 3 - b^2 + 4b - 6",
+              "2b^2 + 5b - 3 - b^2 - 4b - 6"
+            ],
+            "yourAnswer": "2b^2 + 5b - 3 - b^2 + 4b - 6",
+            "isCorrect": true,
+            "correctAnswer": "2b^2 + 5b - 3 - b^2 + 4b - 6",
+            "explanation": "b^2 -> -b^2, -4b -> +4b, +6 -> -6. Shuning uchun to'g'ri yozuv 2b^2 + 5b - 3 - b^2 + 4b - 6.",
+            "hintsUsed": 0,
+            "aiFeedback": null
+          },
+          {
+            "questionId": 79,
+            "position": 10,
+            "type": "short_answer",
+            "prompt": "4a + 7b - a + 2b ni ixchamlang.",
+            "options": null,
+            "yourAnswer": "3a + 9b",
+            "isCorrect": true,
+            "correctAnswer": "3a + 9b",
+            "explanation": "a li hadlar: 4a - a = 3a. b li hadlar: 7b + 2b = 9b. Natija 3a + 9b.",
+            "hintsUsed": 0,
+            "aiFeedback": null
+          }
+        ],
+        "mastery": {
+          "topicId": 8,
+          "status": "needs_practice",
+          "homeScore": 60
+        }
+      }
+    },
+    {
+      "label": "6. mistake review",
+      "request": "GET /api/me/attempts/50/review",
+      "status": 200,
+      "ms": 42,
+      "response": {
+        "attemptId": 50,
+        "quizId": 15,
+        "scorePercent": 60,
+        "totalMistakes": 4,
+        "fixedCount": 0,
+        "mistakes": [
+          {
+            "questionId": 91,
+            "position": 1,
+            "type": "multiple_choice",
+            "prompt": "Talaba (5a^2 - 2a + 7) - (3a^2 - 4a + 1) ni 5a^2 - 2a + 7 - 3a^2 - 4a + 1 deb yozdi. Uning xatosi nima?",
+            "options": [
+              "O'xshash hadlar noto'g'ri qo'shilgan",
+              "Qavs umuman ochilmagan",
+              "-4a va +1 ning ishoralari o'zgarmagan",
+              "5a^2 ning ishorasi o'zgargan"
+            ],
+            "yourAnswer": "O'xshash hadlar noto'g'ri qo'shilgan",
+            "correctAnswer": "-4a va +1 ning ishoralari o'zgarmagan",
+            "misconception": "Xatoni ixchamlashda deb o'ylagan, aslida xato qavsni ochishda.",
+            "explanation": "Talaba minus ishorasini faqat 3a^2 ga qo'llagan. To'g'risi: -3a^2 + 4a - 1. Shuning uchun -4a va +1 ning ishoralari ham o'zgarishi kerak edi.",
+            "page": 14,
+            "fixed": false,
+            "confirmationStatus": "ready",
+            "confirmation": {
+              "questionId": 235,
+              "type": "multiple_choice",
+              "prompt": "Talaba (6b^2 - 3b + 8) - (2b^2 - 5b + 3) ni 6b^2 - 3b + 8 - 2b^2 - 5b + 3 deb yozdi. Uning xatosi nima?",
+              "options": [
+                "O'xshash hadlar noto'g'ri qo'shilgan",
+                "6b^2 ning ishorasi o'zgargan",
+                "Qavs umuman ochilmagan",
+                "-5b va +3 ning ishoralari o'zgarmagan"
+              ]
+            }
+          },
+          {
+            "questionId": 76,
+            "position": 2,
+            "type": "multiple_choice",
+            "prompt": "Qavs oldida minus bo'lsa, a - (b - c) qavsni ochgandan keyin qanday bo'ladi?",
+            "options": [
+              "a - b - c",
+              "a - b + c",
+              "a + b + c",
+              "a + b - c"
+            ],
+            "yourAnswer": "a - b - c",
+            "correctAnswer": "a - b + c",
+            "misconception": "Minusni faqat birinchi hadga qo'llaydi.",
+            "explanation": "Minus qavs ichidagi har bir hadning ishorasini o'zgartiradi. b ning oldida minus, -c esa +c bo'ladi.",
+            "page": 13,
+            "fixed": false,
+            "confirmationStatus": "ready",
+            "confirmation": {
+              "questionId": 205,
+              "type": "multiple_choice",
+              "prompt": "Qavs oldida minus bo'lsa, m - (n + k) qavsni ochgandan keyin qanday bo'ladi?",
+              "options": [
+                "m - n - k",
+                "m - n + k",
+                "m + n + k",
+                "m + n - k"
+              ]
+            }
+          },
+          {
+            "questionId": 96,
+            "position": 3,
+            "type": "short_answer",
+            "prompt": "(5a^2 - 2a + 7) - (3a^2 - 4a + 1) ni ixchamlang. Sonli had nechaga teng?",
+            "options": null,
+            "yourAnswer": "0",
+            "correctAnswer": "6",
+            "misconception": "Siz minus ishorasini qavs ichidagi faqat birinchi hadga qo'llagansiz, oxirgi had +1 ning ishorasini o'zgartirmagansiz, shuning uchun 7 + 1 - 1 kabi hisob bilan 0 chiqqan. Qavs oldida minus tursa, har bir hadning ishorasi o'zgaradi: -(…+1) = -1, shuning uchun sonli had 7 - 1 = 6 bo'ladi.",
+            "explanation": "Qavsni ochsak: 5a^2 - 2a + 7 - 3a^2 + 4a - 1. Sonli hadlar: 7 - 1 = 6. Natija 2a^2 + 2a + 6.",
+            "page": 14,
+            "fixed": false,
+            "confirmationStatus": "ready",
+            "confirmation": {
+              "questionId": 236,
+              "type": "short_answer",
+              "prompt": "(7a^2 - 3a + 9) - (4a^2 - 5a + 2) ni ixchamlang. Sonli had nechaga teng?",
+              "options": null
+            }
+          },
+          {
+            "questionId": 94,
+            "position": 4,
+            "type": "multiple_choice",
+            "prompt": "Birinchi chiziq uzunligi (3x + 2) m, ikkinchisi (x^2 - x + 4) m. Ularning yig'indisi qaysi ko'phad?",
+            "options": [
+              "x^2 + 2x + 2",
+              "x^2 + 2x + 6",
+              "4x^2 + 6",
+              "x^2 + 4x + 6"
+            ],
+            "yourAnswer": "x^2 + 2x + 2",
+            "correctAnswer": "x^2 + 2x + 6",
+            "misconception": "Sonli hadlarni qo'shishda 2 + 4 o'rniga 2 ni olib, 4 ni tashlab yuborgan.",
+            "explanation": "(3x + 2) + (x^2 - x + 4) = x^2 + 3x - x + 2 + 4. x li hadlar: 3x - x = 2x. Sonlar: 6. Natija x^2 + 2x + 6.",
+            "page": 13,
+            "fixed": false,
+            "confirmationStatus": "ready",
+            "confirmation": {
+              "questionId": 237,
+              "type": "multiple_choice",
+              "prompt": "Birinchi chiziq uzunligi (2x + 5) m, ikkinchisi (x^2 - 3x + 1) m. Ularning yig'indisi qaysi ko'phad?",
+              "options": [
+                "x^2 - x + 4",
+                "3x^2 + 6",
+                "x^2 + 5x + 6",
+                "x^2 - x + 6"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "label": "7a. confirmation question (wrong)",
+      "request": "POST /api/me/attempts/50/confirm/91",
+      "body": {
+        "answer": "O'xshash hadlar noto'g'ri qo'shilgan"
+      },
+      "status": 200,
+      "ms": 11,
+      "response": {
+        "questionId": 91,
+        "correct": false,
+        "fixed": false,
+        "explanation": null,
+        "hint": "Qavs oldida qanday ishora turibdi? U qavs ichidagi hadlarga qanday ta'sir qiladi?",
+        "feedback": null
+      }
+    },
+    {
+      "label": "7b. confirmation question (right)",
+      "request": "POST /api/me/attempts/50/confirm/91",
+      "body": {
+        "answer": "-5b va +3 ning ishoralari o'zgarmagan"
+      },
+      "status": 200,
+      "ms": 12,
+      "response": {
+        "questionId": 91,
+        "correct": true,
+        "fixed": true,
+        "explanation": "Minus ishorasi qavs ichidagi barcha hadlarga ta'sir qiladi. To'g'ri yozuv: 6b^2 - 3b + 8 - 2b^2 + 5b - 3. Talaba minusni faqat birinchi hadga qo'llagan, -5b va +3 ning ishoralari esa o'zgarmay qolgan.",
+        "hint": null,
+        "feedback": null
+      }
+    },
+    {
+      "label": "8a. open study chat",
+      "request": "POST /api/me/chat/sessions",
+      "body": {
+        "topicId": 8
+      },
+      "status": 201,
+      "ms": 11,
+      "response": {
+        "sessionId": 34,
+        "topicId": 8,
+        "topicTitle": "Ko'phadlarni qo'shish va ayirish",
+        "startedAt": "2026-11-11T05:50:47.605Z",
+        "messages": []
+      }
+    },
+    {
+      "label": "8b. chat with a selected paragraph",
+      "request": "POST /api/me/chat/sessions/34/messages",
+      "body": {
+        "selectedText": "Ko'phadlarni ayirishda ayriluvchi ko'phad qavsga olinadi. Qavs oldidagi minus tufayli uning barcha hadlarining ishorasi o'zgaradi.",
+        "text": "Nega faqat birinchi hadning ishorasi o'zgarmaydi?",
+        "action": "explain_simple"
+      },
+      "status": 200,
+      "ms": 4083,
+      "response": {
+        "sessionId": 34,
+        "message": {
+          "id": 67,
+          "role": "student",
+          "content": "> Ko'phadlarni ayirishda ayriluvchi ko'phad qavsga olinadi. Qavs oldidagi minus tufayli uning barcha hadlarining ishorasi o'zgaradi.\n\nNega faqat birinchi hadning ishorasi o'zgarmaydi?",
+          "createdAt": "2026-11-11T05:50:51.685Z"
+        },
+        "reply": {
+          "id": 68,
+          "role": "assistant",
+          "content": "Yaxshi savol! Minus butun qavsning oldida turadi, shuning uchun u qavs ichidagi barcha hadlarga tegishli bo'ladi, faqat birinchisiga emas. Misol: (5a^2 - 2a + 7) - (3a^2 - 4a + 1). Qavsni ochamiz: 3a^2 ning ishorasi + dan - ga, -4a ning ishorasi - dan + ga, +1 ning ishorasi + dan - ga o'zgaradi. Natija: 5a^2 - 2a + 7 - 3a^2 + 4a - 1 = 2a^2 + 2a + 6. Eng ko'p uchraydigan xato aynan minusni faqat birinchi hadga qo'llash, shuning uchun hamma hadni tekshirib chiq.",
+          "createdAt": "2026-11-11T05:50:51.685Z",
+          "sources": [
+            {
+              "page": 14,
+              "chunkId": 11
+            }
+          ],
+          "covered": true,
+          "onTopic": true,
+          "language": "uz",
+          "refused": null
+        }
+      }
+    },
+    {
+      "label": "9a. practice quiz",
+      "request": "POST /api/me/topics/8/practice",
+      "status": 200,
+      "ms": 24,
+      "response": {
+        "attemptId": 51,
+        "quizId": 69,
+        "title": "Ko'phadlarni qo'shish va ayirish: mashq",
+        "dueAt": null,
+        "startedAt": "2026-11-11T05:50:51.708Z",
+        "questions": [
+          {
+            "questionId": 75,
+            "position": 1,
+            "type": "multiple_choice",
+            "prompt": "O'xshash hadlarni ixchamlashda nima qilinadi?",
+            "options": [
+              "Koeffitsiyentlar qo'shiladi, harfiy qism o'zgarmaydi",
+              "Koeffitsiyentlar ham, darajalar ham qo'shiladi",
+              "Harfiy qismlar qo'shiladi",
+              "Koeffitsiyentlar ko'paytiriladi"
+            ],
+            "answer": null,
+            "hintsUsed": 0,
+            "hintsAvailable": 3
+          },
+          {
+            "questionId": 92,
+            "position": 2,
+            "type": "multiple_choice",
+            "prompt": "4x^3 - 2x^5 + x - 7 ko'phad standart shaklda. Uning darajasi nechaga teng?",
+            "options": [
+              "5",
+              "1",
+              "3",
+              "4"
+            ],
+            "answer": null,
+            "hintsUsed": 0,
+            "hintsAvailable": 3
+          },
+          {
+            "questionId": 77,
+            "position": 3,
+            "type": "multiple_choice",
+            "prompt": "Ko'phadlarni ayirishda eng ko'p uchraydigan xato qaysi?",
+            "options": [
+              "O'xshash hadlarni ixchamlash",
+              "Minus ishorasini faqat birinchi hadga qo'llash",
+              "Ayriluvchini qavsga olish",
+              "Natijani son qo'yib tekshirish"
+            ],
+            "answer": null,
+            "hintsUsed": 0,
+            "hintsAvailable": 3
+          },
+          {
+            "questionId": 95,
+            "position": 4,
+            "type": "short_answer",
+            "prompt": "(2x^2 + 3x - 1) + (x^2 - 5x + 4) ko'phadni ixchamlang. x li hadning koeffitsiyenti nechaga teng?",
+            "options": null,
+            "answer": null,
+            "hintsUsed": 0,
+            "hintsAvailable": 3
+          },
+          {
+            "questionId": 93,
+            "position": 5,
+            "type": "multiple_choice",
+            "prompt": "Ayirmani a = 1 da tekshirish uchun (5a^2 - 2a + 7) - (3a^2 - 4a + 1) ifodaning boshlang'ich qiymati nechaga teng?",
+            "options": [
+              "0",
+              "12",
+              "10",
+              "20"
+            ],
+            "answer": null,
+            "hintsUsed": 0,
+            "hintsAvailable": 3
+          }
+        ]
+      }
+    },
+    {
+      "label": "9b. practice answer q75",
+      "request": "POST /api/me/attempts/51/answers",
+      "body": {
+        "questionId": 75,
+        "answer": "Koeffitsiyentlar qo'shiladi, harfiy qism o'zgarmaydi"
+      },
+      "status": 200,
+      "ms": 6,
+      "response": {
+        "questionId": 75,
+        "answer": "Koeffitsiyentlar qo'shiladi, harfiy qism o'zgarmaydi",
+        "answeredCount": 1,
+        "totalQuestions": 5
+      }
+    },
+    {
+      "label": "9b. practice answer q77",
+      "request": "POST /api/me/attempts/51/answers",
+      "body": {
+        "questionId": 77,
+        "answer": "Minus ishorasini faqat birinchi hadga qo'llash"
+      },
+      "status": 200,
+      "ms": 5,
+      "response": {
+        "questionId": 77,
+        "answer": "Minus ishorasini faqat birinchi hadga qo'llash",
+        "answeredCount": 2,
+        "totalQuestions": 5
+      }
+    },
+    {
+      "label": "9b. practice answer q92",
+      "request": "POST /api/me/attempts/51/answers",
+      "body": {
+        "questionId": 92,
+        "answer": "5"
+      },
+      "status": 200,
+      "ms": 6,
+      "response": {
+        "questionId": 92,
+        "answer": "5",
+        "answeredCount": 3,
+        "totalQuestions": 5
+      }
+    },
+    {
+      "label": "9b. practice answer q93",
+      "request": "POST /api/me/attempts/51/answers",
+      "body": {
+        "questionId": 93,
+        "answer": "10"
+      },
+      "status": 200,
+      "ms": 6,
+      "response": {
+        "questionId": 93,
+        "answer": "10",
+        "answeredCount": 4,
+        "totalQuestions": 5
+      }
+    },
+    {
+      "label": "9b. practice answer q95",
+      "request": "POST /api/me/attempts/51/answers",
+      "body": {
+        "questionId": 95,
+        "answer": "-2"
+      },
+      "status": 200,
+      "ms": 5,
+      "response": {
+        "questionId": 95,
+        "answer": "-2",
+        "answeredCount": 5,
+        "totalQuestions": 5
+      }
+    },
+    {
+      "label": "9c. submit practice",
+      "request": "POST /api/me/attempts/51/submit",
+      "status": 200,
+      "ms": 12,
+      "response": {
+        "attemptId": 51,
+        "quizId": 69,
+        "scorePercent": 100,
+        "correctCount": 5,
+        "totalQuestions": 5,
+        "hintsUsed": 0,
+        "finishedAt": "2026-11-11T05:50:51.748Z",
+        "questions": [
+          {
+            "questionId": 75,
+            "position": 1,
+            "type": "multiple_choice",
+            "prompt": "O'xshash hadlarni ixchamlashda nima qilinadi?",
+            "options": [
+              "Koeffitsiyentlar qo'shiladi, harfiy qism o'zgarmaydi",
+              "Koeffitsiyentlar ham, darajalar ham qo'shiladi",
+              "Harfiy qismlar qo'shiladi",
+              "Koeffitsiyentlar ko'paytiriladi"
+            ],
+            "yourAnswer": "Koeffitsiyentlar qo'shiladi, harfiy qism o'zgarmaydi",
+            "isCorrect": true,
+            "correctAnswer": "Koeffitsiyentlar qo'shiladi, harfiy qism o'zgarmaydi",
+            "explanation": "O'xshash hadlarda faqat koeffitsiyentlar qo'shiladi. Harfiy qism o'zgarmaydi.",
+            "hintsUsed": 0,
+            "aiFeedback": null
+          },
+          {
+            "questionId": 92,
+            "position": 2,
+            "type": "multiple_choice",
+            "prompt": "4x^3 - 2x^5 + x - 7 ko'phad standart shaklda. Uning darajasi nechaga teng?",
+            "options": [
+              "5",
+              "1",
+              "3",
+              "4"
+            ],
+            "yourAnswer": "5",
+            "isCorrect": true,
+            "correctAnswer": "5",
+            "explanation": "Hadlar darajalari: 3, 5, 1 va 0. Eng kattasi 5. Shuning uchun ko'phad darajasi 5.",
+            "hintsUsed": 0,
+            "aiFeedback": null
+          },
+          {
+            "questionId": 77,
+            "position": 3,
+            "type": "multiple_choice",
+            "prompt": "Ko'phadlarni ayirishda eng ko'p uchraydigan xato qaysi?",
+            "options": [
+              "O'xshash hadlarni ixchamlash",
+              "Minus ishorasini faqat birinchi hadga qo'llash",
+              "Ayriluvchini qavsga olish",
+              "Natijani son qo'yib tekshirish"
+            ],
+            "yourAnswer": "Minus ishorasini faqat birinchi hadga qo'llash",
+            "isCorrect": true,
+            "correctAnswer": "Minus ishorasini faqat birinchi hadga qo'llash",
+            "explanation": "Matnga ko'ra, eng ko'p xato minusni faqat birinchi hadga qo'llashdir. Aslida ayriluvchining barcha hadlari ishorasi o'zgaradi.",
+            "hintsUsed": 0,
+            "aiFeedback": null
+          },
+          {
+            "questionId": 95,
+            "position": 4,
+            "type": "short_answer",
+            "prompt": "(2x^2 + 3x - 1) + (x^2 - 5x + 4) ko'phadni ixchamlang. x li hadning koeffitsiyenti nechaga teng?",
+            "options": null,
+            "yourAnswer": "-2",
+            "isCorrect": true,
+            "correctAnswer": "-2",
+            "explanation": "x li hadlar 3x va -5x. Koeffitsiyentlar qo'shiladi: 3 + (-5) = -2. Natija 3x^2 - 2x + 3 da x ning koeffitsiyenti -2.",
+            "hintsUsed": 0,
+            "aiFeedback": null
+          },
+          {
+            "questionId": 93,
+            "position": 5,
+            "type": "multiple_choice",
+            "prompt": "Ayirmani a = 1 da tekshirish uchun (5a^2 - 2a + 7) - (3a^2 - 4a + 1) ifodaning boshlang'ich qiymati nechaga teng?",
+            "options": [
+              "0",
+              "12",
+              "10",
+              "20"
+            ],
+            "yourAnswer": "10",
+            "isCorrect": true,
+            "correctAnswer": "10",
+            "explanation": "Birinchi qavs 5 - 2 + 7 = 10. Ikkinchi qavs 3 - 4 + 1 = 0. Ayirma 10 - 0 = 10.",
+            "hintsUsed": 0,
+            "aiFeedback": null
+          }
+        ],
+        "mastery": {
+          "topicId": 8,
+          "status": "in_progress",
+          "homeScore": 100
+        }
+      }
+    },
+    {
+      "label": "10. checkpoint start (Sardor)",
+      "request": "POST /api/me/topics/8/checkpoint/start",
+      "status": 200,
+      "ms": 10360,
+      "response": {
+        "checkpointId": 18,
+        "topicId": 8,
+        "topicTitle": "Ko'phadlarni qo'shish va ayirish",
+        "tryNumber": 1,
+        "speaker": "Sardor",
+        "stage": "opening",
+        "prompt": {
+          "text": "Men bir narsani aniq bilaman: qavs oldida minus bo'lsa, u faqat qavsdagi birinchi hadga tegadi. Masalan, x minus qavs ochiladi ikki x minus uch, men buni x minus ikki x minus uch deb yozaman. Menimcha, to'g'ri, a? Tushuntirib bering-chi, men qayerda adashyapman va nima uchun?",
+          "audioUrl": "/uploads/tts/9871534492e29c8a088972fc2269f15e.mp3"
+        },
+        "followUp": null,
+        "createdAt": "2026-11-11T05:50:55.627Z"
+      }
+    },
+    {
+      "label": "10b. Sardor's audio",
+      "request": "GET /uploads/tts/9871534492e29c8a088972fc2269f15e.mp3",
+      "status": 200,
+      "response": "audio/mpeg, 115056 bytes"
+    },
+    {
+      "label": "11a. text answer (weak)",
+      "request": "POST /api/me/checkpoints/18/answer",
+      "body": {
+        "text": "Sardor, ko'phadda hadlar ko'p bo'ladi, shuning uchun uni ko'phad deyishadi."
+      },
+      "status": 200,
+      "ms": 5205,
+      "response": {
+        "checkpointId": 18,
+        "tryNumber": 1,
+        "mode": "text",
+        "transcript": "Sardor, ko'phadda hadlar ko'p bo'ladi, shuning uchun uni ko'phad deyishadi.",
+        "matchedIdeas": [
+          "Ko'phad birhadlar yig'indisi; birhadlar uning hadlari deyiladi."
+        ],
+        "missingIdeas": [
+          "O'xshash hadlarni ixchamlashda koeffitsiyentlar qo'shiladi, harfiy qism o'zgarmaydi.",
+          "Qavs oldida minus bo'lsa, qavs ichidagi har bir hadning ishorasi o'zgaradi.",
+          "Ko'phadlarni ayirishda ayriluvchi ko'phadning barcha hadlari ishorasi o'zgaradi.",
+          "Natijani o'zgaruvchiga son qo'yib tekshirish mumkin."
+        ],
+        "wrongStatements": [],
+        "outcome": "follow_up",
+        "followUp": {
+          "text": "Lekin minus qavs oldida turganda, qavs ichidagi ikki x va minus uch hadlari bilan nima bo'ladi? Nega men faqat birinchi hadni o'zgartirdim, bu to'g'rimi?",
+          "audioUrl": "/uploads/tts/ae0a248dcb400688f555d2d5b2a50eed.mp3"
+        },
+        "feedback": null,
+        "next": null,
+        "masteryStatus": "in_progress",
+        "teacherNotified": false,
+        "nextTopic": null
+      }
+    },
+    {
+      "label": "11b. text follow-up answer (wrong)",
+      "request": "POST /api/me/checkpoints/18/answer",
+      "body": {
+        "text": "Qavs oldida minus bo'lsa, faqat birinchi hadning ishorasi o'zgaradi, qolganlari o'zgarmaydi."
+      },
+      "status": 200,
+      "ms": 9554,
+      "response": {
+        "checkpointId": 18,
+        "tryNumber": 1,
+        "mode": "text",
+        "transcript": "Qavs oldida minus bo'lsa, faqat birinchi hadning ishorasi o'zgaradi, qolganlari o'zgarmaydi.",
+        "matchedIdeas": [
+          "Ko'phad birhadlar yig'indisi; birhadlar uning hadlari deyiladi."
+        ],
+        "missingIdeas": [
+          "O'xshash hadlarni ixchamlashda koeffitsiyentlar qo'shiladi, harfiy qism o'zgarmaydi.",
+          "Qavs oldida minus bo'lsa, qavs ichidagi har bir hadning ishorasi o'zgaradi.",
+          "Ko'phadlarni ayirishda ayriluvchi ko'phadning barcha hadlari ishorasi o'zgaradi.",
+          "Natijani o'zgaruvchiga son qo'yib tekshirish mumkin."
+        ],
+        "wrongStatements": [
+          "Qavs oldida minus bo'lsa, faqat birinchi hadning ishorasi o'zgaradi, qolganlari o'zgarmaydi."
+        ],
+        "outcome": "not_yet",
+        "followUp": null,
+        "feedback": "Qavs oldidagi minus qavs ichidagi HAMMA hadlarning ishorasini o'zgartiradi, faqat birinchisiniki emas. Chunki minus butun qavsni -1 ga ko'paytirish demak. Masalan: x - (2x - 3) = x - 2x + 3 = -x + 3. Tekshirish: x = 1 bo'lsa, 1 - (2 - 3) = 2 va -1 + 3 = 2, natija bir xil.",
+        "next": {
+          "checkpointId": 19,
+          "topicId": 8,
+          "topicTitle": "Ko'phadlarni qo'shish va ayirish",
+          "tryNumber": 2,
+          "speaker": "Sardor",
+          "stage": "opening",
+          "prompt": {
+            "text": "Endi men boshqacha o'ylayapman: ikki x ortiqcha uch ayiraman qavs ochiladi x ortiqcha besh bo'lsa, natija ikki x minus x ortiqcha uch minus besh bo'ladi. O'xshash hadlarni qo'shganda esa x larni ham qo'shib, x kvadrat hosil qilaman, to'g'rimi? Menga yana tushuntirib bera olasizmi?",
+            "audioUrl": "/uploads/tts/6840186542b6d8a05e53518401246e55.mp3"
+          },
+          "followUp": null,
+          "createdAt": "2026-11-11T05:51:13.583Z"
+        },
+        "masteryStatus": "in_progress",
+        "teacherNotified": false,
+        "nextTopic": null
+      }
+    },
+    {
+      "label": "12. voice answer",
+      "request": "POST /api/me/checkpoints/19/answer",
+      "body": "(multipart audio)",
+      "status": 200,
+      "ms": 6289,
+      "response": {
+        "checkpointId": 19,
+        "tryNumber": 2,
+        "mode": "voice",
+        "transcript": "Sardor, sen adashding. Ko'phad bu birhadlarning yig'indisi, birhadlar esa uning hadlari deyiladi. Oxshash hadlarni qo'shganda faqat koeffitsiyentlar qo'shiladi, harfiy qism o'zgarmaydi. Masalan, 3x plus 2x, 5 bo'ladi. Agar qavs oldida minus tursa, qavsni ochganda ichidagi har bir hadning ishorasi o'zgaradi, faqat birinchisining emas. Shuning uchun bir ko'phaddan ikkinchisini ayirganda ayriluvchi ko'phadning hamma hadlari ishorasini o'zgartiramiz. Masalan, 5a dan qavs ichida 2a minus 3ni ayirsak, 3a plus 3 chiqadi. Oxirida javobni tekshirish uchun a o'rniga bir sonni qo'yib ko'ramiz.",
+        "matchedIdeas": [
+          "Ko'phad birhadlar yig'indisi; birhadlar uning hadlari deyiladi.",
+          "O'xshash hadlarni ixchamlashda koeffitsiyentlar qo'shiladi, harfiy qism o'zgarmaydi.",
+          "Qavs oldida minus bo'lsa, qavs ichidagi har bir hadning ishorasi o'zgaradi.",
+          "Ko'phadlarni ayirishda ayriluvchi ko'phadning barcha hadlari ishorasi o'zgaradi.",
+          "Natijani o'zgaruvchiga son qo'yib tekshirish mumkin."
+        ],
+        "missingIdeas": [],
+        "wrongStatements": [],
+        "outcome": "passed",
+        "followUp": null,
+        "feedback": "Rahmat, tushuntirganingiz uchun! Endi men o'xshash hadlarda faqat koeffitsiyentlar qo'shilishini va qavs oldida minus bo'lsa hamma hadlar ishorasi o'zgarishini tushundim.",
+        "next": null,
+        "masteryStatus": "mastered",
+        "teacherNotified": false,
+        "nextTopic": {
+          "topicId": 9,
+          "title": "Yig'indi va ayirmaning kvadrati",
+          "unlocked": true
+        }
+      }
+    },
+    {
+      "label": "13a. checkpoint status",
+      "request": "GET /api/me/topics/8/checkpoint/status",
+      "status": 200,
+      "ms": 15,
+      "response": {
+        "topicId": 8,
+        "topicTitle": "Ko'phadlarni qo'shish va ayirish",
+        "masteryStatus": "mastered",
+        "mastered": true,
+        "unlocked": true,
+        "tries": 2,
+        "lastResult": "passed",
+        "lastTriedAt": "2026-11-11T05:51:23.168Z",
+        "notYetSinceLastPass": 0,
+        "needsHelp": false,
+        "openCheckpointId": null
+      }
+    },
+    {
+      "label": "13b. mastery",
+      "request": "GET /api/me/mastery",
+      "status": 200,
+      "ms": 8,
+      "response": {
+        "rule": "mastered: passed the Tushuntir checkpoint; needs_help: 3+ failed checkpoint tries since the last pass; not_started: no quiz yet; in_progress: latest quiz >= 80%; needs_practice: latest quiz < 80%. unlocked: the first topic of a textbook, a mastered topic, or the topic before it is mastered (information only, nothing is blocked)",
+        "topics": [
+          {
+            "topicId": 6,
+            "title": "Algebraik ifoda va uning qiymati",
+            "subjectId": 8,
+            "subject": "Algebra",
+            "chapterId": 6,
+            "chapterPosition": 1,
+            "chapter": "Algebraik ifodalar",
+            "status": "not_started",
+            "unlocked": true,
+            "checkpointTries": 0,
+            "mastery": null,
+            "homeScore": null,
+            "examScore": null,
+            "updatedAt": null
+          },
+          {
+            "topicId": 7,
+            "title": "Birhad va uning standart shakli",
+            "subjectId": 8,
+            "subject": "Algebra",
+            "chapterId": 6,
+            "chapterPosition": 1,
+            "chapter": "Algebraik ifodalar",
+            "status": "not_started",
+            "unlocked": false,
+            "checkpointTries": 0,
+            "mastery": null,
+            "homeScore": null,
+            "examScore": null,
+            "updatedAt": null
+          },
+          {
+            "topicId": 8,
+            "title": "Ko'phadlarni qo'shish va ayirish",
+            "subjectId": 8,
+            "subject": "Algebra",
+            "chapterId": 6,
+            "chapterPosition": 1,
+            "chapter": "Algebraik ifodalar",
+            "status": "mastered",
+            "unlocked": true,
+            "checkpointTries": 2,
+            "mastery": 100,
+            "homeScore": 100,
+            "examScore": null,
+            "updatedAt": "2026-11-11T05:51:23.168Z"
+          },
+          {
+            "topicId": 9,
+            "title": "Yig'indi va ayirmaning kvadrati",
+            "subjectId": 8,
+            "subject": "Algebra",
+            "chapterId": 7,
+            "chapterPosition": 2,
+            "chapter": "Qisqa ko'paytirish formulalari",
+            "status": "not_started",
+            "unlocked": true,
+            "checkpointTries": 0,
+            "mastery": null,
+            "homeScore": null,
+            "examScore": null,
+            "updatedAt": null
+          },
+          {
+            "topicId": 10,
+            "title": "Kvadratlar ayirmasi",
+            "subjectId": 8,
+            "subject": "Algebra",
+            "chapterId": 7,
+            "chapterPosition": 2,
+            "chapter": "Qisqa ko'paytirish formulalari",
+            "status": "not_started",
+            "unlocked": false,
+            "checkpointTries": 0,
+            "mastery": null,
+            "homeScore": null,
+            "examScore": null,
+            "updatedAt": null
+          },
+          {
+            "topicId": 11,
+            "title": "Bir noma'lumli chiziqli tenglama",
+            "subjectId": 8,
+            "subject": "Algebra",
+            "chapterId": 8,
+            "chapterPosition": 3,
+            "chapter": "Chiziqli tenglamalar",
+            "status": "not_started",
+            "unlocked": false,
+            "checkpointTries": 0,
+            "mastery": null,
+            "homeScore": null,
+            "examScore": null,
+            "updatedAt": null
+          }
+        ]
+      }
+    },
+    {
+      "label": "14a. history",
+      "request": "GET /api/me/attempts",
+      "status": 200,
+      "ms": 9,
+      "response": [
+        {
+          "id": 19,
+          "kind": "checkpoint",
+          "quizId": null,
+          "topic": {
+            "id": 8,
+            "title": "Ko'phadlarni qo'shish va ayirish"
+          },
+          "subject": {
+            "id": 8,
+            "name": "Algebra"
+          },
+          "startedAt": "2026-11-11T05:51:13.583Z",
+          "finishedAt": "2026-11-11T05:51:23.168Z",
+          "scorePercent": 100,
+          "result": "passed",
+          "openMistakes": 0
+        },
+        {
+          "id": 18,
+          "kind": "checkpoint",
+          "quizId": null,
+          "topic": {
+            "id": 8,
+            "title": "Ko'phadlarni qo'shish va ayirish"
+          },
+          "subject": {
+            "id": 8,
+            "name": "Algebra"
+          },
+          "startedAt": "2026-11-11T05:50:55.627Z",
+          "finishedAt": "2026-11-11T05:51:13.583Z",
+          "scorePercent": 20,
+          "result": "not_yet",
+          "openMistakes": 0
+        },
+        {
+          "id": 51,
+          "kind": "practice",
+          "quizId": 69,
+          "topic": {
+            "id": 8,
+            "title": "Ko'phadlarni qo'shish va ayirish"
+          },
+          "subject": {
+            "id": 8,
+            "name": "Algebra"
+          },
+          "startedAt": "2026-11-11T05:50:51.708Z",
+          "finishedAt": "2026-11-11T05:50:51.748Z",
+          "scorePercent": 100,
+          "result": "passed",
+          "openMistakes": 0
+        },
+        {
+          "id": 50,
+          "kind": "lesson_quiz",
+          "quizId": 15,
+          "topic": {
+            "id": 8,
+            "title": "Ko'phadlarni qo'shish va ayirish"
+          },
+          "subject": {
+            "id": 8,
+            "name": "Algebra"
+          },
+          "startedAt": "2026-11-11T05:50:14.596Z",
+          "finishedAt": "2026-11-11T05:50:17.521Z",
+          "scorePercent": 60,
+          "result": "not_yet",
+          "openMistakes": 3
+        }
+      ]
+    },
+    {
+      "label": "14b. subjects after the pass",
+      "request": "GET /api/me/subjects",
+      "status": 200,
+      "ms": 43,
+      "response": [
+        {
+          "id": 8,
+          "name": "Algebra",
+          "topicsTotal": 6,
+          "topicsMastered": 1
+        },
+        {
+          "id": 12,
+          "name": "Fizika",
+          "topicsTotal": 0,
+          "topicsMastered": 0
+        },
+        {
+          "id": 11,
+          "name": "Ingliz tili",
+          "topicsTotal": 0,
+          "topicsMastered": 0
+        },
+        {
+          "id": 10,
+          "name": "Ona tili",
+          "topicsTotal": 0,
+          "topicsMastered": 0
+        },
+        {
+          "id": 13,
+          "name": "Tarix",
+          "topicsTotal": 0,
+          "topicsMastered": 0
+        }
+      ]
+    }
+  ]
+}
