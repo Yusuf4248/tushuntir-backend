@@ -1,6 +1,29 @@
 {
   "openapi": "3.0.0",
   "paths": {
+    "/api/health": {
+      "get": {
+        "description": "200 when the database answers and the pgvector extension is installed; 503 otherwise.",
+        "operationId": "HealthController_check",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Liveness for the host's health check (no login)",
+        "tags": [
+          "Health"
+        ]
+      }
+    },
     "/api/auth/login": {
       "post": {
         "operationId": "AuthController_login",
@@ -19486,7 +19509,7 @@
     },
     "/api/demo/finish-lesson/{lessonId}": {
       "post": {
-        "description": "Only when DEMO_MODE=true; otherwise 404. Sets lessons.ended_at to now. If the lesson's quiz would close within an hour, its deadline moves to two hours from now.",
+        "description": "Only when DEMO_MODE=true; otherwise 404. Students may end a lesson of their own class, teachers only their own lessons (others get 404; other roles 403). Sets lessons.ended_at to now. If the lesson's quiz would close within an hour, its deadline moves to two hours from now.",
         "operationId": "DemoController_finishLesson",
         "parameters": [
           {
@@ -19814,6 +19837,111 @@
         ]
       }
     },
+    "/api/me/attempts": {
+      "get": {
+        "description": "Lesson quizzes, practice quizzes and Tushuntir checkpoint tries (exams are not listed). For quizzes `id` is the attempt id (open the review with it); for checkpoints it is the checkpoint id.",
+        "operationId": "MeController_attemptHistory",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "example": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "topicId",
+            "required": false,
+            "in": "query",
+            "description": "Only this topic",
+            "schema": {
+              "minimum": 1,
+              "example": 8,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AttemptHistoryItemDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed or a referenced record is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid access token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Role not allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Record or referenced record not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Duplicate value, or the record is still referenced",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ],
+        "summary": "The student's quiz and checkpoint history, newest first",
+        "tags": [
+          "Student · Me"
+        ]
+      }
+    },
     "/api/me/attempts/{id}/answers": {
       "post": {
         "description": "One answer at a time; it can be changed until submit. Correctness is not revealed until submit. Short answers are checked by normalized match first, then by the AI.",
@@ -19898,6 +20026,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "More than 30 requests per 1 min for this user. Retry-After gives the seconds to wait; the message is in Uzbek."
           }
         },
         "security": [
@@ -20272,6 +20403,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "More than 30 requests per 1 min for this user. Retry-After gives the seconds to wait; the message is in Uzbek."
           }
         },
         "security": [
@@ -20542,6 +20676,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "More than 20 requests per 1 min for this user. Retry-After gives the seconds to wait; the message is in Uzbek."
           }
         },
         "security": [
@@ -20636,6 +20773,93 @@
         ]
       }
     },
+    "/api/me/topics/{id}": {
+      "get": {
+        "description": "Only topics of the student's class subjects and grade (else 404). Paragraphs are the topic's textbook text in order, each with its real page. status / unlocked follow docs/mastery-rules.md; prevTopicId / nextTopicId follow book order within the textbook.",
+        "operationId": "MeController_topic",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopicDetailDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed or a referenced record is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid access token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Role not allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Record or referenced record not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Duplicate value, or the record is still referenced",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ],
+        "summary": "A textbook topic: summary, key ideas and paragraphs",
+        "tags": [
+          "Student · Me"
+        ]
+      }
+    },
     "/api/me/topics/{id}/practice": {
       "post": {
         "description": "Aimed at the student's past mistakes in the topic: unseen approved questions of the same type and difficulty as the mistakes come first; new questions are generated (with the self-check) only when the pool runs out. Then use the normal answers / hint / submit / review endpoints; submit updates mastery.",
@@ -20710,6 +20934,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "More than 10 requests per 1 h for this user. Retry-After gives the seconds to wait; the message is in Uzbek."
           }
         },
         "security": [
@@ -20797,6 +21024,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "More than 10 requests per 1 min for this user. Retry-After gives the seconds to wait; the message is in Uzbek."
           }
         },
         "security": [
@@ -20826,7 +21056,7 @@
         ],
         "requestBody": {
           "required": true,
-          "description": "Either a recording (multipart field `audio`: webm, ogg, m4a, mp4, mp3 or wav, max 25 MB) or JSON `{ text }`.",
+          "description": "Either a recording (multipart field `audio`: webm, ogg, m4a, mp4, mp3 or wav; at most 5 MB and 90 seconds) or JSON `{ text }` (at most 2000 characters).",
           "content": {
             "multipart/form-data": {
               "schema": {
@@ -20838,7 +21068,7 @@
                   },
                   "text": {
                     "type": "string",
-                    "maxLength": 4000
+                    "maxLength": 2000
                   }
                 }
               }
@@ -20853,7 +21083,7 @@
                   },
                   "text": {
                     "type": "string",
-                    "maxLength": 4000
+                    "maxLength": 2000
                   }
                 }
               }
@@ -20920,6 +21150,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "More than 10 requests per 1 min for this user. Retry-After gives the seconds to wait; the message is in Uzbek."
           }
         },
         "security": [
@@ -21015,6 +21248,87 @@
           }
         ],
         "summary": "Checkpoint status of a topic",
+        "tags": [
+          "Student · Me"
+        ]
+      }
+    },
+    "/api/me/subjects": {
+      "get": {
+        "description": "topicsTotal counts the topics of the subject's textbook(s) at the class grade (0 when there is no textbook yet); topicsMastered counts those with status mastered.",
+        "operationId": "MeController_subjects",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StudentSubjectDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed or a referenced record is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid access token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Role not allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Record or referenced record not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Duplicate value, or the record is still referenced",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ],
+        "summary": "Subjects of the student's class with topic progress",
         "tags": [
           "Student · Me"
         ]
@@ -21117,6 +21431,34 @@
       }
     },
     "schemas": {
+      "HealthDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "error"
+            ],
+            "example": "ok"
+          },
+          "database": {
+            "type": "boolean",
+            "example": true,
+            "description": "The database answered"
+          },
+          "vector": {
+            "type": "boolean",
+            "example": true,
+            "description": "The pgvector extension is installed"
+          }
+        },
+        "required": [
+          "status",
+          "database",
+          "vector"
+        ]
+      },
       "ErrorResponseDto": {
         "type": "object",
         "properties": {
@@ -22852,6 +23194,13 @@
               "type": "string",
               "maxLength": 300
             }
+          },
+          "summary": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 2000,
+            "example": "Algebraik ifoda sonlar, harflar va amal belgilaridan tuziladi. Uning qiymatini topish uchun harflar o'rniga sonlar qo'yiladi.",
+            "description": "Short summary shown on the student's topic page"
           }
         },
         "required": [
@@ -22888,6 +23237,10 @@
             "items": {
               "type": "string"
             }
+          },
+          "summary": {
+            "type": "string",
+            "nullable": true
           }
         },
         "required": [
@@ -22897,7 +23250,8 @@
           "position",
           "title",
           "isExamTopic",
-          "keyIdeas"
+          "keyIdeas",
+          "summary"
         ]
       },
       "UpdateTopicDto": {
@@ -22939,6 +23293,13 @@
               "type": "string",
               "maxLength": 300
             }
+          },
+          "summary": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 2000,
+            "example": "Algebraik ifoda sonlar, harflar va amal belgilaridan tuziladi. Uning qiymatini topish uchun harflar o'rniga sonlar qo'yiladi.",
+            "description": "Short summary shown on the student's topic page"
           }
         }
       },
@@ -22969,6 +23330,22 @@
           "content": {
             "type": "string",
             "example": "To add fractions with the same denominator, add the numerators..."
+          },
+          "paragraphPages": {
+            "nullable": true,
+            "maxItems": 200,
+            "example": [
+              13,
+              13,
+              14
+            ],
+            "description": "Page of each paragraph of content (paragraphs are separated by a blank line)",
+            "type": "array",
+            "items": {
+              "type": "number",
+              "maximum": 2000,
+              "minimum": 1
+            }
           }
         },
         "required": [
@@ -22998,6 +23375,13 @@
           },
           "content": {
             "type": "string"
+          },
+          "paragraphPages": {
+            "nullable": true,
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
           }
         },
         "required": [
@@ -23006,7 +23390,8 @@
           "topic",
           "page",
           "position",
-          "content"
+          "content",
+          "paragraphPages"
         ]
       },
       "UpdateTextbookChunkDto": {
@@ -23036,6 +23421,22 @@
           "content": {
             "type": "string",
             "example": "To add fractions with the same denominator, add the numerators..."
+          },
+          "paragraphPages": {
+            "nullable": true,
+            "maxItems": 200,
+            "example": [
+              13,
+              13,
+              14
+            ],
+            "description": "Page of each paragraph of content (paragraphs are separated by a blank line)",
+            "type": "array",
+            "items": {
+              "type": "number",
+              "maximum": 2000,
+              "minimum": 1
+            }
           }
         }
       },
@@ -23665,6 +24066,11 @@
               }
             ]
           },
+          "confirmationUnavailableAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
           "approvedBy": {
             "type": "number",
             "nullable": true
@@ -23747,6 +24153,7 @@
           "sourceChunk",
           "variantOfId",
           "variantOf",
+          "confirmationUnavailableAt",
           "approvedBy",
           "approver",
           "type",
@@ -26726,6 +27133,109 @@
           "questions"
         ]
       },
+      "SubjectRefDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 8
+          },
+          "name": {
+            "type": "string",
+            "example": "Algebra"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "AttemptHistoryItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 35,
+            "description": "Attempt id for quizzes (use with /me/attempts/:id/review), checkpoint id for checkpoints"
+          },
+          "kind": {
+            "enum": [
+              "lesson_quiz",
+              "practice",
+              "checkpoint"
+            ],
+            "type": "string",
+            "example": "lesson_quiz"
+          },
+          "quizId": {
+            "type": "number",
+            "nullable": true,
+            "example": 15,
+            "description": "null for checkpoints"
+          },
+          "topic": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TopicRefDto"
+              }
+            ]
+          },
+          "subject": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SubjectRefDto"
+              }
+            ]
+          },
+          "startedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "finishedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true,
+            "description": "null while open"
+          },
+          "scorePercent": {
+            "type": "number",
+            "nullable": true,
+            "example": 60,
+            "description": "Quiz score, or for a checkpoint the share of key ideas covered"
+          },
+          "result": {
+            "type": "string",
+            "enum": [
+              "passed",
+              "not_yet"
+            ],
+            "nullable": true,
+            "example": "not_yet",
+            "description": "Quizzes: passed at 80% or more; checkpoints: the judged result; null while open"
+          },
+          "openMistakes": {
+            "type": "number",
+            "nullable": true,
+            "example": 3,
+            "description": "Submitted quizzes: wrong answers not yet fixed by a confirmation question; checkpoints: 0; null while open"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "quizId",
+          "topic",
+          "subject",
+          "startedAt",
+          "finishedAt",
+          "scorePercent",
+          "result",
+          "openMistakes"
+        ]
+      },
       "AnswerDto": {
         "type": "object",
         "properties": {
@@ -27074,9 +27584,19 @@
             "type": "boolean",
             "example": false
           },
+          "confirmationStatus": {
+            "enum": [
+              "ready",
+              "none",
+              "pending"
+            ],
+            "type": "string",
+            "example": "ready",
+            "description": "ready: answer `confirmation`; none: no question tests the same skill, skip to explain more; pending: the AI was unavailable, open the review again later"
+          },
           "confirmation": {
             "nullable": true,
-            "description": "Same skill, new numbers; answer it with POST .../confirm/:questionId. null if none could be made yet",
+            "description": "Same skill (new numbers, or an approved pool question testing that skill); answer it with POST .../confirm/:questionId. null unless confirmationStatus is ready",
             "allOf": [
               {
                 "$ref": "#/components/schemas/ConfirmationQuestionDto"
@@ -27096,6 +27616,7 @@
           "explanation",
           "page",
           "fixed",
+          "confirmationStatus",
           "confirmation"
         ]
       },
@@ -27283,15 +27804,15 @@
         "properties": {
           "text": {
             "type": "string",
-            "maxLength": 2000,
+            "maxLength": 1000,
             "example": "Nega qavs oldida minus bo'lsa ishoralar o'zgaradi?",
-            "description": "Required unless an action is given"
+            "description": "Required unless an action is given; at most 1000 characters"
           },
           "selectedText": {
             "type": "string",
-            "maxLength": 3000,
+            "maxLength": 2000,
             "example": "Qavs oldida minus ishorasi tursa, qavs ichidagi har bir hadning ishorasi qarama-qarshisiga o'zgaradi.",
-            "description": "A passage the student highlighted in the textbook"
+            "description": "A passage the student highlighted in the textbook; at most 2000 characters"
           },
           "action": {
             "type": "string",
@@ -27469,6 +27990,150 @@
           "homeScore",
           "subSkills",
           "openMistakes"
+        ]
+      },
+      "ChapterRefDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 6
+          },
+          "title": {
+            "type": "string",
+            "nullable": true,
+            "example": "Algebraik ifodalar"
+          },
+          "position": {
+            "type": "number",
+            "nullable": true,
+            "example": 1,
+            "description": "Chapter number in the textbook"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "position"
+        ]
+      },
+      "ParagraphDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "10-2",
+            "description": "<chunkId>-<paragraph number in the chunk>"
+          },
+          "chunkId": {
+            "type": "number",
+            "example": 10,
+            "description": "Textbook chunk; chat sources refer to it by chunkId"
+          },
+          "page": {
+            "type": "number",
+            "nullable": true,
+            "example": 13
+          },
+          "position": {
+            "type": "number",
+            "example": 2,
+            "description": "1, 2, 3, … across the topic"
+          },
+          "content": {
+            "type": "string",
+            "example": "O'xshash hadlarni ixchamlash uchun ularning koeffitsiyentlari qo'shiladi, harfiy qism esa o'zgarmaydi.",
+            "description": "Markdown-like text: may start with a '### ' heading line"
+          }
+        },
+        "required": [
+          "id",
+          "chunkId",
+          "page",
+          "position",
+          "content"
+        ]
+      },
+      "TopicDetailDto": {
+        "type": "object",
+        "properties": {
+          "topicId": {
+            "type": "number",
+            "example": 8
+          },
+          "title": {
+            "type": "string",
+            "example": "Ko'phadlarni qo'shish va ayirish"
+          },
+          "subject": {
+            "$ref": "#/components/schemas/SubjectRefDto"
+          },
+          "chapter": {
+            "$ref": "#/components/schemas/ChapterRefDto"
+          },
+          "position": {
+            "type": "number",
+            "nullable": true,
+            "example": 3,
+            "description": "Topic position in the chapter"
+          },
+          "status": {
+            "enum": [
+              "not_started",
+              "in_progress",
+              "needs_practice",
+              "needs_help",
+              "mastered"
+            ],
+            "type": "string",
+            "example": "in_progress"
+          },
+          "unlocked": {
+            "type": "boolean",
+            "example": true,
+            "description": "Information only (docs/mastery-rules.md)"
+          },
+          "summary": {
+            "type": "string",
+            "nullable": true,
+            "description": "2-3 sentences in simple Uzbek; null until content:load writes it"
+          },
+          "keyIdeas": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "paragraphs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ParagraphDto"
+            }
+          },
+          "prevTopicId": {
+            "type": "number",
+            "nullable": true,
+            "example": 7
+          },
+          "nextTopicId": {
+            "type": "number",
+            "nullable": true,
+            "example": 9
+          }
+        },
+        "required": [
+          "topicId",
+          "title",
+          "subject",
+          "chapter",
+          "position",
+          "status",
+          "unlocked",
+          "summary",
+          "keyIdeas",
+          "paragraphs",
+          "prevTopicId",
+          "nextTopicId"
         ]
       },
       "SardorLineDto": {
@@ -27778,6 +28443,34 @@
           "openCheckpointId"
         ]
       },
+      "StudentSubjectDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 8
+          },
+          "name": {
+            "type": "string",
+            "example": "Algebra"
+          },
+          "topicsTotal": {
+            "type": "number",
+            "example": 6,
+            "description": "Topics of the subject's textbook(s) at the class grade"
+          },
+          "topicsMastered": {
+            "type": "number",
+            "example": 1
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "topicsTotal",
+          "topicsMastered"
+        ]
+      },
       "MasteryTopicDto": {
         "type": "object",
         "properties": {
@@ -27789,10 +28482,24 @@
             "type": "string",
             "example": "Algebraik ifoda va uning qiymati"
           },
+          "chapterId": {
+            "type": "number",
+            "example": 6
+          },
+          "chapterPosition": {
+            "type": "number",
+            "nullable": true,
+            "example": 1,
+            "description": "Chapter number in the textbook"
+          },
           "chapter": {
             "type": "string",
             "nullable": true,
             "example": "Algebraik ifodalar"
+          },
+          "subjectId": {
+            "type": "number",
+            "example": 8
           },
           "subject": {
             "type": "string",
@@ -27846,7 +28553,10 @@
         "required": [
           "topicId",
           "title",
+          "chapterId",
+          "chapterPosition",
           "chapter",
+          "subjectId",
           "subject",
           "status",
           "unlocked",
