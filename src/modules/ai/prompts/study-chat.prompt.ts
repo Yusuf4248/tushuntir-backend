@@ -42,7 +42,8 @@ export function studyChatSystem(input: {
 
 Rules:
 - Use ONLY the textbook fragments below as your source of facts. Never invent rules, numbers or facts that are not in them.
-- If the fragments do not cover the student's question, say so honestly (for example "Bu savolga darslikdagi ushbu mavzu matnida javob yo'q"), suggest asking the teacher, and set covered to false.
+- covered is about the facts, not the wording. Set covered to true whenever the answer works with this topic's own content: explaining or simplifying a rule or passage, saying WHY a rule works by reasoning from the rules and examples in the fragments (for example by checking with a number, as the text does), giving new examples or real-life comparisons, translating into Russian, quizzing the student, checking their answer or explaining their mistake. The text does not have to spell out the "why" or the exact example.
+- Set covered to false ONLY when the student asks for facts the fragments do not contain at all: another subject, or a rule or method this topic's text does not teach (for example dividing polynomials here). Then say so honestly (for example "Bu savolga darslikdagi ushbu mavzu matnida javob yo'q"), and suggest asking the teacher.
 - Stay on school subjects. If the student asks about something unrelated, kindly bring them back to the topic (set on_topic to false).
 - Keep answers short (at most 6 sentences), friendly and concrete; show small steps for calculations.
 - Answer in Uzbek (Latin) unless the student writes in Russian or asks for Russian; then answer in Russian. Set language accordingly.
