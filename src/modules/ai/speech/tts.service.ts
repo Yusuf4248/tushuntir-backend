@@ -4,12 +4,10 @@ import { promises as fs } from "fs";
 import { MsEdgeTTS, OUTPUT_FORMAT } from "msedge-tts";
 import * as path from "path";
 import {
-  UPLOAD_DIR,
   UPLOAD_URL_PREFIX,
+  uploadsDir,
 } from "../../../shared/file/file.service";
 import { SPEECH_CONFIG, SpeechConfig } from "./speech.config";
-
-const TTS_DIR = path.join(UPLOAD_DIR, "tts");
 
 /** Text is placed inside SSML, so XML characters must be escaped. */
 function escapeXml(text: string): string {
@@ -24,7 +22,8 @@ function escapeXml(text: string): string {
 /**
  * Sardor's lines read aloud with Microsoft Edge's online voices (msedge-tts, TTS_VOICE).
  * That endpoint is unofficial: fine for the demo, to be replaced by a paid TTS in production.
- * Files are cached per voice and text under /uploads/tts, so each line is synthesised once.
+ * Files are cached per voice and text under <UPLOADS_DIR>/tts, so each line is synthesised once;
+ * after a restart on a host without a persistent disk they are simply made again.
  */
 @Injectable()
 export class TtsService {
@@ -38,7 +37,8 @@ export class TtsService {
       .update(`${this.config.ttsVoice}\n${text}`)
       .digest("hex")
       .slice(0, 32)}.mp3`;
-    const file = path.join(TTS_DIR, name);
+    const dir = path.join(uploadsDir(), "tts");
+    const file = path.join(dir, name);
     const url = `${UPLOAD_URL_PREFIX}/tts/${name}`;
     try {
       await fs.access(file);
@@ -49,7 +49,7 @@ export class TtsService {
     const started = Date.now();
     try {
       const audio = await this.synthesize(text);
-      await fs.mkdir(TTS_DIR, { recursive: true });
+      await fs.mkdir(dir, { recursive: true });
       const partial = `${file}.${process.pid}.part`;
       await fs.writeFile(partial, audio);
       await fs.rename(partial, file);

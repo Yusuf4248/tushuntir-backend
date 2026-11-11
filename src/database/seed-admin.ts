@@ -7,6 +7,7 @@ import "reflect-metadata";
 import * as bcrypt from "bcrypt";
 import { config as loadEnv } from "dotenv";
 import { DataSource } from "typeorm";
+import { postgresConnection } from "./connection";
 import { UserRole } from "../common/enums";
 import { School } from "../modules/school/schools/entities/school.entity";
 import { User } from "../modules/identity/users/entities/user.entity";
@@ -27,11 +28,7 @@ async function main() {
 
   const dataSource = new DataSource({
     type: "postgres",
-    host: required("PG_HOST"),
-    port: Number(required("PG_PORT")),
-    username: required("PG_USER"),
-    password: required("PG_PASSWORD"),
-    database: required("PG_DB"),
+    ...postgresConnection((name) => process.env[name]),
     entities: [User, School],
   });
   await dataSource.initialize();

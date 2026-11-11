@@ -42,6 +42,7 @@ import { NotificationsModule } from "./modules/support/notifications/notificatio
 import { AiModule } from "./modules/ai/ai.module";
 import { DemoModule } from "./modules/demo/demo.module";
 import { MeModule } from "./modules/me/me.module";
+import { HealthModule } from "./modules/health/health.module";
 import { MailModule } from "./shared/mail/mail.module";
 import { FileModule } from "./shared/file/file.module";
 
@@ -49,6 +50,7 @@ import { FileModule } from "./shared/file/file.module";
   imports: [
     ConfigModule.forRoot({ envFilePath: ".env", isGlobal: true }),
     DatabaseModule,
+    HealthModule,
     AuthModule,
     SchoolsModule,
     UsersModule,

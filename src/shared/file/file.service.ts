@@ -3,8 +3,17 @@ import { randomUUID } from "crypto";
 import { promises as fs } from "fs";
 import * as path from "path";
 
-/** Files are stored on local disk and served by main.ts under /uploads. */
-export const UPLOAD_DIR = path.resolve(process.cwd(), "uploads");
+/**
+ * Files are stored on local disk (UPLOADS_DIR, default ./uploads) and served by main.ts under
+ * /uploads. Read when used, so a value from .env (loaded by ConfigModule) is seen too. On a host
+ * without a persistent disk everything here is lost on restart or redeploy.
+ */
+export function uploadsDir(): string {
+  return path.resolve(
+    process.cwd(),
+    process.env.UPLOADS_DIR?.trim() || "uploads",
+  );
+}
 export const UPLOAD_URL_PREFIX = "/uploads";
 export const MAX_UPLOAD_BYTES = 20 * 1024 * 1024;
 
@@ -52,8 +61,8 @@ export class FileService {
       throw new BadRequestException("File is larger than 20 MB");
     }
     const storedName = `${randomUUID()}${extension}`;
-    await fs.mkdir(UPLOAD_DIR, { recursive: true });
-    await fs.writeFile(path.join(UPLOAD_DIR, storedName), file.buffer);
+    await fs.mkdir(uploadsDir(), { recursive: true });
+    await fs.writeFile(path.join(uploadsDir(), storedName), file.buffer);
     return {
       url: `${UPLOAD_URL_PREFIX}/${storedName}`,
       mimeType: file.mimetype,
@@ -66,7 +75,7 @@ export class FileService {
   pathOf(url: string): string | null {
     if (!url.startsWith(`${UPLOAD_URL_PREFIX}/`)) return null;
     const name = path.basename(url);
-    return path.join(UPLOAD_DIR, name);
+    return path.join(uploadsDir(), name);
   }
 
   async remove(url: string): Promise<void> {

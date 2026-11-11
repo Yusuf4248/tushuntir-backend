@@ -1,29 +1,23 @@
 /**
- * DataSource for the TypeORM CLI (migration:generate / migration:run / migration:revert).
- * The app itself connects through DatabaseModule; both read the same PG_* variables.
+ * DataSource for the TypeORM CLI (migration:generate / migration:run / migration:revert) and the
+ * scripts. The app itself connects through DatabaseModule; both read DATABASE_URL or PG_*.
  */
 import "reflect-metadata";
 import { config as loadEnv } from "dotenv";
 import { join } from "path";
 import { DataSource } from "typeorm";
+import { postgresConnection } from "./connection";
 
 // Same parser as @nestjs/config, so scripts read .env exactly like the app (inline # comments included).
 loadEnv();
 
-function required(name: string): string {
-  const value = process.env[name]?.trim();
-  if (!value) throw new Error(`${name} is not set in .env`);
-  return value;
-}
+// Compiled (dist/*.js) or ts-node (src/*.ts): load only that kind, never the .d.ts files.
+const extension = __filename.endsWith(".js") ? "js" : "ts";
 
 export default new DataSource({
   type: "postgres",
-  host: required("PG_HOST"),
-  port: Number(required("PG_PORT")),
-  username: required("PG_USER"),
-  password: required("PG_PASSWORD"),
-  database: required("PG_DB"),
-  entities: [join(__dirname, "..", "**", "*.entity.{ts,js}")],
-  migrations: [join(__dirname, "migrations", "*.{ts,js}")],
+  ...postgresConnection((name) => process.env[name]),
+  entities: [join(__dirname, "..", "**", `*.entity.${extension}`)],
+  migrations: [join(__dirname, "migrations", `*.${extension}`)],
   synchronize: false,
 });

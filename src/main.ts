@@ -9,7 +9,17 @@ import { winstonConfig } from "./common/logger/winston.logger";
 import { AllExceptionFilter } from "./common/errors/all-exception.filter";
 import { buildSwaggerDocument } from "./common/swagger/swagger-document";
 import { NestExpressApplication } from "@nestjs/platform-express";
-import { UPLOAD_DIR, UPLOAD_URL_PREFIX } from "./shared/file/file.service";
+import { UPLOAD_URL_PREFIX, uploadsDir } from "./shared/file/file.service";
+import { Logger } from "@nestjs/common";
+
+/** CORS_ORIGINS: comma-separated origins, e.g. https://app.vercel.app. Unset: any origin (local only). */
+function corsOrigins(): string[] | true {
+  const origins = (process.env.CORS_ORIGINS ?? "")
+    .split(",")
+    .map((o) => o.trim().replace(/\/+$/, ""))
+    .filter(Boolean);
+  return origins.length ? origins : true;
+}
 
 async function start() {
   try {
@@ -17,8 +27,12 @@ async function start() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule, {
       logger: WinstonModule.createLogger(winstonConfig),
     });
+    const logger = new Logger("Bootstrap");
+    const production = process.env.NODE_ENV === "production";
+    // Behind Render's (or any) single reverse proxy: req.ip is the client address.
+    app.set("trust proxy", 1);
     // Uploaded files keep the Content-Type that matches their extension.
-    app.useStaticAssets(UPLOAD_DIR, {
+    app.useStaticAssets(uploadsDir(), {
       prefix: UPLOAD_URL_PREFIX,
       setHeaders: (res) => res.setHeader("X-Content-Type-Options", "nosniff"),
     });
@@ -32,39 +46,51 @@ async function start() {
     );
     app.useGlobalFilters(new AllExceptionFilter());
     app.setGlobalPrefix("api");
+    const origin = corsOrigins();
+    if (origin === true) {
+      logger.warn(
+        "CORS_ORIGINS is not set: every origin is allowed (set it in production)",
+      );
+    }
     app.enableCors({
-      origin: true,
+      origin,
       credentials: true,
       methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     });
 
-    app.use(
-      ["/api/docs", "/api/docs-json"],
-      basicAuth({
-        challenge: true,
-        users: {
-          [process.env.SWAGGER_USER || "admin"]:
-            process.env.SWAGGER_PASSWORD || "secret",
-        },
-      }),
-    );
-
-    const document = buildSwaggerDocument(app);
-    SwaggerModule.setup("api/docs", app, document, {
-      customCss: `
+    const swaggerUser = process.env.SWAGGER_USER?.trim();
+    const swaggerPassword = process.env.SWAGGER_PASSWORD?.trim();
+    // In production the docs need real credentials; locally they fall back to admin / secret.
+    if (production && !(swaggerUser && swaggerPassword)) {
+      logger.warn(
+        "Swagger UI is off: set SWAGGER_USER and SWAGGER_PASSWORD to enable /api/docs",
+      );
+    } else {
+      app.use(
+        ["/api/docs", "/api/docs-json"],
+        basicAuth({
+          challenge: true,
+          users: { [swaggerUser || "admin"]: swaggerPassword || "secret" },
+        }),
+      );
+      SwaggerModule.setup("api/docs", app, buildSwaggerDocument(app), {
+        customCss: `
     .swagger-ui .topbar { display: none !important; }
   `,
-      customSiteTitle: "School Platform API Docs",
-      swaggerOptions: {
-        docExpansion: "list",
-        operationsSorter: "alpha",
-      },
-    });
+        customSiteTitle: "School Platform API Docs",
+        swaggerOptions: {
+          docExpansion: "list",
+          operationsSorter: "alpha",
+        },
+      });
+    }
     await app.listen(PORT, () => {
       console.log(`Server started at http://localhost:${PORT}/api`);
     });
   } catch (error) {
-    console.log(error);
+    // Exit non-zero so the host (e.g. Render) sees the failed start and restarts or alerts.
+    console.error(error);
+    process.exit(1);
   }
 }
 start();

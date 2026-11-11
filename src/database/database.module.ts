@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { postgresConnection } from "./connection";
 
 @Module({
   imports: [
@@ -8,12 +9,9 @@ import { TypeOrmModule } from "@nestjs/typeorm";
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         type: "postgres",
-        host: config.getOrThrow<string>("PG_HOST"),
-        port: Number(config.getOrThrow<string>("PG_PORT")),
-        username: config.getOrThrow<string>("PG_USER"),
-        password: config.getOrThrow<string>("PG_PASSWORD"),
-        database: config.getOrThrow<string>("PG_DB"),
+        ...postgresConnection((name) => config.get<string>(name)),
         autoLoadEntities: true,
+        // Migrations run before the app starts (npm run start:prod), never from here.
         synchronize: false,
       }),
     }),
