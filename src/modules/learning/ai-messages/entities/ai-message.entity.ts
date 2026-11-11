@@ -30,6 +30,13 @@ export class AiMessage {
   @Column({ name: "content", type: "text" })
   content: string;
 
+  /**
+   * Assistant turns of the study chat: { sources: [{ page, chunkId }], covered, onTopic, language,
+   * refused }, so the history shows the same details as the live reply.
+   */
+  @Column({ name: "reply_meta", type: "jsonb", nullable: true })
+  replyMeta: Record<string, unknown> | null;
+
   @CreateDateColumn({ name: "created_at", type: "timestamptz" })
   createdAt: Date;
 }

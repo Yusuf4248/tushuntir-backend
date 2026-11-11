@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { Type } from "class-transformer";
 import {
   IsIn,
   IsInt,
@@ -14,6 +15,14 @@ import {
   StudyChatAction,
 } from "../../ai/prompts/study-chat.prompt";
 import { MasteryStatus } from "../me.types";
+
+export class LatestChatSessionQueryDto {
+  @ApiProperty({ example: 8, description: "Topic of the session" })
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  topicId: number;
+}
 
 export class CreateChatSessionDto {
   @ApiProperty({ example: 8, description: "Topic to study" })
@@ -58,7 +67,8 @@ export class ChatSourceDto {
   chunkId: number;
 }
 
-export class ChatTurnDto {
+/** Fields of every chat message. */
+class ChatMessageBaseDto {
   @ApiProperty({ example: 41 })
   id: number;
 
@@ -72,7 +82,44 @@ export class ChatTurnDto {
   createdAt: Date;
 }
 
-export class ChatReplyDto extends ChatTurnDto {
+/** A message in the session history; the reply details are null on student turns. */
+export class ChatTurnDto extends ChatMessageBaseDto {
+  @ApiProperty({
+    type: [ChatSourceDto],
+    nullable: true,
+    description:
+      "Assistant turns: textbook pages the answer is based on. null for student turns (and replies saved before these details were stored)",
+  })
+  sources: ChatSourceDto[] | null;
+
+  @ApiProperty({
+    example: true,
+    nullable: true,
+    description: "Assistant turns only",
+  })
+  covered: boolean | null;
+
+  @ApiProperty({
+    example: true,
+    nullable: true,
+    description: "Assistant turns only",
+  })
+  onTopic: boolean | null;
+
+  @ApiProperty({ example: "uz", enum: ["uz", "ru"], nullable: true })
+  language: string | null;
+
+  @ApiProperty({
+    example: null,
+    nullable: true,
+    enum: ["open_quiz"],
+    description:
+      "Assistant turns only: open_quiz when the question was not answered",
+  })
+  refused: string | null;
+}
+
+export class ChatReplyDto extends ChatMessageBaseDto {
   @ApiProperty({
     type: [ChatSourceDto],
     description: "Textbook pages the answer is based on",

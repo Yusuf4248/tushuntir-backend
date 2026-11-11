@@ -38,6 +38,29 @@ const OPEN_QUIZ_REPLY =
   "Bu savol hozir ishlayotgan testingizda bor, shuning uchun javobini aytmayman. " +
   "Testni topshirganingizdan keyin qoidani birga ko'rib chiqamiz yoki boshqa misol bilan tushuntiraman.";
 
+/** What an assistant turn stores in ai_messages.reply_meta. */
+interface ReplyMeta {
+  sources: { page: number | null; chunkId: number }[];
+  covered: boolean;
+  onTopic: boolean;
+  language: string;
+  refused: string | null;
+}
+
+function toTurn(
+  turn: Pick<ChatTurnDto, "id" | "role" | "content" | "createdAt">,
+  meta: ReplyMeta | null,
+): ChatTurnDto {
+  return {
+    ...turn,
+    sources: meta?.sources ?? null,
+    covered: meta?.covered ?? null,
+    onTopic: meta?.onTopic ?? null,
+    language: meta?.language ?? null,
+    refused: meta ? meta.refused : null,
+  };
+}
+
 interface SessionRow {
   id: number;
   topic_id: number;
@@ -83,6 +106,22 @@ export class StudentChatService {
       startedAt: started_at,
       messages: [],
     };
+  }
+
+  /** The student's latest study session for a topic, with its messages; 404 when there is none. */
+  async latestSession(
+    topicId: number,
+    user: AuthUser,
+  ): Promise<ChatSessionDto> {
+    const [latest] = await this.dataSource.query(
+      `SELECT id FROM ai_sessions WHERE student_id = $1 AND topic_id = $2 AND kind = $3
+        ORDER BY started_at DESC NULLS LAST, id DESC LIMIT 1`,
+      [user.id, topicId, SESSION_KIND],
+    );
+    if (!latest) {
+      throw new NotFoundException(`No chat session for topic ${topicId}`);
+    }
+    return this.session(latest.id, user);
   }
 
   async session(sessionId: number, user: AuthUser): Promise<ChatSessionDto> {
@@ -224,24 +263,34 @@ export class StudentChatService {
     },
   ): Promise<ChatExchangeDto> {
     return this.dataSource.transaction(async (manager) => {
+      const { sources, covered, onTopic, language, refused } = reply;
+      const meta: ReplyMeta = { sources, covered, onTopic, language, refused };
       const insert = async (
         role: string,
         content: string,
-      ): Promise<ChatTurnDto> => {
+        replyMeta: ReplyMeta | null,
+      ) => {
         const [row] = await manager.query(
-          `INSERT INTO ai_messages (session_id, role, content) VALUES ($1, $2, $3)
+          `INSERT INTO ai_messages (session_id, role, content, reply_meta) VALUES ($1, $2, $3, $4)
            RETURNING id, role, content, created_at AS "createdAt"`,
-          [sessionId, role, content],
+          [
+            sessionId,
+            role,
+            content,
+            replyMeta ? JSON.stringify(replyMeta) : null,
+          ],
         );
-        return row;
+        return row as Pick<
+          ChatTurnDto,
+          "id" | "role" | "content" | "createdAt"
+        >;
       };
-      const message = await insert("student", studentContent);
-      const answer = await insert("assistant", reply.answer);
-      const { sources, covered, onTopic, language, refused } = reply;
+      const message = await insert("student", studentContent, null);
+      const answer = await insert("assistant", reply.answer, meta);
       return {
         sessionId,
-        message,
-        reply: { ...answer, sources, covered, onTopic, language, refused },
+        message: toTurn(message, null),
+        reply: { ...answer, ...meta },
       };
     });
   }
@@ -265,12 +314,16 @@ export class StudentChatService {
     sessionId: number,
     last?: number,
   ): Promise<ChatTurnDto[]> {
-    const rows: ChatTurnDto[] = await this.dataSource.query(
-      `SELECT id, role, content, created_at AS "createdAt" FROM ai_messages
+    const rows: (Pick<ChatTurnDto, "id" | "role" | "content" | "createdAt"> & {
+      reply_meta: ReplyMeta | null;
+    })[] = await this.dataSource.query(
+      `SELECT id, role, content, created_at AS "createdAt", reply_meta FROM ai_messages
         WHERE session_id = $1 ORDER BY id DESC ${last ? `LIMIT ${last}` : ""}`,
       [sessionId],
     );
-    return rows.reverse();
+    return rows
+      .reverse()
+      .map(({ reply_meta, ...turn }) => toTurn(turn, reply_meta));
   }
 
   /** Prompts of questions in the student's unsubmitted, still-open quiz attempts. */

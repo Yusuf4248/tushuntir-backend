@@ -20591,6 +20591,94 @@
         "tags": [
           "Student · Me"
         ]
+      },
+      "get": {
+        "description": "Own study sessions only; 404 when the student has no session for the topic yet (then start one).",
+        "operationId": "MeController_latestChatSession",
+        "parameters": [
+          {
+            "name": "topicId",
+            "required": true,
+            "in": "query",
+            "description": "Topic of the session",
+            "schema": {
+              "minimum": 1,
+              "example": 8,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatSessionDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed or a referenced record is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid access token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Role not allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Record or referenced record not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Duplicate value, or the record is still referenced",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ],
+        "summary": "The student's latest chat session for a topic, with its messages",
+        "tags": [
+          "Student · Me"
+        ]
       }
     },
     "/api/me/chat/sessions/{id}": {
@@ -26340,6 +26428,10 @@
           "content": {
             "type": "string"
           },
+          "replyMeta": {
+            "type": "object",
+            "nullable": true
+          },
           "createdAt": {
             "format": "date-time",
             "type": "string"
@@ -26351,6 +26443,7 @@
           "session",
           "role",
           "content",
+          "replyMeta",
           "createdAt"
         ]
       },
@@ -27855,6 +27948,24 @@
           "topicId"
         ]
       },
+      "ChatSourceDto": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "number",
+            "nullable": true,
+            "example": 14
+          },
+          "chunkId": {
+            "type": "number",
+            "example": 17
+          }
+        },
+        "required": [
+          "page",
+          "chunkId"
+        ]
+      },
       "ChatTurnDto": {
         "type": "object",
         "properties": {
@@ -27878,13 +27989,56 @@
             "format": "date-time",
             "type": "string",
             "example": "2026-11-10T06:40:00.000Z"
+          },
+          "sources": {
+            "nullable": true,
+            "description": "Assistant turns: textbook pages the answer is based on. null for student turns (and replies saved before these details were stored)",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChatSourceDto"
+            }
+          },
+          "covered": {
+            "type": "boolean",
+            "nullable": true,
+            "example": true,
+            "description": "Assistant turns only"
+          },
+          "onTopic": {
+            "type": "boolean",
+            "nullable": true,
+            "example": true,
+            "description": "Assistant turns only"
+          },
+          "language": {
+            "type": "string",
+            "nullable": true,
+            "example": "uz",
+            "enum": [
+              "uz",
+              "ru"
+            ]
+          },
+          "refused": {
+            "type": "string",
+            "nullable": true,
+            "example": null,
+            "enum": [
+              "open_quiz"
+            ],
+            "description": "Assistant turns only: open_quiz when the question was not answered"
           }
         },
         "required": [
           "id",
           "role",
           "content",
-          "createdAt"
+          "createdAt",
+          "sources",
+          "covered",
+          "onTopic",
+          "language",
+          "refused"
         ]
       },
       "ChatSessionDto": {
@@ -27948,24 +28102,6 @@
             "example": "explain_simple"
           }
         }
-      },
-      "ChatSourceDto": {
-        "type": "object",
-        "properties": {
-          "page": {
-            "type": "number",
-            "nullable": true,
-            "example": 14
-          },
-          "chunkId": {
-            "type": "number",
-            "example": 17
-          }
-        },
-        "required": [
-          "page",
-          "chunkId"
-        ]
       },
       "ChatReplyDto": {
         "type": "object",

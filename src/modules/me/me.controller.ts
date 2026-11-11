@@ -41,6 +41,7 @@ import {
   ChatMessageDto,
   ChatSessionDto,
   CreateChatSessionDto,
+  LatestChatSessionQueryDto,
   WeakTopicDto,
 } from "./dto/chat.dto";
 import {
@@ -259,6 +260,20 @@ export class MeController {
     @CurrentUser() user: AuthUser,
   ) {
     return this.chat.createSession(dto.topicId, user);
+  }
+
+  @Get("chat/sessions")
+  @ApiOperation({
+    summary: "The student's latest chat session for a topic, with its messages",
+    description:
+      "Own study sessions only; 404 when the student has no session for the topic yet (then start one).",
+  })
+  @ApiOkResponse({ type: ChatSessionDto })
+  latestChatSession(
+    @Query() query: LatestChatSessionQueryDto,
+    @CurrentUser() user: AuthUser,
+  ) {
+    return this.chat.latestSession(query.topicId, user);
   }
 
   @Get("chat/sessions/:id")
