@@ -12,7 +12,6 @@ import {
   UploadedFile,
   UseInterceptors,
 } from "@nestjs/common";
-import { FileInterceptor } from "@nestjs/platform-express";
 import {
   ApiBearerAuth,
   ApiBody,
@@ -52,6 +51,12 @@ import {
 } from "./dto/checkpoint.dto";
 import { ConfirmDto, ConfirmResultDto, ReviewDto } from "./dto/review.dto";
 import { StudentAttemptsService } from "./student-attempts.service";
+import { AudioUploadInterceptor } from "./audio-upload.interceptor";
+import {
+  HOUR,
+  MINUTE,
+  RateLimit,
+} from "../../common/throttle/rate-limit.decorator";
 import { StudentChatService } from "./student-chat.service";
 import { StudentCheckpointService } from "./student-checkpoint.service";
 import { StudentPracticeService } from "./student-practice.service";
@@ -64,8 +69,6 @@ import {
   StudentSubjectDto,
   TopicDetailDto,
 } from "./dto/topic.dto";
-
-const CHECKPOINT_AUDIO_BYTES = 25 * 1024 * 1024;
 
 @ApiTags("Student · Me")
 @ApiBearerAuth("JWT-auth")
@@ -139,6 +142,7 @@ export class MeController {
   }
 
   @Post("attempts/:id/answers")
+  @RateLimit(30, MINUTE)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: "Save one answer",
@@ -214,6 +218,7 @@ export class MeController {
   }
 
   @Post("attempts/:id/confirm/:questionId")
+  @RateLimit(30, MINUTE)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: "Answer a mistake's confirmation question",
@@ -252,6 +257,7 @@ export class MeController {
   }
 
   @Post("chat/sessions/:id/messages")
+  @RateLimit(20, MINUTE)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: "Ask the study helper (grounded in the textbook)",
@@ -296,6 +302,7 @@ export class MeController {
   }
 
   @Post("topics/:id/practice")
+  @RateLimit(10, HOUR)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: "Start a 5-question practice quiz on a topic",
@@ -313,6 +320,7 @@ export class MeController {
   }
 
   @Post("topics/:id/checkpoint/start")
+  @RateLimit(10, MINUTE)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: "Start the Tushuntir checkpoint (or resume the open try)",
@@ -330,19 +338,19 @@ export class MeController {
   }
 
   @Post("checkpoints/:id/answer")
+  @RateLimit(10, MINUTE)
   @HttpCode(HttpStatus.OK)
-  @UseInterceptors(
-    FileInterceptor("audio", { limits: { fileSize: CHECKPOINT_AUDIO_BYTES } }),
-  )
+  @UseInterceptors(AudioUploadInterceptor)
   @ApiConsumes("multipart/form-data", "application/json")
   @ApiBody({
     description:
-      "Either a recording (multipart field `audio`: webm, ogg, m4a, mp4, mp3 or wav, max 25 MB) or JSON `{ text }`.",
+      "Either a recording (multipart field `audio`: webm, ogg, m4a, mp4, mp3 or wav; at most 5 MB and 90 seconds) " +
+      "or JSON `{ text }` (at most 2000 characters).",
     schema: {
       type: "object",
       properties: {
         audio: { type: "string", format: "binary" },
-        text: { type: "string", maxLength: 4000 },
+        text: { type: "string", maxLength: 2000 },
       },
     },
   })

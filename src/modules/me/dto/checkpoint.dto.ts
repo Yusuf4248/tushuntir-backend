@@ -7,12 +7,12 @@ export class CheckpointAnswerDto {
     example:
       "Sardor, birhadlarni qo'shganda faqat koeffitsiyentlar qo'shiladi, harfiy qism o'zgarmaydi.",
     description:
-      "A typed explanation. Send either this or the `audio` file (multipart), not both.",
+      "A typed explanation (at most 2000 characters). Send either this or the `audio` file (multipart), not both.",
   })
   @IsOptional()
   @IsString()
   @IsNotEmpty()
-  @MaxLength(4000)
+  @MaxLength(2000)
   text?: string;
 }
 

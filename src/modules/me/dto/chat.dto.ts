@@ -25,22 +25,23 @@ export class CreateChatSessionDto {
 export class ChatMessageDto {
   @ApiPropertyOptional({
     example: "Nega qavs oldida minus bo'lsa ishoralar o'zgaradi?",
-    description: "Required unless an action is given",
+    description: "Required unless an action is given; at most 1000 characters",
   })
   @ValidateIf((dto: ChatMessageDto) => !dto.action || dto.text !== undefined)
   @IsString()
   @IsNotEmpty()
-  @MaxLength(2000)
+  @MaxLength(1000)
   text?: string;
 
   @ApiPropertyOptional({
     example:
       "Qavs oldida minus ishorasi tursa, qavs ichidagi har bir hadning ishorasi qarama-qarshisiga o'zgaradi.",
-    description: "A passage the student highlighted in the textbook",
+    description:
+      "A passage the student highlighted in the textbook; at most 2000 characters",
   })
   @IsOptional()
   @IsString()
-  @MaxLength(3000)
+  @MaxLength(2000)
   selectedText?: string;
 
   @ApiPropertyOptional({ enum: STUDY_CHAT_ACTIONS, example: "explain_simple" })

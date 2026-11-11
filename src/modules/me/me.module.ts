@@ -1,4 +1,5 @@
 import { Module } from "@nestjs/common";
+import { ThrottlerModule } from "@nestjs/throttler";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { AiModule } from "../ai/ai.module";
 import { CheckpointAttempt } from "../learning/checkpoint-attempts/entities/checkpoint-attempt.entity";
@@ -18,6 +19,8 @@ import { StudentTopicsService } from "./student-topics.service";
     AiModule,
     QuestionGenerationModule,
     TypeOrmModule.forFeature([CheckpointAttempt]),
+    // Limits are set per route with @RateLimit; this is only the fallback window.
+    ThrottlerModule.forRoot([{ ttl: 60_000, limit: 60 }]),
   ],
   controllers: [MeController],
   providers: [

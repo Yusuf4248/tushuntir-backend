@@ -1,6 +1,6 @@
 import { BadRequestException, Logger } from "@nestjs/common";
 import { AiUnavailableException } from "../../ai.errors";
-import { ensureAudioFormat } from "../audio-format";
+import { checkAudioLimits, ensureAudioFormat } from "../audio-format";
 import { SpeechConfig } from "../speech.config";
 import { AudioInput, SttService, TranscribeOptions } from "../stt.service";
 
@@ -24,6 +24,7 @@ export class OpenAiSttService extends SttService {
     if (!this.config.sttApiKey) {
       throw new AiUnavailableException("STT_API_KEY is not set");
     }
+    const seconds = await checkAudioLimits(audio, this.config.ffmpegPath);
     const { buffer, extension } = await ensureAudioFormat(
       audio,
       ACCEPTED,
@@ -71,7 +72,7 @@ export class OpenAiSttService extends SttService {
     }
     const text = (JSON.parse(body) as { text?: string }).text ?? "";
     this.logger.log(
-      `transcribed model=${this.config.sttModel} bytes=${buffer.length} format=${extension} chars=${text.length} ms=${ms}`,
+      `transcribed model=${this.config.sttModel} bytes=${buffer.length} format=${extension} seconds=${seconds.toFixed(1)} chars=${text.length} ms=${ms}`,
     );
     return text;
   }
