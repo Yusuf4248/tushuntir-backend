@@ -19942,6 +19942,93 @@
         ]
       }
     },
+    "/api/me/attempts/{id}": {
+      "get": {
+        "description": "The same view as quiz start: questions in order, saved answers and the hints already revealed. Only the student's own attempts (404 otherwise).",
+        "operationId": "MeController_attempt",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttemptViewDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed or a referenced record is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid access token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Role not allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Record or referenced record not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Duplicate value, or the record is still referenced",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ],
+        "summary": "One of the student's attempts (to resume a quiz)",
+        "tags": [
+          "Student · Me"
+        ]
+      }
+    },
     "/api/me/attempts/{id}/answers": {
       "post": {
         "description": "One answer at a time; it can be changed until submit. Correctness is not revealed until submit. Short answers are checked by normalized match first, then by the AI.",
@@ -26869,6 +26956,11 @@
                 "$ref": "#/components/schemas/AttemptSummaryDto"
               }
             ]
+          },
+          "questionCount": {
+            "type": "number",
+            "example": 10,
+            "description": "Questions in the attempt once started; before that, 10 for a lesson quiz (fewer if the topic has fewer approved questions) or 5 for practice"
           }
         },
         "required": [
@@ -26881,7 +26973,8 @@
           "unlocksAt",
           "dueAt",
           "status",
-          "attempt"
+          "attempt",
+          "questionCount"
         ]
       },
       "TodayLessonDto": {
@@ -27077,6 +27170,16 @@
           "hintsAvailable": {
             "type": "number",
             "example": 3
+          },
+          "hints": {
+            "example": [
+              "Qaysi amal birinchi bajariladi?"
+            ],
+            "description": "Hint texts already revealed (hintsUsed of them), so a resumed quiz shows them",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "required": [
@@ -27087,7 +27190,8 @@
           "options",
           "answer",
           "hintsUsed",
-          "hintsAvailable"
+          "hintsAvailable",
+          "hints"
         ]
       },
       "AttemptViewDto": {
@@ -27580,6 +27684,12 @@
             "example": 14,
             "description": "Textbook page of the source text"
           },
+          "paragraphId": {
+            "type": "string",
+            "nullable": true,
+            "example": "11-2",
+            "description": "The textbook paragraph the question was written from (ids as in GET /me/topics/:id); page is that paragraph's page"
+          },
           "fixed": {
             "type": "boolean",
             "example": false
@@ -27615,6 +27725,7 @@
           "misconception",
           "explanation",
           "page",
+          "paragraphId",
           "fixed",
           "confirmationStatus",
           "confirmation"
@@ -27623,6 +27734,16 @@
       "ReviewDto": {
         "type": "object",
         "properties": {
+          "topicId": {
+            "type": "number",
+            "nullable": true,
+            "example": 8
+          },
+          "topicTitle": {
+            "type": "string",
+            "nullable": true,
+            "example": "Ko'phadlarni qo'shish va ayirish"
+          },
           "attemptId": {
             "type": "number",
             "example": 14
@@ -27651,6 +27772,8 @@
           }
         },
         "required": [
+          "topicId",
+          "topicTitle",
           "attemptId",
           "quizId",
           "scorePercent",

@@ -26,6 +26,7 @@ import {
   MistakeDto,
   ReviewDto,
 } from "./dto/review.dto";
+import { bestParagraph, chunkParagraphs, StoredChunk } from "./paragraphs";
 import { AnswerRow, StudentAttemptsService } from "./student-attempts.service";
 
 const MistakeExplanations = z.object({
@@ -117,8 +118,10 @@ export class StudentReviewService {
       rows.map((r) => r.questionId),
       explanations,
     );
+    const sources = await this.sourceParagraphs(wrong.map((w) => w.row));
     const mistakes: MistakeDto[] = wrong.map(({ row, position }) => {
       const variant = variants.get(row.questionId);
+      const source = sources.get(row.answerId);
       return {
         questionId: row.questionId,
         position,
@@ -129,7 +132,8 @@ export class StudentReviewService {
         correctAnswer: row.correctAnswer,
         misconception: explanations.get(row.answerId)!,
         explanation: row.explanation,
-        page: row.page,
+        page: source?.page ?? row.page,
+        paragraphId: source?.id ?? null,
         fixed: row.fixedAt !== null,
         confirmationStatus: variant
           ? ConfirmationStatus.READY
@@ -151,7 +155,14 @@ export class StudentReviewService {
           : null,
       };
     });
+    const [topic] = attempt.topic_id
+      ? await this.dataSource.query(`SELECT title FROM topics WHERE id = $1`, [
+          attempt.topic_id,
+        ])
+      : [];
     return {
+      topicId: attempt.topic_id,
+      topicTitle: topic?.title ?? null,
       attemptId: attempt.id,
       quizId: attempt.quiz_id,
       scorePercent: Number(attempt.score_percent ?? 0),
@@ -159,6 +170,36 @@ export class StudentReviewService {
       fixedCount: mistakes.filter((m) => m.fixed).length,
       mistakes,
     };
+  }
+
+  /** The paragraph of its source chunk each wrong answer's question was written from. */
+  private async sourceParagraphs(
+    rows: AnswerRow[],
+  ): Promise<Map<number, { id: string; page: number | null }>> {
+    const ids = [
+      ...new Set(rows.map((r) => r.sourceChunkId).filter((id) => id !== null)),
+    ];
+    const chunks: StoredChunk[] = ids.length
+      ? await this.dataSource.query(
+          `SELECT id, page, content, paragraph_pages FROM textbook_chunks WHERE id = ANY($1)`,
+          [ids],
+        )
+      : [];
+    const byId = new Map(chunks.map((c) => [c.id, chunkParagraphs(c)]));
+    const result = new Map<number, { id: string; page: number | null }>();
+    for (const row of rows) {
+      const paragraphs = row.sourceChunkId
+        ? byId.get(row.sourceChunkId)
+        : undefined;
+      const best = paragraphs
+        ? bestParagraph(
+            paragraphs,
+            [row.prompt, row.correctAnswer, row.explanation ?? ""].join(" "),
+          )
+        : null;
+      if (best) result.set(row.answerId, { id: best.id, page: best.page });
+    }
+    return result;
   }
 
   /** Answers the confirmation question of one mistake; a correct answer marks the mistake fixed. */

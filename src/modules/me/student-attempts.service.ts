@@ -67,8 +67,14 @@ export interface AnswerRow {
   topicId: number;
   difficulty: number | null;
   page: number | null;
+  sourceChunkId: number | null;
   mistakeExplanation: string | null;
   fixedAt: Date | null;
+}
+
+/** Hint levels of a question: the three-level hints, or the single legacy hint. */
+function hintLevels(row: Pick<AnswerRow, "hints" | "hint">): string[] {
+  return row.hints?.length ? row.hints : row.hint ? [row.hint] : [];
 }
 
 /** Write side of the student quiz loop: start, answer, hint, submit. Students only see their own attempts. */
@@ -199,7 +205,7 @@ export class StudentAttemptsService {
         `Question ${questionId} is not part of attempt ${attemptId}`,
       );
     }
-    const levels = row.hints?.length ? row.hints : row.hint ? [row.hint] : [];
+    const levels = hintLevels(row);
     if (!levels.length) {
       throw new ConflictException("This question has no hints");
     }
@@ -334,7 +340,8 @@ export class StudentAttemptsService {
         options: this.optionsFor(r),
         answer: r.answer,
         hintsUsed: r.hintsUsed ?? 0,
-        hintsAvailable: r.hints?.length ?? (r.hint ? 1 : 0),
+        hintsAvailable: hintLevels(r).length,
+        hints: hintLevels(r).slice(0, r.hintsUsed ?? 0),
       })),
     };
   }
@@ -425,6 +432,7 @@ export class StudentAttemptsService {
               question.correct_answer AS "correctAnswer", question.hint, question.hints,
               question.explanation, question.option_misconceptions AS "optionMisconceptions",
               question.topic_id AS "topicId", question.difficulty, chunk.page,
+              question.source_chunk_id AS "sourceChunkId",
               answer.mistake_explanation AS "mistakeExplanation", answer.fixed_at AS "fixedAt"
          FROM attempt_answers answer
          JOIN questions question ON question.id = answer.question_id

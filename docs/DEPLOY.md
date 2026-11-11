@@ -134,6 +134,20 @@ unset DATABASE_URL
 
 Run each step once. Running them again is safe: they update and don't duplicate. Seeding never runs automatically, not even on deploy.
 
+### Re-running the demo (e.g. before recording a video)
+
+```bash
+DEMO_MODE=true npm run demo:reset                        # local database
+DATABASE_URL='postgresql://...neon.tech/...' DEMO_MODE=true npm run demo:reset   # production
+```
+
+This resets the demo student (`+998901001001`, or pass another phone after `--`):
+- **deleted:** their attempts, the practice quizzes they created, checkpoint tries, mastery, chat sessions and the `needs_help` notifications about them;
+- **reopened:** this week's lessons of their class, with quiz deadlines back to `QUIZ_DEADLINE_TIME`;
+- **kept:** generated questions, confirmation questions and the textbook.
+
+It refuses to run unless `DEMO_MODE=true`, and prints only the database name.
+
 ## 6. CORS for the Vercel frontend
 
 Set `CORS_ORIGINS` on Render to the exact frontend origin(s), comma-separated, with no path and no trailing slash:

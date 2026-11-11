@@ -13,6 +13,8 @@ import {
   MASTERY_RULE,
   MasteryStatus,
   masteryStatus,
+  PRACTICE_QUESTIONS,
+  QUESTIONS_PER_ATTEMPT,
   StudentQuizStatus,
 } from "./me.types";
 
@@ -55,6 +57,7 @@ interface QuizRow {
   startedAt: Date | null;
   finishedAt: Date | null;
   scorePercent: string | null;
+  questionCount: number;
 }
 
 /** Read side of the student app: today's timetable, lesson quizzes and topic mastery. */
@@ -175,7 +178,13 @@ export class StudentScheduleService {
               COALESCE(lesson.ended_at, (lesson.date + COALESCE(slot.ends_at, time '23:59')) AT TIME ZONE $2) AS "unlocksAt",
               homework.due_at AS "dueAt",
               attempt.id AS "attemptId", attempt.started_at AS "startedAt",
-              attempt.finished_at AS "finishedAt", attempt.score_percent AS "scorePercent"
+              attempt.finished_at AS "finishedAt", attempt.score_percent AS "scorePercent",
+              CASE WHEN attempt.id IS NOT NULL
+                     THEN (SELECT count(*)::int FROM attempt_answers WHERE attempt_id = attempt.id)
+                   WHEN quiz.kind = 'practice' THEN $4::int
+                   ELSE LEAST($5::int, (SELECT count(*)::int FROM questions pool
+                                         WHERE pool.topic_id = quiz.topic_id AND pool.status = 'approved'
+                                           AND pool.variant_of_id IS NULL)) END AS "questionCount"
          FROM homework
          JOIN quizzes quiz ON quiz.id = homework.quiz_id
          JOIN lessons lesson ON lesson.id = homework.lesson_id
@@ -189,7 +198,13 @@ export class StudentScheduleService {
                ORDER BY id DESC LIMIT 1) attempt ON true
         WHERE assignment.class_id = $1
         ORDER BY quiz.id, homework.id`,
-      [studentClass.id, appTimezone(), studentId],
+      [
+        studentClass.id,
+        appTimezone(),
+        studentId,
+        PRACTICE_QUESTIONS,
+        QUESTIONS_PER_ATTEMPT,
+      ],
     );
     return rows
       .map((row) => this.toQuiz(row, now))
@@ -389,6 +404,7 @@ export class StudentScheduleService {
               row.scorePercent === null ? null : Number(row.scorePercent),
           }
         : null,
+      questionCount: row.questionCount,
     };
   }
 }

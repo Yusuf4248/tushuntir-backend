@@ -141,6 +141,21 @@ export class MeController {
     return this.topics.attempts(user, query);
   }
 
+  @Get("attempts/:id")
+  @ApiOperation({
+    summary: "One of the student's attempts (to resume a quiz)",
+    description:
+      "The same view as quiz start: questions in order, saved answers and the hints already revealed. " +
+      "Only the student's own attempts (404 otherwise).",
+  })
+  @ApiOkResponse({ type: AttemptViewDto })
+  attempt(
+    @Param("id", ParseIntPipe) id: number,
+    @CurrentUser() user: AuthUser,
+  ) {
+    return this.attempts.view(id, user);
+  }
+
   @Post("attempts/:id/answers")
   @RateLimit(30, MINUTE)
   @HttpCode(HttpStatus.OK)

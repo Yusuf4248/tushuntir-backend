@@ -11,10 +11,9 @@ import { shuffle } from "../../common/shuffle";
 import { AiUnavailableException } from "../ai/ai.errors";
 import { QuestionGenerationService } from "../learning/question-generation/question-generation.service";
 import { AttemptViewDto } from "./dto/me-responses.dto";
+import { PRACTICE_QUESTIONS } from "./me.types";
 import { StudentAttemptsService } from "./student-attempts.service";
 import { StudentScheduleService } from "./student-schedule.service";
-
-export const PRACTICE_QUESTIONS = 5;
 
 interface Candidate {
   id: number;

@@ -9,6 +9,7 @@ import {
   TopicDetailDto,
 } from "./dto/topic.dto";
 import { MASTERY_PASS_PERCENT, MasteryStatus } from "./me.types";
+import { chunkParagraphs } from "./paragraphs";
 import { StudentScheduleService } from "./student-schedule.service";
 
 interface TopicRow {
@@ -77,7 +78,9 @@ export class StudentTopicsService {
       unlocked: listed.unlocked,
       summary: row.summary,
       keyIdeas: row.key_ideas ?? [],
-      paragraphs: this.paragraphs(chunks),
+      paragraphs: chunks
+        .flatMap(chunkParagraphs)
+        .map((p, i): ParagraphDto => ({ ...p, position: i + 1 })),
       prevTopicId: prev?.topicId ?? null,
       nextTopicId: next?.topicId ?? null,
     };
@@ -185,40 +188,5 @@ export class StudentTopicsService {
       result: row.result,
       openMistakes: row.open_mistakes,
     }));
-  }
-
-  /**
-   * content:load joins paragraphs with a blank line and records each one's page. A chunk edited
-   * by hand may no longer match its page list; its paragraphs then show the chunk's page.
-   */
-  private paragraphs(
-    chunks: {
-      id: number;
-      page: number | null;
-      content: string;
-      paragraph_pages: (number | null)[] | null;
-    }[],
-  ): ParagraphDto[] {
-    const result: ParagraphDto[] = [];
-    for (const chunk of chunks) {
-      const parts = chunk.content
-        .split(/\n\s*\n/)
-        .map((p) => p.trim())
-        .filter(Boolean);
-      const pages =
-        chunk.paragraph_pages?.length === parts.length
-          ? chunk.paragraph_pages
-          : null;
-      parts.forEach((content, i) =>
-        result.push({
-          id: `${chunk.id}-${i + 1}`,
-          chunkId: chunk.id,
-          page: pages?.[i] ?? chunk.page,
-          position: result.length + 1,
-          content,
-        }),
-      );
-    }
-    return result;
   }
 }

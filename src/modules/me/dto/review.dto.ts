@@ -83,6 +83,14 @@ export class MistakeDto {
   })
   page: number | null;
 
+  @ApiProperty({
+    example: "11-2",
+    nullable: true,
+    description:
+      "The textbook paragraph the question was written from (ids as in GET /me/topics/:id); page is that paragraph's page",
+  })
+  paragraphId: string | null;
+
   @ApiProperty({ example: false })
   fixed: boolean;
 
@@ -106,6 +114,12 @@ export class MistakeDto {
 }
 
 export class ReviewDto {
+  @ApiProperty({ example: 8, nullable: true })
+  topicId: number | null;
+
+  @ApiProperty({ example: "Ko'phadlarni qo'shish va ayirish", nullable: true })
+  topicTitle: string | null;
+
   @ApiProperty({ example: 14 })
   attemptId: number;
 

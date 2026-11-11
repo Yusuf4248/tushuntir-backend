@@ -86,6 +86,13 @@ export class StudentQuizDto {
 
   @ApiProperty({ type: AttemptSummaryDto, nullable: true })
   attempt: AttemptSummaryDto | null;
+
+  @ApiProperty({
+    example: 10,
+    description:
+      "Questions in the attempt once started; before that, 10 for a lesson quiz (fewer if the topic has fewer approved questions) or 5 for practice",
+  })
+  questionCount: number;
 }
 
 export class TodayLessonDto {
@@ -199,6 +206,14 @@ export class AttemptQuestionDto {
 
   @ApiProperty({ example: 3 })
   hintsAvailable: number;
+
+  @ApiProperty({
+    type: [String],
+    example: ["Qaysi amal birinchi bajariladi?"],
+    description:
+      "Hint texts already revealed (hintsUsed of them), so a resumed quiz shows them",
+  })
+  hints: string[];
 }
 
 export class AttemptViewDto {

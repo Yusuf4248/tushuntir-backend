@@ -24,6 +24,9 @@ export enum MasteryStatus {
 /** Questions per lesson quiz attempt (fewer if the approved pool is smaller). */
 export const QUESTIONS_PER_ATTEMPT = 10;
 
+/** Questions per practice quiz ("Yana savollar tuzib beraymi?"). */
+export const PRACTICE_QUESTIONS = 5;
+
 /** Quiz score (percent) needed for a topic to count as in progress rather than needing practice. */
 export const MASTERY_PASS_PERCENT = 80;
 
