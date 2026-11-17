@@ -1,6 +1,20 @@
-import { Controller, Get, Query } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseIntPipe,
+  Post,
+  Query,
+  UploadedFiles,
+  UseInterceptors,
+} from "@nestjs/common";
 import {
   ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
@@ -17,6 +31,15 @@ import {
   TimetableQueryDto,
 } from "./dto/school.dto";
 import { StudentSchoolService } from "./student-school.service";
+import { StudentHomeworkService } from "./student-homework.service";
+import { SubmissionUploadInterceptor } from "./submission-upload.interceptor";
+import {
+  HomeworkDetailDto,
+  HomeworkItemDto,
+  HomeworkQueryDto,
+  SubmissionBodyDto,
+} from "./dto/homework.dto";
+import { HOUR, RateLimit } from "../../common/throttle/rate-limit.decorator";
 
 /** The student's school day outside the AI loop: timetable, attendance, homework, grades, notifications. */
 @ApiTags("Student · School")
@@ -25,7 +48,10 @@ import { StudentSchoolService } from "./student-school.service";
 @Roles(UserRole.STUDENT)
 @Controller("me")
 export class MeSchoolController {
-  constructor(private readonly school: StudentSchoolService) {}
+  constructor(
+    private readonly school: StudentSchoolService,
+    private readonly homework: StudentHomeworkService,
+  ) {}
 
   @Get("timetable")
   @ApiOperation({
@@ -53,5 +79,70 @@ export class MeSchoolController {
     @CurrentUser() user: AuthUser,
   ) {
     return this.school.attendance(user, query.month);
+  }
+
+  @Get("homework")
+  @ApiOperation({
+    summary: "Written homework of the student's class",
+    description:
+      "Newest due date first. Lesson quizzes are not here (see /me/quizzes). status per item: new / overdue " +
+      "(not submitted, before / after the deadline), submitted, late (submitted after the deadline), " +
+      "checked, returned.",
+  })
+  @ApiOkResponse({ type: [HomeworkItemDto] })
+  homeworkList(
+    @Query() query: HomeworkQueryDto,
+    @CurrentUser() user: AuthUser,
+  ) {
+    return this.homework.list(user, query.status);
+  }
+
+  @Get("homework/:id")
+  @ApiOperation({
+    summary: "One homework: description, the teacher's files and my submission",
+  })
+  @ApiOkResponse({ type: HomeworkDetailDto })
+  homeworkDetail(
+    @Param("id", ParseIntPipe) id: number,
+    @CurrentUser() user: AuthUser,
+  ) {
+    return this.homework.detail(id, user);
+  }
+
+  @Post("homework/:id/submission")
+  @HttpCode(HttpStatus.OK)
+  @RateLimit(20, HOUR)
+  @UseInterceptors(SubmissionUploadInterceptor)
+  @ApiConsumes("multipart/form-data")
+  @ApiBody({
+    description:
+      "text and/or up to 3 files (field files: jpg, png, webp, gif or pdf; 10 MB each; no SVG).",
+    schema: {
+      type: "object",
+      properties: {
+        text: { type: "string", maxLength: 5000 },
+        files: { type: "array", items: { type: "string", format: "binary" } },
+      },
+    },
+  })
+  @ApiOperation({
+    summary: "Submit or update my homework",
+    description:
+      "Creates my submission or updates it until the teacher checks it (409 after that; a returned one can be " +
+      "sent again). Sent text replaces the text; sent files replace all previous files, otherwise they are kept. " +
+      "After the deadline the submission is marked late. Returns the homework with my submission.",
+  })
+  @ApiOkResponse({ type: HomeworkDetailDto })
+  submitHomework(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() body: SubmissionBodyDto,
+    @UploadedFiles() files: Express.Multer.File[] | undefined,
+    @CurrentUser() user: AuthUser,
+  ) {
+    return this.homework.submit(
+      id,
+      { text: body.text, files: files ?? [] },
+      user,
+    );
   }
 }
