@@ -1704,13 +1704,13 @@
     }
   ],
   "school": {
-    "description": "Real responses of the student school endpoints (timetable, attendance, grades, notifications, homework), recorded on 2026-11-17 with the seed:mvp demo data for the demo student. Notifications are read before the homework is submitted, so the due-tomorrow one is included; checkpoint_passed appears only after a passed checkpoint and is not in this run.",
+    "description": "Real responses of the student school endpoints (timetable, attendance, grades, notifications, homework), recorded on 2026-11-17 (re-recorded after submission files became private: their url is a signed /api/files/signed/… link) with the seed:mvp demo data for the demo student. Notifications are read before the homework is submitted, so the due-tomorrow one is included; checkpoint_passed appears only after a passed checkpoint and is not in this run.",
     "steps": [
       {
         "label": "timetable (this week)",
         "request": "GET /api/me/timetable",
         "status": 200,
-        "ms": 30,
+        "ms": 24,
         "response": {
           "weekStart": "2026-11-16",
           "weekEnd": "2026-11-21",
@@ -2238,7 +2238,7 @@
         "label": "timetable (a past week)",
         "request": "GET /api/me/timetable?weekStart=2026-10-12",
         "status": 200,
-        "ms": 6,
+        "ms": 7,
         "response": {
           "weekStart": "2026-10-12",
           "weekEnd": "2026-10-17",
@@ -2751,7 +2751,7 @@
         "label": "attendance (this month)",
         "request": "GET /api/me/attendance",
         "status": 200,
-        "ms": 5,
+        "ms": 8,
         "response": {
           "month": "2026-11",
           "records": [
@@ -4377,7 +4377,7 @@
         "label": "unread count",
         "request": "GET /api/me/notifications/unread-count",
         "status": 200,
-        "ms": 14,
+        "ms": 15,
         "response": {
           "count": 6
         }
@@ -4389,7 +4389,7 @@
         "ms": 8,
         "response": [
           {
-            "id": 64,
+            "id": 89,
             "type": "homework_due",
             "title": "Ertaga topshirish kerak: Insho: Mening sevimli faslim",
             "body": "Ona tili. Muddat: 18.11 18:00",
@@ -4398,10 +4398,10 @@
               "homeworkId": 62
             },
             "readAt": null,
-            "createdAt": "2026-11-17T09:44:11.017Z"
+            "createdAt": "2026-11-17T11:01:21.005Z"
           },
           {
-            "id": 65,
+            "id": 90,
             "type": "quiz_unlocked",
             "title": "Test ochildi: Birhad va uning standart shakli",
             "body": "Muddat: 17.11 22:00",
@@ -4414,20 +4414,20 @@
             "createdAt": "2026-11-17T03:45:00.000Z"
           },
           {
-            "id": 63,
+            "id": 88,
             "type": "homework_checked",
             "title": "Uy vazifasi tekshirildi: Masalalar: 12-15",
             "body": "Ball: 85. Yaxshi! 14-masalada birlikni yozmagansiz (m/s).",
             "data": {
-              "checkedAt": 1794735817,
+              "checkedAt": 1794740479,
               "homeworkId": 64,
               "submissionId": 53
             },
             "readAt": null,
-            "createdAt": "2026-11-15T09:43:37.160Z"
+            "createdAt": "2026-11-15T11:01:19.209Z"
           },
           {
-            "id": 61,
+            "id": 86,
             "type": "grade",
             "title": "Yangi baho: Ingliz tili — 4",
             "body": "Uy vazifasi",
@@ -4440,7 +4440,7 @@
             "createdAt": "2026-11-14T04:40:00.000Z"
           },
           {
-            "id": 60,
+            "id": 85,
             "type": "grade",
             "title": "Yangi baho: Algebra — 4",
             "body": "Uy vazifasi. Yaxshi, kichik xatolar bor",
@@ -4453,7 +4453,7 @@
             "createdAt": "2026-11-13T03:45:00.000Z"
           },
           {
-            "id": 62,
+            "id": 87,
             "type": "grade",
             "title": "Yangi baho: Fizika — 5",
             "body": "Darsdagi ish",
@@ -4557,7 +4557,7 @@
         "label": "homework: only new",
         "request": "GET /api/me/homework?status=new",
         "status": 200,
-        "ms": 2,
+        "ms": 3,
         "response": [
           {
             "id": 62,
@@ -4579,7 +4579,7 @@
         "label": "homework detail (submitted)",
         "request": "GET /api/me/homework/63",
         "status": 200,
-        "ms": 13,
+        "ms": 15,
         "response": {
           "id": 63,
           "title": "Workbook: 34-35 betlar",
@@ -4601,12 +4601,12 @@
           },
           "attachments": [],
           "submission": {
-            "id": 63,
+            "id": 93,
             "text": "1) have visited 2) has never seen 3) have you finished 4) hasn't arrived",
             "status": "submitted",
             "score": null,
             "feedback": null,
-            "submittedAt": "2026-11-16T09:43:37.160Z",
+            "submittedAt": "2026-11-16T11:01:19.209Z",
             "checkedAt": null,
             "files": []
           }
@@ -4616,7 +4616,7 @@
         "label": "homework detail (new)",
         "request": "GET /api/me/homework/62",
         "status": 200,
-        "ms": 5,
+        "ms": 22,
         "response": {
           "id": 62,
           "title": "Insho: Mening sevimli faslim",
@@ -4644,7 +4644,7 @@
         "label": "homework detail (checked)",
         "request": "GET /api/me/homework/64",
         "status": 200,
-        "ms": 2,
+        "ms": 4,
         "response": {
           "id": 64,
           "title": "Masalalar: 12-15",
@@ -4671,8 +4671,8 @@
             "status": "checked",
             "score": 85,
             "feedback": "Yaxshi! 14-masalada birlikni yozmagansiz (m/s).",
-            "submittedAt": "2026-11-13T09:43:37.160Z",
-            "checkedAt": "2026-11-15T09:43:37.160Z",
+            "submittedAt": "2026-11-13T11:01:19.209Z",
+            "checkedAt": "2026-11-15T11:01:19.209Z",
             "files": []
           }
         }
@@ -4681,7 +4681,7 @@
         "label": "homework detail (late)",
         "request": "GET /api/me/homework/65",
         "status": 200,
-        "ms": 5,
+        "ms": 4,
         "response": {
           "id": 65,
           "title": "3-paragraf savollari",
@@ -4708,7 +4708,7 @@
             "status": "late",
             "score": null,
             "feedback": null,
-            "submittedAt": "2026-11-14T09:43:37.160Z",
+            "submittedAt": "2026-11-14T11:01:19.209Z",
             "checkedAt": null,
             "files": []
           }
@@ -4719,7 +4719,7 @@
         "request": "POST /api/me/homework/62/submission",
         "body": "(multipart: text + files)",
         "status": 200,
-        "ms": 11,
+        "ms": 16,
         "response": {
           "id": 62,
           "title": "Insho: Mening sevimli faslim",
@@ -4741,17 +4741,17 @@
           },
           "attachments": [],
           "submission": {
-            "id": 67,
+            "id": 96,
             "text": "Mening sevimli faslim — kuz. Kuzda daraxtlar oltin rangga kiradi...",
             "status": "submitted",
             "score": null,
             "feedback": null,
-            "submittedAt": "2026-11-17T09:44:11.075Z",
+            "submittedAt": "2026-11-17T11:01:21.087Z",
             "checkedAt": null,
             "files": [
               {
-                "id": 55,
-                "url": "/uploads/5e8c2ca9-76d6-4941-9b73-69d5de16449b.pdf",
+                "id": 67,
+                "url": "/api/files/signed/67?expires=1794920400&sig=t5YqAfycJBySfJbNCwtaK899dpeNGE4R7xJgW2H9iyY",
                 "originalName": "insho.pdf",
                 "mimeType": "application/pdf",
                 "sizeBytes": 193
@@ -4762,11 +4762,11 @@
       },
       {
         "label": "mark one read",
-        "request": "PATCH /api/me/notifications/64/read",
+        "request": "PATCH /api/me/notifications/89/read",
         "status": 200,
         "ms": 2,
         "response": {
-          "id": 64,
+          "id": 89,
           "type": "homework_due",
           "title": "Ertaga topshirish kerak: Insho: Mening sevimli faslim",
           "body": "Ona tili. Muddat: 18.11 18:00",
@@ -4774,18 +4774,18 @@
             "lessonId": 64,
             "homeworkId": 62
           },
-          "readAt": "2026-11-17T09:44:11.080Z",
-          "createdAt": "2026-11-17T09:44:11.017Z"
+          "readAt": "2026-11-17T11:01:21.096Z",
+          "createdAt": "2026-11-17T11:01:21.005Z"
         }
       },
       {
         "label": "unread only",
         "request": "GET /api/me/notifications?unreadOnly=true",
         "status": 200,
-        "ms": 6,
+        "ms": 9,
         "response": [
           {
-            "id": 65,
+            "id": 90,
             "type": "quiz_unlocked",
             "title": "Test ochildi: Birhad va uning standart shakli",
             "body": "Muddat: 17.11 22:00",
@@ -4798,20 +4798,20 @@
             "createdAt": "2026-11-17T03:45:00.000Z"
           },
           {
-            "id": 63,
+            "id": 88,
             "type": "homework_checked",
             "title": "Uy vazifasi tekshirildi: Masalalar: 12-15",
             "body": "Ball: 85. Yaxshi! 14-masalada birlikni yozmagansiz (m/s).",
             "data": {
-              "checkedAt": 1794735817,
+              "checkedAt": 1794740479,
               "homeworkId": 64,
               "submissionId": 53
             },
             "readAt": null,
-            "createdAt": "2026-11-15T09:43:37.160Z"
+            "createdAt": "2026-11-15T11:01:19.209Z"
           },
           {
-            "id": 61,
+            "id": 86,
             "type": "grade",
             "title": "Yangi baho: Ingliz tili — 4",
             "body": "Uy vazifasi",
@@ -4824,7 +4824,7 @@
             "createdAt": "2026-11-14T04:40:00.000Z"
           },
           {
-            "id": 60,
+            "id": 85,
             "type": "grade",
             "title": "Yangi baho: Algebra — 4",
             "body": "Uy vazifasi. Yaxshi, kichik xatolar bor",
@@ -4837,7 +4837,7 @@
             "createdAt": "2026-11-13T03:45:00.000Z"
           },
           {
-            "id": 62,
+            "id": 87,
             "type": "grade",
             "title": "Yangi baho: Fizika — 5",
             "body": "Darsdagi ish",
@@ -4855,7 +4855,7 @@
         "label": "read all",
         "request": "POST /api/me/notifications/read-all",
         "status": 200,
-        "ms": 2,
+        "ms": 1,
         "response": {
           "updated": 5
         }
@@ -4864,7 +4864,7 @@
         "label": "unread count after read-all",
         "request": "GET /api/me/notifications/unread-count",
         "status": 200,
-        "ms": 4,
+        "ms": 8,
         "response": {
           "count": 0
         }

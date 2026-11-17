@@ -24,6 +24,172 @@
         ]
       }
     },
+    "/api/files/signed/{id}": {
+      "get": {
+        "description": "The links in API responses (e.g. homework submission files) look like this and work directly in <img> or <a>. They expire at the end of the next full hour; 403 after that: fetch the response again for a new link.",
+        "operationId": "FilesController_signed",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "expires",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "example": 1795000000,
+              "type": "string"
+            }
+          },
+          {
+            "name": "sig",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "example": "Q2x1ZGUgd2FzIGhlcmU",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The file"
+          },
+          "400": {
+            "description": "Validation failed or a referenced record is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid access token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid or expired link"
+          },
+          "404": {
+            "description": "Record or referenced record not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Duplicate value, or the record is still referenced",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "A private file through a signed link (no login)",
+        "tags": [
+          "Files"
+        ]
+      }
+    },
+    "/api/files/{id}": {
+      "get": {
+        "description": "Homework submission files: the student who submitted it, a teacher of that class, an admin of that school or a super admin. 404 for anyone else.",
+        "operationId": "FilesController_download",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The file"
+          },
+          "400": {
+            "description": "Validation failed or a referenced record is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid access token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Role not allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Record or referenced record not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Duplicate value, or the record is still referenced",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ],
+        "summary": "A private file for the logged-in user",
+        "tags": [
+          "Files"
+        ]
+      }
+    },
     "/api/auth/login": {
       "post": {
         "operationId": "AuthController_login",
@@ -30124,8 +30290,8 @@
           },
           "url": {
             "type": "string",
-            "example": "/uploads/3f1c0b9e-5a7d-4c21-b8e6-f0a9d2c4e7b1.pdf",
-            "description": "Relative to the API origin"
+            "example": "/api/files/signed/31?expires=1795003200&sig=Zm9vYmFy",
+            "description": "Relative to the API origin. The teacher's files: a public /uploads link. My submission files: a signed link that works directly in <img> / <a> and expires at the end of the next full hour (403 after that: fetch the homework again for a new link)."
           },
           "originalName": {
             "type": "string",
