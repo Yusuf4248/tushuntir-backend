@@ -19161,7 +19161,10 @@
                 "absence",
                 "weekly_progress",
                 "flag",
-                "needs_help"
+                "needs_help",
+                "homework_checked",
+                "quiz_unlocked",
+                "checkpoint_passed"
               ]
             }
           }
@@ -21584,6 +21587,929 @@
         "summary": "Topic mastery and unlock state for the student's subjects",
         "tags": [
           "Student · Me"
+        ]
+      }
+    },
+    "/api/me/timetable": {
+      "get": {
+        "description": "Lessons per day with time, subject, teacher, room, topic and status (upcoming / in_progress / finished), plus whether the lesson has an AI quiz or written homework. Default: this week. A slot without a lesson record (future weeks) has lessonId null; days outside a term (school breaks) are empty.",
+        "operationId": "MeSchoolController_timetable",
+        "parameters": [
+          {
+            "name": "weekStart",
+            "required": false,
+            "in": "query",
+            "description": "Any date of the week (YYYY-MM-DD); the week runs Monday to Saturday. Default: this week (school time zone)",
+            "schema": {
+              "pattern": "/^\\d{4}-\\d{2}-\\d{2}$/",
+              "example": "2026-11-16",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TimetableDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed or a referenced record is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid access token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Role not allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Record or referenced record not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Duplicate value, or the record is still referenced",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ],
+        "summary": "The class timetable of a week (Monday to Saturday)",
+        "tags": [
+          "Student · School"
+        ]
+      }
+    },
+    "/api/me/attendance": {
+      "get": {
+        "description": "Records (date, period, subject, lesson, status present / absent / late / excused, note), oldest first, and a summary. percent = (present + late) / (all records - excused) * 100. Default: this month.",
+        "operationId": "MeSchoolController_attendance",
+        "parameters": [
+          {
+            "name": "month",
+            "required": false,
+            "in": "query",
+            "description": "YYYY-MM; default: this month (school time zone)",
+            "schema": {
+              "pattern": "/^\\d{4}-(0[1-9]|1[0-2])$/",
+              "example": "2026-11",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttendanceDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed or a referenced record is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid access token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Role not allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Record or referenced record not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Duplicate value, or the record is still referenced",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ],
+        "summary": "The student's attendance of a month",
+        "tags": [
+          "Student · School"
+        ]
+      }
+    },
+    "/api/me/homework": {
+      "get": {
+        "description": "Newest due date first. Lesson quizzes are not here (see /me/quizzes). status per item: new / overdue (not submitted, before / after the deadline), submitted, late (submitted after the deadline), checked, returned.",
+        "operationId": "MeSchoolController_homeworkList",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "new",
+              "type": "string",
+              "enum": [
+                "new",
+                "overdue",
+                "submitted",
+                "late",
+                "checked",
+                "returned"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/HomeworkItemDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed or a referenced record is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid access token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Role not allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Record or referenced record not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Duplicate value, or the record is still referenced",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ],
+        "summary": "Written homework of the student's class",
+        "tags": [
+          "Student · School"
+        ]
+      }
+    },
+    "/api/me/homework/{id}": {
+      "get": {
+        "operationId": "MeSchoolController_homeworkDetail",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HomeworkDetailDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed or a referenced record is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid access token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Role not allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Record or referenced record not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Duplicate value, or the record is still referenced",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ],
+        "summary": "One homework: description, the teacher's files and my submission",
+        "tags": [
+          "Student · School"
+        ]
+      }
+    },
+    "/api/me/homework/{id}/submission": {
+      "post": {
+        "description": "Creates my submission or updates it until the teacher checks it (409 after that; a returned one can be sent again). Sent text replaces the text; sent files replace all previous files, otherwise they are kept. After the deadline the submission is marked late. Returns the homework with my submission.",
+        "operationId": "MeSchoolController_submitHomework",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "text and/or up to 3 files (field files: jpg, png, webp, gif or pdf; 10 MB each; no SVG).",
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "maxLength": 5000
+                  },
+                  "files": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HomeworkDetailDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed or a referenced record is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid access token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Role not allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Record or referenced record not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Duplicate value, or the record is still referenced",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "More than 20 requests per 1 h for this user. Retry-After gives the seconds to wait; the message is in Uzbek."
+          }
+        },
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ],
+        "summary": "Submit or update my homework",
+        "tags": [
+          "Student · School"
+        ]
+      }
+    },
+    "/api/me/grades": {
+      "get": {
+        "description": "Grades (date, subject, kind, value 2-5, comment, teacher), newest first, filtered by subjectId; termId defaults to the term containing today (or the last one started). averages: per subject, two decimals.",
+        "operationId": "MeSchoolController_grades",
+        "parameters": [
+          {
+            "name": "subjectId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "example": 8,
+              "type": "number"
+            }
+          },
+          {
+            "name": "termId",
+            "required": false,
+            "in": "query",
+            "description": "A term of the student's academic year; default: the term containing today (or the last one started)",
+            "schema": {
+              "minimum": 1,
+              "example": 9,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GradesDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed or a referenced record is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid access token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Role not allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Record or referenced record not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Duplicate value, or the record is still referenced",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ],
+        "summary": "The student's grades of a term with per-subject averages",
+        "tags": [
+          "Student · School"
+        ]
+      }
+    },
+    "/api/me/notifications": {
+      "get": {
+        "description": "Reading this (or the unread count) first adds what is missing: a new grade (last 7 days), homework checked or returned, written homework due tomorrow and not submitted, a lesson quiz that unlocked (last 7 days, still open). Checkpoint passed is added when it happens. data links to the item (homeworkId, quizId, gradeId, topicId, …). limit 1-100, default 50.",
+        "operationId": "MeSchoolController_notificationList",
+        "parameters": [
+          {
+            "name": "unreadOnly",
+            "required": false,
+            "in": "query",
+            "description": "Only unread ones",
+            "schema": {
+              "example": false,
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50,
+              "example": 50,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NotificationDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed or a referenced record is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid access token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Role not allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Record or referenced record not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Duplicate value, or the record is still referenced",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ],
+        "summary": "The student's notifications, newest first",
+        "tags": [
+          "Student · School"
+        ]
+      }
+    },
+    "/api/me/notifications/unread-count": {
+      "get": {
+        "operationId": "MeSchoolController_unreadCount",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnreadCountDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed or a referenced record is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid access token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Role not allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Record or referenced record not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Duplicate value, or the record is still referenced",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ],
+        "summary": "How many notifications are unread",
+        "tags": [
+          "Student · School"
+        ]
+      }
+    },
+    "/api/me/notifications/{id}/read": {
+      "patch": {
+        "operationId": "MeSchoolController_markRead",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed or a referenced record is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid access token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Role not allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Record or referenced record not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Duplicate value, or the record is still referenced",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ],
+        "summary": "Mark one notification read (own only, else 404)",
+        "tags": [
+          "Student · School"
+        ]
+      }
+    },
+    "/api/me/notifications/read-all": {
+      "post": {
+        "operationId": "MeSchoolController_readAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadAllDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed or a referenced record is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid access token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Role not allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Record or referenced record not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Duplicate value, or the record is still referenced",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ],
+        "summary": "Mark all my notifications read",
+        "tags": [
+          "Student · School"
         ]
       }
     }
@@ -26723,7 +27649,10 @@
               "absence",
               "weekly_progress",
               "flag",
-              "needs_help"
+              "needs_help",
+              "homework_checked",
+              "quiz_unlocked",
+              "checkpoint_passed"
             ],
             "example": "absence"
           },
@@ -26772,6 +27701,10 @@
             "type": "string",
             "nullable": true
           },
+          "data": {
+            "type": "object",
+            "nullable": true
+          },
           "readAt": {
             "format": "date-time",
             "type": "string",
@@ -26789,6 +27722,7 @@
           "type",
           "title",
           "body",
+          "data",
           "readAt",
           "createdAt"
         ]
@@ -26811,7 +27745,10 @@
               "absence",
               "weekly_progress",
               "flag",
-              "needs_help"
+              "needs_help",
+              "homework_checked",
+              "quiz_unlocked",
+              "checkpoint_passed"
             ],
             "example": "absence"
           },
@@ -28868,6 +29805,720 @@
         "required": [
           "rule",
           "topics"
+        ]
+      },
+      "TimetableLessonDto": {
+        "type": "object",
+        "properties": {
+          "lessonId": {
+            "type": "number",
+            "nullable": true,
+            "example": 60,
+            "description": "null for a timetable slot that has no lesson record that week (e.g. a future week)"
+          },
+          "period": {
+            "type": "number",
+            "nullable": true,
+            "example": 2
+          },
+          "startsAt": {
+            "type": "string",
+            "nullable": true,
+            "example": "08:55"
+          },
+          "endsAt": {
+            "type": "string",
+            "nullable": true,
+            "example": "09:40"
+          },
+          "status": {
+            "enum": [
+              "upcoming",
+              "in_progress",
+              "finished"
+            ],
+            "type": "string",
+            "example": "finished"
+          },
+          "subject": {
+            "$ref": "#/components/schemas/RefDto"
+          },
+          "teacher": {
+            "$ref": "#/components/schemas/TeacherRefDto"
+          },
+          "room": {
+            "type": "string",
+            "nullable": true,
+            "example": "201-xona"
+          },
+          "topic": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TopicRefDto"
+              }
+            ]
+          },
+          "hasQuiz": {
+            "type": "boolean",
+            "example": true,
+            "description": "The lesson has an AI quiz"
+          },
+          "hasHomework": {
+            "type": "boolean",
+            "example": false,
+            "description": "The lesson has written homework"
+          }
+        },
+        "required": [
+          "lessonId",
+          "period",
+          "startsAt",
+          "endsAt",
+          "status",
+          "subject",
+          "teacher",
+          "room",
+          "topic",
+          "hasQuiz",
+          "hasHomework"
+        ]
+      },
+      "TimetableDayDto": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "example": "2026-11-16"
+          },
+          "weekday": {
+            "type": "number",
+            "example": 1,
+            "description": "1 = Monday … 6 = Saturday"
+          },
+          "lessons": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TimetableLessonDto"
+            }
+          }
+        },
+        "required": [
+          "date",
+          "weekday",
+          "lessons"
+        ]
+      },
+      "TimetableDto": {
+        "type": "object",
+        "properties": {
+          "weekStart": {
+            "type": "string",
+            "example": "2026-11-16"
+          },
+          "weekEnd": {
+            "type": "string",
+            "example": "2026-11-21"
+          },
+          "timezone": {
+            "type": "string",
+            "example": "Asia/Tashkent"
+          },
+          "class": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ClassRefDto"
+              }
+            ]
+          },
+          "days": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TimetableDayDto"
+            }
+          }
+        },
+        "required": [
+          "weekStart",
+          "weekEnd",
+          "timezone",
+          "class",
+          "days"
+        ]
+      },
+      "AttendanceRecordDto": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "example": "2026-11-10"
+          },
+          "period": {
+            "type": "number",
+            "nullable": true,
+            "example": 2
+          },
+          "subject": {
+            "$ref": "#/components/schemas/RefDto"
+          },
+          "lessonId": {
+            "type": "number",
+            "example": 41
+          },
+          "status": {
+            "enum": [
+              "present",
+              "absent",
+              "late",
+              "excused"
+            ],
+            "type": "string",
+            "example": "present"
+          },
+          "note": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          }
+        },
+        "required": [
+          "date",
+          "period",
+          "subject",
+          "lessonId",
+          "status",
+          "note"
+        ]
+      },
+      "AttendanceSummaryDto": {
+        "type": "object",
+        "properties": {
+          "present": {
+            "type": "number",
+            "example": 40
+          },
+          "absent": {
+            "type": "number",
+            "example": 2
+          },
+          "late": {
+            "type": "number",
+            "example": 1
+          },
+          "excused": {
+            "type": "number",
+            "example": 1
+          },
+          "percent": {
+            "type": "number",
+            "nullable": true,
+            "example": 95.35,
+            "description": "(present + late) / (all records - excused) * 100, two decimals; null when there is nothing to count"
+          }
+        },
+        "required": [
+          "present",
+          "absent",
+          "late",
+          "excused",
+          "percent"
+        ]
+      },
+      "AttendanceDto": {
+        "type": "object",
+        "properties": {
+          "month": {
+            "type": "string",
+            "example": "2026-11"
+          },
+          "records": {
+            "description": "Oldest first",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttendanceRecordDto"
+            }
+          },
+          "summary": {
+            "$ref": "#/components/schemas/AttendanceSummaryDto"
+          }
+        },
+        "required": [
+          "month",
+          "records",
+          "summary"
+        ]
+      },
+      "HomeworkItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 12
+          },
+          "title": {
+            "type": "string",
+            "example": "Mashqlar 45-48"
+          },
+          "subject": {
+            "$ref": "#/components/schemas/RefDto"
+          },
+          "lessonId": {
+            "type": "number",
+            "example": 61
+          },
+          "lessonDate": {
+            "type": "string",
+            "example": "2026-11-16"
+          },
+          "dueAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true,
+            "example": "2026-11-18T17:00:00.000Z"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "new",
+              "overdue",
+              "submitted",
+              "late",
+              "checked",
+              "returned"
+            ],
+            "example": "new",
+            "description": "new / overdue: not submitted, before / after the deadline (overdue can still be submitted, it is then late); submitted; late: submitted after the deadline; checked / returned by the teacher (returned can be resubmitted)"
+          },
+          "score": {
+            "type": "number",
+            "nullable": true,
+            "example": null,
+            "description": "0-100 once checked"
+          },
+          "hasAttachments": {
+            "type": "boolean",
+            "example": false,
+            "description": "The teacher attached files"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "subject",
+          "lessonId",
+          "lessonDate",
+          "dueAt",
+          "status",
+          "score",
+          "hasAttachments"
+        ]
+      },
+      "FileDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 31,
+            "description": "media_files id"
+          },
+          "url": {
+            "type": "string",
+            "example": "/uploads/3f1c0b9e-5a7d-4c21-b8e6-f0a9d2c4e7b1.pdf",
+            "description": "Relative to the API origin"
+          },
+          "originalName": {
+            "type": "string",
+            "nullable": true,
+            "example": "ish.pdf"
+          },
+          "mimeType": {
+            "type": "string",
+            "nullable": true,
+            "example": "application/pdf"
+          },
+          "sizeBytes": {
+            "type": "number",
+            "nullable": true,
+            "example": 182044
+          }
+        },
+        "required": [
+          "id",
+          "url",
+          "originalName",
+          "mimeType",
+          "sizeBytes"
+        ]
+      },
+      "MySubmissionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 7
+          },
+          "text": {
+            "type": "string",
+            "nullable": true,
+            "example": "1) 2a + 6  2) 3x^2 - x"
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FileDto"
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "submitted",
+              "late",
+              "checked",
+              "returned"
+            ],
+            "example": "checked"
+          },
+          "score": {
+            "type": "number",
+            "nullable": true,
+            "example": 90
+          },
+          "feedback": {
+            "type": "string",
+            "nullable": true,
+            "example": "Yaxshi! 3-misolda ishorani tekshiring."
+          },
+          "submittedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "checkedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "text",
+          "files",
+          "status",
+          "score",
+          "feedback",
+          "submittedAt",
+          "checkedAt"
+        ]
+      },
+      "HomeworkDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 12
+          },
+          "title": {
+            "type": "string",
+            "example": "Mashqlar 45-48"
+          },
+          "subject": {
+            "$ref": "#/components/schemas/RefDto"
+          },
+          "lessonId": {
+            "type": "number",
+            "example": 61
+          },
+          "lessonDate": {
+            "type": "string",
+            "example": "2026-11-16"
+          },
+          "dueAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true,
+            "example": "2026-11-18T17:00:00.000Z"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "new",
+              "overdue",
+              "submitted",
+              "late",
+              "checked",
+              "returned"
+            ],
+            "example": "new",
+            "description": "new / overdue: not submitted, before / after the deadline (overdue can still be submitted, it is then late); submitted; late: submitted after the deadline; checked / returned by the teacher (returned can be resubmitted)"
+          },
+          "score": {
+            "type": "number",
+            "nullable": true,
+            "example": null,
+            "description": "0-100 once checked"
+          },
+          "hasAttachments": {
+            "type": "boolean",
+            "example": false,
+            "description": "The teacher attached files"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "example": "Darslikdagi 45-48 mashqlarni bajaring."
+          },
+          "teacher": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TeacherRefDto"
+              }
+            ]
+          },
+          "attachments": {
+            "description": "The teacher's files",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FileDto"
+            }
+          },
+          "submission": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MySubmissionDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "subject",
+          "lessonId",
+          "lessonDate",
+          "dueAt",
+          "status",
+          "score",
+          "hasAttachments",
+          "description",
+          "teacher",
+          "attachments",
+          "submission"
+        ]
+      },
+      "TermDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 9
+          },
+          "name": {
+            "type": "string",
+            "example": "2-chorak"
+          },
+          "startsOn": {
+            "type": "string",
+            "nullable": true,
+            "example": "2026-11-09"
+          },
+          "endsOn": {
+            "type": "string",
+            "nullable": true,
+            "example": "2026-12-27"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "startsOn",
+          "endsOn"
+        ]
+      },
+      "GradeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 120
+          },
+          "date": {
+            "type": "string",
+            "example": "2026-11-10",
+            "description": "Lesson date, else the day the grade was given"
+          },
+          "subject": {
+            "$ref": "#/components/schemas/RefDto"
+          },
+          "kind": {
+            "type": "string",
+            "nullable": true,
+            "example": "classwork",
+            "description": "classwork, homework, quiz, exam, term"
+          },
+          "value": {
+            "type": "number",
+            "nullable": true,
+            "example": 5,
+            "description": "2-5"
+          },
+          "comment": {
+            "type": "string",
+            "nullable": true,
+            "example": "Faol qatnashdi"
+          },
+          "teacher": {
+            "$ref": "#/components/schemas/TeacherRefDto"
+          },
+          "lessonId": {
+            "type": "number",
+            "nullable": true,
+            "example": 61
+          }
+        },
+        "required": [
+          "id",
+          "date",
+          "subject",
+          "kind",
+          "value",
+          "comment",
+          "teacher",
+          "lessonId"
+        ]
+      },
+      "SubjectAverageDto": {
+        "type": "object",
+        "properties": {
+          "subject": {
+            "$ref": "#/components/schemas/RefDto"
+          },
+          "average": {
+            "type": "number",
+            "nullable": true,
+            "example": 4.5,
+            "description": "Two decimals"
+          },
+          "count": {
+            "type": "number",
+            "example": 8
+          }
+        },
+        "required": [
+          "subject",
+          "average",
+          "count"
+        ]
+      },
+      "GradesDto": {
+        "type": "object",
+        "properties": {
+          "term": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TermDto"
+              }
+            ]
+          },
+          "grades": {
+            "description": "Newest first",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GradeDto"
+            }
+          },
+          "averages": {
+            "description": "Per subject, over the grades listed",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubjectAverageDto"
+            }
+          }
+        },
+        "required": [
+          "term",
+          "grades",
+          "averages"
+        ]
+      },
+      "NotificationDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 31
+          },
+          "type": {
+            "type": "string",
+            "nullable": true,
+            "example": "homework_checked",
+            "description": "grade, homework_checked, homework_due, quiz_unlocked, checkpoint_passed (and the older types)"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true,
+            "example": "Uy vazifasi tekshirildi: Insho"
+          },
+          "body": {
+            "type": "string",
+            "nullable": true,
+            "example": "Ball: 90. Yaxshi! 3-gapni qayta ko'rib chiq."
+          },
+          "data": {
+            "type": "object",
+            "nullable": true,
+            "example": {
+              "homeworkId": 12,
+              "submissionId": 7
+            },
+            "description": "What it is about, for links: homeworkId, quizId, gradeId, subjectId, topicId, lessonId"
+          },
+          "readAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "title",
+          "body",
+          "data",
+          "readAt",
+          "createdAt"
+        ]
+      },
+      "UnreadCountDto": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "number",
+            "example": 3
+          }
+        },
+        "required": [
+          "count"
+        ]
+      },
+      "ReadAllDto": {
+        "type": "object",
+        "properties": {
+          "updated": {
+            "type": "number",
+            "example": 3,
+            "description": "How many were marked read"
+          }
+        },
+        "required": [
+          "updated"
         ]
       }
     }

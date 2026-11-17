@@ -1702,5 +1702,3173 @@
         }
       ]
     }
-  ]
+  ],
+  "school": {
+    "description": "Real responses of the student school endpoints (timetable, attendance, grades, notifications, homework), recorded on 2026-11-17 with the seed:mvp demo data for the demo student. Notifications are read before the homework is submitted, so the due-tomorrow one is included; checkpoint_passed appears only after a passed checkpoint and is not in this run.",
+    "steps": [
+      {
+        "label": "timetable (this week)",
+        "request": "GET /api/me/timetable",
+        "status": 200,
+        "ms": 30,
+        "response": {
+          "weekStart": "2026-11-16",
+          "weekEnd": "2026-11-21",
+          "timezone": "Asia/Tashkent",
+          "class": {
+            "id": 7,
+            "name": "7-A"
+          },
+          "days": [
+            {
+              "date": "2026-11-16",
+              "weekday": 1,
+              "lessons": [
+                {
+                  "lessonId": 59,
+                  "period": 1,
+                  "startsAt": "08:00",
+                  "endsAt": "08:45",
+                  "status": "finished",
+                  "subject": {
+                    "id": 10,
+                    "name": "Ona tili"
+                  },
+                  "teacher": {
+                    "id": 23,
+                    "firstName": "Gulnora",
+                    "lastName": "Saidova"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": null,
+                  "hasQuiz": false,
+                  "hasHomework": false
+                },
+                {
+                  "lessonId": 60,
+                  "period": 2,
+                  "startsAt": "08:55",
+                  "endsAt": "09:40",
+                  "status": "finished",
+                  "subject": {
+                    "id": 8,
+                    "name": "Algebra"
+                  },
+                  "teacher": {
+                    "id": 22,
+                    "firstName": "Dilnoza",
+                    "lastName": "Karimova"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": {
+                    "id": 6,
+                    "title": "Algebraik ifoda va uning qiymati"
+                  },
+                  "hasQuiz": true,
+                  "hasHomework": false
+                },
+                {
+                  "lessonId": 61,
+                  "period": 3,
+                  "startsAt": "09:50",
+                  "endsAt": "10:35",
+                  "status": "finished",
+                  "subject": {
+                    "id": 11,
+                    "name": "Ingliz tili"
+                  },
+                  "teacher": {
+                    "id": 24,
+                    "firstName": "Shahnoza",
+                    "lastName": "Ahmedova"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": null,
+                  "hasQuiz": false,
+                  "hasHomework": true
+                },
+                {
+                  "lessonId": 62,
+                  "period": 4,
+                  "startsAt": "10:45",
+                  "endsAt": "11:30",
+                  "status": "finished",
+                  "subject": {
+                    "id": 12,
+                    "name": "Fizika"
+                  },
+                  "teacher": {
+                    "id": 25,
+                    "firstName": "Rustam",
+                    "lastName": "Qosimov"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": null,
+                  "hasQuiz": false,
+                  "hasHomework": false
+                }
+              ]
+            },
+            {
+              "date": "2026-11-17",
+              "weekday": 2,
+              "lessons": [
+                {
+                  "lessonId": 63,
+                  "period": 1,
+                  "startsAt": "08:00",
+                  "endsAt": "08:45",
+                  "status": "finished",
+                  "subject": {
+                    "id": 8,
+                    "name": "Algebra"
+                  },
+                  "teacher": {
+                    "id": 22,
+                    "firstName": "Dilnoza",
+                    "lastName": "Karimova"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": {
+                    "id": 7,
+                    "title": "Birhad va uning standart shakli"
+                  },
+                  "hasQuiz": true,
+                  "hasHomework": false
+                },
+                {
+                  "lessonId": 64,
+                  "period": 2,
+                  "startsAt": "08:55",
+                  "endsAt": "09:40",
+                  "status": "finished",
+                  "subject": {
+                    "id": 10,
+                    "name": "Ona tili"
+                  },
+                  "teacher": {
+                    "id": 23,
+                    "firstName": "Gulnora",
+                    "lastName": "Saidova"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": null,
+                  "hasQuiz": false,
+                  "hasHomework": true
+                },
+                {
+                  "lessonId": 65,
+                  "period": 3,
+                  "startsAt": "09:50",
+                  "endsAt": "10:35",
+                  "status": "finished",
+                  "subject": {
+                    "id": 13,
+                    "name": "Tarix"
+                  },
+                  "teacher": {
+                    "id": 26,
+                    "firstName": "Bahodir",
+                    "lastName": "Ergashev"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": null,
+                  "hasQuiz": false,
+                  "hasHomework": false
+                },
+                {
+                  "lessonId": 66,
+                  "period": 4,
+                  "startsAt": "10:45",
+                  "endsAt": "11:30",
+                  "status": "finished",
+                  "subject": {
+                    "id": 11,
+                    "name": "Ingliz tili"
+                  },
+                  "teacher": {
+                    "id": 24,
+                    "firstName": "Shahnoza",
+                    "lastName": "Ahmedova"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": null,
+                  "hasQuiz": false,
+                  "hasHomework": false
+                }
+              ]
+            },
+            {
+              "date": "2026-11-18",
+              "weekday": 3,
+              "lessons": [
+                {
+                  "lessonId": 67,
+                  "period": 1,
+                  "startsAt": "08:00",
+                  "endsAt": "08:45",
+                  "status": "upcoming",
+                  "subject": {
+                    "id": 12,
+                    "name": "Fizika"
+                  },
+                  "teacher": {
+                    "id": 25,
+                    "firstName": "Rustam",
+                    "lastName": "Qosimov"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": null,
+                  "hasQuiz": false,
+                  "hasHomework": false
+                },
+                {
+                  "lessonId": 68,
+                  "period": 2,
+                  "startsAt": "08:55",
+                  "endsAt": "09:40",
+                  "status": "upcoming",
+                  "subject": {
+                    "id": 10,
+                    "name": "Ona tili"
+                  },
+                  "teacher": {
+                    "id": 23,
+                    "firstName": "Gulnora",
+                    "lastName": "Saidova"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": null,
+                  "hasQuiz": false,
+                  "hasHomework": false
+                },
+                {
+                  "lessonId": 69,
+                  "period": 3,
+                  "startsAt": "09:50",
+                  "endsAt": "10:35",
+                  "status": "upcoming",
+                  "subject": {
+                    "id": 8,
+                    "name": "Algebra"
+                  },
+                  "teacher": {
+                    "id": 22,
+                    "firstName": "Dilnoza",
+                    "lastName": "Karimova"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": {
+                    "id": 8,
+                    "title": "Ko'phadlarni qo'shish va ayirish"
+                  },
+                  "hasQuiz": true,
+                  "hasHomework": false
+                },
+                {
+                  "lessonId": 70,
+                  "period": 4,
+                  "startsAt": "10:45",
+                  "endsAt": "11:30",
+                  "status": "upcoming",
+                  "subject": {
+                    "id": 13,
+                    "name": "Tarix"
+                  },
+                  "teacher": {
+                    "id": 26,
+                    "firstName": "Bahodir",
+                    "lastName": "Ergashev"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": null,
+                  "hasQuiz": false,
+                  "hasHomework": false
+                }
+              ]
+            },
+            {
+              "date": "2026-11-19",
+              "weekday": 4,
+              "lessons": [
+                {
+                  "lessonId": 71,
+                  "period": 1,
+                  "startsAt": "08:00",
+                  "endsAt": "08:45",
+                  "status": "upcoming",
+                  "subject": {
+                    "id": 11,
+                    "name": "Ingliz tili"
+                  },
+                  "teacher": {
+                    "id": 24,
+                    "firstName": "Shahnoza",
+                    "lastName": "Ahmedova"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": null,
+                  "hasQuiz": false,
+                  "hasHomework": false
+                },
+                {
+                  "lessonId": 72,
+                  "period": 2,
+                  "startsAt": "08:55",
+                  "endsAt": "09:40",
+                  "status": "upcoming",
+                  "subject": {
+                    "id": 8,
+                    "name": "Algebra"
+                  },
+                  "teacher": {
+                    "id": 22,
+                    "firstName": "Dilnoza",
+                    "lastName": "Karimova"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": {
+                    "id": 9,
+                    "title": "Yig'indi va ayirmaning kvadrati"
+                  },
+                  "hasQuiz": true,
+                  "hasHomework": false
+                },
+                {
+                  "lessonId": 73,
+                  "period": 3,
+                  "startsAt": "09:50",
+                  "endsAt": "10:35",
+                  "status": "upcoming",
+                  "subject": {
+                    "id": 10,
+                    "name": "Ona tili"
+                  },
+                  "teacher": {
+                    "id": 23,
+                    "firstName": "Gulnora",
+                    "lastName": "Saidova"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": null,
+                  "hasQuiz": false,
+                  "hasHomework": false
+                },
+                {
+                  "lessonId": 74,
+                  "period": 4,
+                  "startsAt": "10:45",
+                  "endsAt": "11:30",
+                  "status": "upcoming",
+                  "subject": {
+                    "id": 12,
+                    "name": "Fizika"
+                  },
+                  "teacher": {
+                    "id": 25,
+                    "firstName": "Rustam",
+                    "lastName": "Qosimov"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": null,
+                  "hasQuiz": false,
+                  "hasHomework": false
+                }
+              ]
+            },
+            {
+              "date": "2026-11-20",
+              "weekday": 5,
+              "lessons": [
+                {
+                  "lessonId": 75,
+                  "period": 1,
+                  "startsAt": "08:00",
+                  "endsAt": "08:45",
+                  "status": "upcoming",
+                  "subject": {
+                    "id": 8,
+                    "name": "Algebra"
+                  },
+                  "teacher": {
+                    "id": 22,
+                    "firstName": "Dilnoza",
+                    "lastName": "Karimova"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": {
+                    "id": 10,
+                    "title": "Kvadratlar ayirmasi"
+                  },
+                  "hasQuiz": true,
+                  "hasHomework": false
+                },
+                {
+                  "lessonId": 76,
+                  "period": 2,
+                  "startsAt": "08:55",
+                  "endsAt": "09:40",
+                  "status": "upcoming",
+                  "subject": {
+                    "id": 10,
+                    "name": "Ona tili"
+                  },
+                  "teacher": {
+                    "id": 23,
+                    "firstName": "Gulnora",
+                    "lastName": "Saidova"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": null,
+                  "hasQuiz": false,
+                  "hasHomework": false
+                },
+                {
+                  "lessonId": 77,
+                  "period": 3,
+                  "startsAt": "09:50",
+                  "endsAt": "10:35",
+                  "status": "upcoming",
+                  "subject": {
+                    "id": 11,
+                    "name": "Ingliz tili"
+                  },
+                  "teacher": {
+                    "id": 24,
+                    "firstName": "Shahnoza",
+                    "lastName": "Ahmedova"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": null,
+                  "hasQuiz": false,
+                  "hasHomework": false
+                },
+                {
+                  "lessonId": 78,
+                  "period": 4,
+                  "startsAt": "10:45",
+                  "endsAt": "11:30",
+                  "status": "upcoming",
+                  "subject": {
+                    "id": 13,
+                    "name": "Tarix"
+                  },
+                  "teacher": {
+                    "id": 26,
+                    "firstName": "Bahodir",
+                    "lastName": "Ergashev"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": null,
+                  "hasQuiz": false,
+                  "hasHomework": false
+                }
+              ]
+            },
+            {
+              "date": "2026-11-21",
+              "weekday": 6,
+              "lessons": [
+                {
+                  "lessonId": 79,
+                  "period": 1,
+                  "startsAt": "08:00",
+                  "endsAt": "08:45",
+                  "status": "upcoming",
+                  "subject": {
+                    "id": 12,
+                    "name": "Fizika"
+                  },
+                  "teacher": {
+                    "id": 25,
+                    "firstName": "Rustam",
+                    "lastName": "Qosimov"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": null,
+                  "hasQuiz": false,
+                  "hasHomework": false
+                },
+                {
+                  "lessonId": 80,
+                  "period": 2,
+                  "startsAt": "08:55",
+                  "endsAt": "09:40",
+                  "status": "upcoming",
+                  "subject": {
+                    "id": 11,
+                    "name": "Ingliz tili"
+                  },
+                  "teacher": {
+                    "id": 24,
+                    "firstName": "Shahnoza",
+                    "lastName": "Ahmedova"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": null,
+                  "hasQuiz": false,
+                  "hasHomework": false
+                },
+                {
+                  "lessonId": 81,
+                  "period": 3,
+                  "startsAt": "09:50",
+                  "endsAt": "10:35",
+                  "status": "upcoming",
+                  "subject": {
+                    "id": 10,
+                    "name": "Ona tili"
+                  },
+                  "teacher": {
+                    "id": 23,
+                    "firstName": "Gulnora",
+                    "lastName": "Saidova"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": null,
+                  "hasQuiz": false,
+                  "hasHomework": false
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "label": "timetable (a past week)",
+        "request": "GET /api/me/timetable?weekStart=2026-10-12",
+        "status": 200,
+        "ms": 6,
+        "response": {
+          "weekStart": "2026-10-12",
+          "weekEnd": "2026-10-17",
+          "timezone": "Asia/Tashkent",
+          "class": {
+            "id": 7,
+            "name": "7-A"
+          },
+          "days": [
+            {
+              "date": "2026-10-12",
+              "weekday": 1,
+              "lessons": [
+                {
+                  "lessonId": 136,
+                  "period": 1,
+                  "startsAt": "08:00",
+                  "endsAt": "08:45",
+                  "status": "finished",
+                  "subject": {
+                    "id": 10,
+                    "name": "Ona tili"
+                  },
+                  "teacher": {
+                    "id": 23,
+                    "firstName": "Gulnora",
+                    "lastName": "Saidova"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": null,
+                  "hasQuiz": false,
+                  "hasHomework": false
+                },
+                {
+                  "lessonId": 137,
+                  "period": 2,
+                  "startsAt": "08:55",
+                  "endsAt": "09:40",
+                  "status": "finished",
+                  "subject": {
+                    "id": 8,
+                    "name": "Algebra"
+                  },
+                  "teacher": {
+                    "id": 22,
+                    "firstName": "Dilnoza",
+                    "lastName": "Karimova"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": null,
+                  "hasQuiz": false,
+                  "hasHomework": false
+                },
+                {
+                  "lessonId": 138,
+                  "period": 3,
+                  "startsAt": "09:50",
+                  "endsAt": "10:35",
+                  "status": "finished",
+                  "subject": {
+                    "id": 11,
+                    "name": "Ingliz tili"
+                  },
+                  "teacher": {
+                    "id": 24,
+                    "firstName": "Shahnoza",
+                    "lastName": "Ahmedova"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": null,
+                  "hasQuiz": false,
+                  "hasHomework": false
+                },
+                {
+                  "lessonId": 139,
+                  "period": 4,
+                  "startsAt": "10:45",
+                  "endsAt": "11:30",
+                  "status": "finished",
+                  "subject": {
+                    "id": 12,
+                    "name": "Fizika"
+                  },
+                  "teacher": {
+                    "id": 25,
+                    "firstName": "Rustam",
+                    "lastName": "Qosimov"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": null,
+                  "hasQuiz": false,
+                  "hasHomework": false
+                }
+              ]
+            },
+            {
+              "date": "2026-10-13",
+              "weekday": 2,
+              "lessons": [
+                {
+                  "lessonId": 140,
+                  "period": 1,
+                  "startsAt": "08:00",
+                  "endsAt": "08:45",
+                  "status": "finished",
+                  "subject": {
+                    "id": 8,
+                    "name": "Algebra"
+                  },
+                  "teacher": {
+                    "id": 22,
+                    "firstName": "Dilnoza",
+                    "lastName": "Karimova"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": null,
+                  "hasQuiz": false,
+                  "hasHomework": false
+                },
+                {
+                  "lessonId": 141,
+                  "period": 2,
+                  "startsAt": "08:55",
+                  "endsAt": "09:40",
+                  "status": "finished",
+                  "subject": {
+                    "id": 10,
+                    "name": "Ona tili"
+                  },
+                  "teacher": {
+                    "id": 23,
+                    "firstName": "Gulnora",
+                    "lastName": "Saidova"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": null,
+                  "hasQuiz": false,
+                  "hasHomework": false
+                },
+                {
+                  "lessonId": 142,
+                  "period": 3,
+                  "startsAt": "09:50",
+                  "endsAt": "10:35",
+                  "status": "finished",
+                  "subject": {
+                    "id": 13,
+                    "name": "Tarix"
+                  },
+                  "teacher": {
+                    "id": 26,
+                    "firstName": "Bahodir",
+                    "lastName": "Ergashev"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": null,
+                  "hasQuiz": false,
+                  "hasHomework": false
+                },
+                {
+                  "lessonId": 143,
+                  "period": 4,
+                  "startsAt": "10:45",
+                  "endsAt": "11:30",
+                  "status": "finished",
+                  "subject": {
+                    "id": 11,
+                    "name": "Ingliz tili"
+                  },
+                  "teacher": {
+                    "id": 24,
+                    "firstName": "Shahnoza",
+                    "lastName": "Ahmedova"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": null,
+                  "hasQuiz": false,
+                  "hasHomework": false
+                }
+              ]
+            },
+            {
+              "date": "2026-10-14",
+              "weekday": 3,
+              "lessons": [
+                {
+                  "lessonId": 144,
+                  "period": 1,
+                  "startsAt": "08:00",
+                  "endsAt": "08:45",
+                  "status": "finished",
+                  "subject": {
+                    "id": 12,
+                    "name": "Fizika"
+                  },
+                  "teacher": {
+                    "id": 25,
+                    "firstName": "Rustam",
+                    "lastName": "Qosimov"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": null,
+                  "hasQuiz": false,
+                  "hasHomework": false
+                },
+                {
+                  "lessonId": 145,
+                  "period": 2,
+                  "startsAt": "08:55",
+                  "endsAt": "09:40",
+                  "status": "finished",
+                  "subject": {
+                    "id": 10,
+                    "name": "Ona tili"
+                  },
+                  "teacher": {
+                    "id": 23,
+                    "firstName": "Gulnora",
+                    "lastName": "Saidova"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": null,
+                  "hasQuiz": false,
+                  "hasHomework": false
+                },
+                {
+                  "lessonId": 146,
+                  "period": 3,
+                  "startsAt": "09:50",
+                  "endsAt": "10:35",
+                  "status": "finished",
+                  "subject": {
+                    "id": 8,
+                    "name": "Algebra"
+                  },
+                  "teacher": {
+                    "id": 22,
+                    "firstName": "Dilnoza",
+                    "lastName": "Karimova"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": null,
+                  "hasQuiz": false,
+                  "hasHomework": false
+                },
+                {
+                  "lessonId": 147,
+                  "period": 4,
+                  "startsAt": "10:45",
+                  "endsAt": "11:30",
+                  "status": "finished",
+                  "subject": {
+                    "id": 13,
+                    "name": "Tarix"
+                  },
+                  "teacher": {
+                    "id": 26,
+                    "firstName": "Bahodir",
+                    "lastName": "Ergashev"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": null,
+                  "hasQuiz": false,
+                  "hasHomework": false
+                }
+              ]
+            },
+            {
+              "date": "2026-10-15",
+              "weekday": 4,
+              "lessons": [
+                {
+                  "lessonId": 148,
+                  "period": 1,
+                  "startsAt": "08:00",
+                  "endsAt": "08:45",
+                  "status": "finished",
+                  "subject": {
+                    "id": 11,
+                    "name": "Ingliz tili"
+                  },
+                  "teacher": {
+                    "id": 24,
+                    "firstName": "Shahnoza",
+                    "lastName": "Ahmedova"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": null,
+                  "hasQuiz": false,
+                  "hasHomework": false
+                },
+                {
+                  "lessonId": 149,
+                  "period": 2,
+                  "startsAt": "08:55",
+                  "endsAt": "09:40",
+                  "status": "finished",
+                  "subject": {
+                    "id": 8,
+                    "name": "Algebra"
+                  },
+                  "teacher": {
+                    "id": 22,
+                    "firstName": "Dilnoza",
+                    "lastName": "Karimova"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": null,
+                  "hasQuiz": false,
+                  "hasHomework": false
+                },
+                {
+                  "lessonId": 150,
+                  "period": 3,
+                  "startsAt": "09:50",
+                  "endsAt": "10:35",
+                  "status": "finished",
+                  "subject": {
+                    "id": 10,
+                    "name": "Ona tili"
+                  },
+                  "teacher": {
+                    "id": 23,
+                    "firstName": "Gulnora",
+                    "lastName": "Saidova"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": null,
+                  "hasQuiz": false,
+                  "hasHomework": false
+                },
+                {
+                  "lessonId": 151,
+                  "period": 4,
+                  "startsAt": "10:45",
+                  "endsAt": "11:30",
+                  "status": "finished",
+                  "subject": {
+                    "id": 12,
+                    "name": "Fizika"
+                  },
+                  "teacher": {
+                    "id": 25,
+                    "firstName": "Rustam",
+                    "lastName": "Qosimov"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": null,
+                  "hasQuiz": false,
+                  "hasHomework": false
+                }
+              ]
+            },
+            {
+              "date": "2026-10-16",
+              "weekday": 5,
+              "lessons": [
+                {
+                  "lessonId": 152,
+                  "period": 1,
+                  "startsAt": "08:00",
+                  "endsAt": "08:45",
+                  "status": "finished",
+                  "subject": {
+                    "id": 8,
+                    "name": "Algebra"
+                  },
+                  "teacher": {
+                    "id": 22,
+                    "firstName": "Dilnoza",
+                    "lastName": "Karimova"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": null,
+                  "hasQuiz": false,
+                  "hasHomework": false
+                },
+                {
+                  "lessonId": 153,
+                  "period": 2,
+                  "startsAt": "08:55",
+                  "endsAt": "09:40",
+                  "status": "finished",
+                  "subject": {
+                    "id": 10,
+                    "name": "Ona tili"
+                  },
+                  "teacher": {
+                    "id": 23,
+                    "firstName": "Gulnora",
+                    "lastName": "Saidova"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": null,
+                  "hasQuiz": false,
+                  "hasHomework": false
+                },
+                {
+                  "lessonId": 154,
+                  "period": 3,
+                  "startsAt": "09:50",
+                  "endsAt": "10:35",
+                  "status": "finished",
+                  "subject": {
+                    "id": 11,
+                    "name": "Ingliz tili"
+                  },
+                  "teacher": {
+                    "id": 24,
+                    "firstName": "Shahnoza",
+                    "lastName": "Ahmedova"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": null,
+                  "hasQuiz": false,
+                  "hasHomework": false
+                },
+                {
+                  "lessonId": 155,
+                  "period": 4,
+                  "startsAt": "10:45",
+                  "endsAt": "11:30",
+                  "status": "finished",
+                  "subject": {
+                    "id": 13,
+                    "name": "Tarix"
+                  },
+                  "teacher": {
+                    "id": 26,
+                    "firstName": "Bahodir",
+                    "lastName": "Ergashev"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": null,
+                  "hasQuiz": false,
+                  "hasHomework": false
+                }
+              ]
+            },
+            {
+              "date": "2026-10-17",
+              "weekday": 6,
+              "lessons": [
+                {
+                  "lessonId": 156,
+                  "period": 1,
+                  "startsAt": "08:00",
+                  "endsAt": "08:45",
+                  "status": "finished",
+                  "subject": {
+                    "id": 12,
+                    "name": "Fizika"
+                  },
+                  "teacher": {
+                    "id": 25,
+                    "firstName": "Rustam",
+                    "lastName": "Qosimov"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": null,
+                  "hasQuiz": false,
+                  "hasHomework": false
+                },
+                {
+                  "lessonId": 157,
+                  "period": 2,
+                  "startsAt": "08:55",
+                  "endsAt": "09:40",
+                  "status": "finished",
+                  "subject": {
+                    "id": 11,
+                    "name": "Ingliz tili"
+                  },
+                  "teacher": {
+                    "id": 24,
+                    "firstName": "Shahnoza",
+                    "lastName": "Ahmedova"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": null,
+                  "hasQuiz": false,
+                  "hasHomework": false
+                },
+                {
+                  "lessonId": 158,
+                  "period": 3,
+                  "startsAt": "09:50",
+                  "endsAt": "10:35",
+                  "status": "finished",
+                  "subject": {
+                    "id": 10,
+                    "name": "Ona tili"
+                  },
+                  "teacher": {
+                    "id": 23,
+                    "firstName": "Gulnora",
+                    "lastName": "Saidova"
+                  },
+                  "room": "7-A xonasi",
+                  "topic": null,
+                  "hasQuiz": false,
+                  "hasHomework": false
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "label": "attendance (this month)",
+        "request": "GET /api/me/attendance",
+        "status": 200,
+        "ms": 5,
+        "response": {
+          "month": "2026-11",
+          "records": [
+            {
+              "date": "2026-11-09",
+              "period": 1,
+              "lessonId": 7,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 10,
+                "name": "Ona tili"
+              }
+            },
+            {
+              "date": "2026-11-09",
+              "period": 2,
+              "lessonId": 8,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 8,
+                "name": "Algebra"
+              }
+            },
+            {
+              "date": "2026-11-09",
+              "period": 3,
+              "lessonId": 9,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 11,
+                "name": "Ingliz tili"
+              }
+            },
+            {
+              "date": "2026-11-09",
+              "period": 4,
+              "lessonId": 10,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 12,
+                "name": "Fizika"
+              }
+            },
+            {
+              "date": "2026-11-10",
+              "period": 1,
+              "lessonId": 11,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 8,
+                "name": "Algebra"
+              }
+            },
+            {
+              "date": "2026-11-10",
+              "period": 2,
+              "lessonId": 12,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 10,
+                "name": "Ona tili"
+              }
+            },
+            {
+              "date": "2026-11-10",
+              "period": 3,
+              "lessonId": 13,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 13,
+                "name": "Tarix"
+              }
+            },
+            {
+              "date": "2026-11-10",
+              "period": 4,
+              "lessonId": 14,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 11,
+                "name": "Ingliz tili"
+              }
+            },
+            {
+              "date": "2026-11-11",
+              "period": 1,
+              "lessonId": 15,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 12,
+                "name": "Fizika"
+              }
+            },
+            {
+              "date": "2026-11-11",
+              "period": 2,
+              "lessonId": 16,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 10,
+                "name": "Ona tili"
+              }
+            },
+            {
+              "date": "2026-11-11",
+              "period": 3,
+              "lessonId": 17,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 8,
+                "name": "Algebra"
+              }
+            },
+            {
+              "date": "2026-11-11",
+              "period": 4,
+              "lessonId": 18,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 13,
+                "name": "Tarix"
+              }
+            },
+            {
+              "date": "2026-11-12",
+              "period": 1,
+              "lessonId": 19,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 11,
+                "name": "Ingliz tili"
+              }
+            },
+            {
+              "date": "2026-11-12",
+              "period": 2,
+              "lessonId": 20,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 8,
+                "name": "Algebra"
+              }
+            },
+            {
+              "date": "2026-11-12",
+              "period": 3,
+              "lessonId": 21,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 10,
+                "name": "Ona tili"
+              }
+            },
+            {
+              "date": "2026-11-12",
+              "period": 4,
+              "lessonId": 22,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 12,
+                "name": "Fizika"
+              }
+            },
+            {
+              "date": "2026-11-13",
+              "period": 1,
+              "lessonId": 23,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 8,
+                "name": "Algebra"
+              }
+            },
+            {
+              "date": "2026-11-13",
+              "period": 2,
+              "lessonId": 24,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 10,
+                "name": "Ona tili"
+              }
+            },
+            {
+              "date": "2026-11-13",
+              "period": 3,
+              "lessonId": 25,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 11,
+                "name": "Ingliz tili"
+              }
+            },
+            {
+              "date": "2026-11-13",
+              "period": 4,
+              "lessonId": 26,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 13,
+                "name": "Tarix"
+              }
+            },
+            {
+              "date": "2026-11-14",
+              "period": 1,
+              "lessonId": 27,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 12,
+                "name": "Fizika"
+              }
+            },
+            {
+              "date": "2026-11-14",
+              "period": 2,
+              "lessonId": 28,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 11,
+                "name": "Ingliz tili"
+              }
+            },
+            {
+              "date": "2026-11-14",
+              "period": 3,
+              "lessonId": 29,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 10,
+                "name": "Ona tili"
+              }
+            }
+          ],
+          "summary": {
+            "present": 23,
+            "absent": 0,
+            "late": 0,
+            "excused": 0,
+            "percent": 100
+          }
+        }
+      },
+      {
+        "label": "attendance (October)",
+        "request": "GET /api/me/attendance?month=2026-10",
+        "status": 200,
+        "ms": 4,
+        "response": {
+          "month": "2026-10",
+          "records": [
+            {
+              "date": "2026-10-01",
+              "period": 1,
+              "lessonId": 102,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 11,
+                "name": "Ingliz tili"
+              }
+            },
+            {
+              "date": "2026-10-01",
+              "period": 2,
+              "lessonId": 103,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 8,
+                "name": "Algebra"
+              }
+            },
+            {
+              "date": "2026-10-01",
+              "period": 3,
+              "lessonId": 104,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 10,
+                "name": "Ona tili"
+              }
+            },
+            {
+              "date": "2026-10-01",
+              "period": 4,
+              "lessonId": 105,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 12,
+                "name": "Fizika"
+              }
+            },
+            {
+              "date": "2026-10-02",
+              "period": 1,
+              "lessonId": 106,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 8,
+                "name": "Algebra"
+              }
+            },
+            {
+              "date": "2026-10-02",
+              "period": 2,
+              "lessonId": 107,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 10,
+                "name": "Ona tili"
+              }
+            },
+            {
+              "date": "2026-10-02",
+              "period": 3,
+              "lessonId": 108,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 11,
+                "name": "Ingliz tili"
+              }
+            },
+            {
+              "date": "2026-10-02",
+              "period": 4,
+              "lessonId": 109,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 13,
+                "name": "Tarix"
+              }
+            },
+            {
+              "date": "2026-10-03",
+              "period": 1,
+              "lessonId": 110,
+              "status": "absent",
+              "note": null,
+              "subject": {
+                "id": 12,
+                "name": "Fizika"
+              }
+            },
+            {
+              "date": "2026-10-03",
+              "period": 2,
+              "lessonId": 111,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 11,
+                "name": "Ingliz tili"
+              }
+            },
+            {
+              "date": "2026-10-03",
+              "period": 3,
+              "lessonId": 112,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 10,
+                "name": "Ona tili"
+              }
+            },
+            {
+              "date": "2026-10-05",
+              "period": 1,
+              "lessonId": 113,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 10,
+                "name": "Ona tili"
+              }
+            },
+            {
+              "date": "2026-10-05",
+              "period": 2,
+              "lessonId": 114,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 8,
+                "name": "Algebra"
+              }
+            },
+            {
+              "date": "2026-10-05",
+              "period": 3,
+              "lessonId": 115,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 11,
+                "name": "Ingliz tili"
+              }
+            },
+            {
+              "date": "2026-10-05",
+              "period": 4,
+              "lessonId": 116,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 12,
+                "name": "Fizika"
+              }
+            },
+            {
+              "date": "2026-10-06",
+              "period": 1,
+              "lessonId": 117,
+              "status": "absent",
+              "note": "Kasal",
+              "subject": {
+                "id": 8,
+                "name": "Algebra"
+              }
+            },
+            {
+              "date": "2026-10-06",
+              "period": 2,
+              "lessonId": 118,
+              "status": "absent",
+              "note": "Kasal",
+              "subject": {
+                "id": 10,
+                "name": "Ona tili"
+              }
+            },
+            {
+              "date": "2026-10-06",
+              "period": 3,
+              "lessonId": 119,
+              "status": "absent",
+              "note": "Kasal",
+              "subject": {
+                "id": 13,
+                "name": "Tarix"
+              }
+            },
+            {
+              "date": "2026-10-06",
+              "period": 4,
+              "lessonId": 120,
+              "status": "absent",
+              "note": "Kasal",
+              "subject": {
+                "id": 11,
+                "name": "Ingliz tili"
+              }
+            },
+            {
+              "date": "2026-10-07",
+              "period": 1,
+              "lessonId": 121,
+              "status": "late",
+              "note": "10 daqiqa kechikdi",
+              "subject": {
+                "id": 12,
+                "name": "Fizika"
+              }
+            },
+            {
+              "date": "2026-10-07",
+              "period": 2,
+              "lessonId": 122,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 10,
+                "name": "Ona tili"
+              }
+            },
+            {
+              "date": "2026-10-07",
+              "period": 3,
+              "lessonId": 123,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 8,
+                "name": "Algebra"
+              }
+            },
+            {
+              "date": "2026-10-07",
+              "period": 4,
+              "lessonId": 124,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 13,
+                "name": "Tarix"
+              }
+            },
+            {
+              "date": "2026-10-08",
+              "period": 1,
+              "lessonId": 125,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 11,
+                "name": "Ingliz tili"
+              }
+            },
+            {
+              "date": "2026-10-08",
+              "period": 2,
+              "lessonId": 126,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 8,
+                "name": "Algebra"
+              }
+            },
+            {
+              "date": "2026-10-08",
+              "period": 3,
+              "lessonId": 127,
+              "status": "absent",
+              "note": null,
+              "subject": {
+                "id": 10,
+                "name": "Ona tili"
+              }
+            },
+            {
+              "date": "2026-10-08",
+              "period": 4,
+              "lessonId": 128,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 12,
+                "name": "Fizika"
+              }
+            },
+            {
+              "date": "2026-10-09",
+              "period": 1,
+              "lessonId": 129,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 8,
+                "name": "Algebra"
+              }
+            },
+            {
+              "date": "2026-10-09",
+              "period": 2,
+              "lessonId": 130,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 10,
+                "name": "Ona tili"
+              }
+            },
+            {
+              "date": "2026-10-09",
+              "period": 3,
+              "lessonId": 131,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 11,
+                "name": "Ingliz tili"
+              }
+            },
+            {
+              "date": "2026-10-09",
+              "period": 4,
+              "lessonId": 132,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 13,
+                "name": "Tarix"
+              }
+            },
+            {
+              "date": "2026-10-10",
+              "period": 1,
+              "lessonId": 133,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 12,
+                "name": "Fizika"
+              }
+            },
+            {
+              "date": "2026-10-10",
+              "period": 2,
+              "lessonId": 134,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 11,
+                "name": "Ingliz tili"
+              }
+            },
+            {
+              "date": "2026-10-10",
+              "period": 3,
+              "lessonId": 135,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 10,
+                "name": "Ona tili"
+              }
+            },
+            {
+              "date": "2026-10-12",
+              "period": 1,
+              "lessonId": 136,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 10,
+                "name": "Ona tili"
+              }
+            },
+            {
+              "date": "2026-10-12",
+              "period": 2,
+              "lessonId": 137,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 8,
+                "name": "Algebra"
+              }
+            },
+            {
+              "date": "2026-10-12",
+              "period": 3,
+              "lessonId": 138,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 11,
+                "name": "Ingliz tili"
+              }
+            },
+            {
+              "date": "2026-10-12",
+              "period": 4,
+              "lessonId": 139,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 12,
+                "name": "Fizika"
+              }
+            },
+            {
+              "date": "2026-10-13",
+              "period": 1,
+              "lessonId": 140,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 8,
+                "name": "Algebra"
+              }
+            },
+            {
+              "date": "2026-10-13",
+              "period": 2,
+              "lessonId": 141,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 10,
+                "name": "Ona tili"
+              }
+            },
+            {
+              "date": "2026-10-13",
+              "period": 3,
+              "lessonId": 142,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 13,
+                "name": "Tarix"
+              }
+            },
+            {
+              "date": "2026-10-13",
+              "period": 4,
+              "lessonId": 143,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 11,
+                "name": "Ingliz tili"
+              }
+            },
+            {
+              "date": "2026-10-14",
+              "period": 1,
+              "lessonId": 144,
+              "status": "late",
+              "note": "10 daqiqa kechikdi",
+              "subject": {
+                "id": 12,
+                "name": "Fizika"
+              }
+            },
+            {
+              "date": "2026-10-14",
+              "period": 2,
+              "lessonId": 145,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 10,
+                "name": "Ona tili"
+              }
+            },
+            {
+              "date": "2026-10-14",
+              "period": 3,
+              "lessonId": 146,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 8,
+                "name": "Algebra"
+              }
+            },
+            {
+              "date": "2026-10-14",
+              "period": 4,
+              "lessonId": 147,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 13,
+                "name": "Tarix"
+              }
+            },
+            {
+              "date": "2026-10-15",
+              "period": 1,
+              "lessonId": 148,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 11,
+                "name": "Ingliz tili"
+              }
+            },
+            {
+              "date": "2026-10-15",
+              "period": 2,
+              "lessonId": 149,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 8,
+                "name": "Algebra"
+              }
+            },
+            {
+              "date": "2026-10-15",
+              "period": 3,
+              "lessonId": 150,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 10,
+                "name": "Ona tili"
+              }
+            },
+            {
+              "date": "2026-10-15",
+              "period": 4,
+              "lessonId": 151,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 12,
+                "name": "Fizika"
+              }
+            },
+            {
+              "date": "2026-10-16",
+              "period": 1,
+              "lessonId": 152,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 8,
+                "name": "Algebra"
+              }
+            },
+            {
+              "date": "2026-10-16",
+              "period": 2,
+              "lessonId": 153,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 10,
+                "name": "Ona tili"
+              }
+            },
+            {
+              "date": "2026-10-16",
+              "period": 3,
+              "lessonId": 154,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 11,
+                "name": "Ingliz tili"
+              }
+            },
+            {
+              "date": "2026-10-16",
+              "period": 4,
+              "lessonId": 155,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 13,
+                "name": "Tarix"
+              }
+            },
+            {
+              "date": "2026-10-17",
+              "period": 1,
+              "lessonId": 156,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 12,
+                "name": "Fizika"
+              }
+            },
+            {
+              "date": "2026-10-17",
+              "period": 2,
+              "lessonId": 157,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 11,
+                "name": "Ingliz tili"
+              }
+            },
+            {
+              "date": "2026-10-17",
+              "period": 3,
+              "lessonId": 158,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 10,
+                "name": "Ona tili"
+              }
+            },
+            {
+              "date": "2026-10-19",
+              "period": 1,
+              "lessonId": 159,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 10,
+                "name": "Ona tili"
+              }
+            },
+            {
+              "date": "2026-10-19",
+              "period": 2,
+              "lessonId": 160,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 8,
+                "name": "Algebra"
+              }
+            },
+            {
+              "date": "2026-10-19",
+              "period": 3,
+              "lessonId": 161,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 11,
+                "name": "Ingliz tili"
+              }
+            },
+            {
+              "date": "2026-10-19",
+              "period": 4,
+              "lessonId": 162,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 12,
+                "name": "Fizika"
+              }
+            },
+            {
+              "date": "2026-10-20",
+              "period": 1,
+              "lessonId": 163,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 8,
+                "name": "Algebra"
+              }
+            },
+            {
+              "date": "2026-10-20",
+              "period": 2,
+              "lessonId": 164,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 10,
+                "name": "Ona tili"
+              }
+            },
+            {
+              "date": "2026-10-20",
+              "period": 3,
+              "lessonId": 165,
+              "status": "excused",
+              "note": "Fan olimpiadasida qatnashdi",
+              "subject": {
+                "id": 13,
+                "name": "Tarix"
+              }
+            },
+            {
+              "date": "2026-10-20",
+              "period": 4,
+              "lessonId": 166,
+              "status": "excused",
+              "note": "Fan olimpiadasida qatnashdi",
+              "subject": {
+                "id": 11,
+                "name": "Ingliz tili"
+              }
+            },
+            {
+              "date": "2026-10-21",
+              "period": 1,
+              "lessonId": 167,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 12,
+                "name": "Fizika"
+              }
+            },
+            {
+              "date": "2026-10-21",
+              "period": 2,
+              "lessonId": 168,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 10,
+                "name": "Ona tili"
+              }
+            },
+            {
+              "date": "2026-10-21",
+              "period": 3,
+              "lessonId": 169,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 8,
+                "name": "Algebra"
+              }
+            },
+            {
+              "date": "2026-10-21",
+              "period": 4,
+              "lessonId": 170,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 13,
+                "name": "Tarix"
+              }
+            },
+            {
+              "date": "2026-10-22",
+              "period": 1,
+              "lessonId": 171,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 11,
+                "name": "Ingliz tili"
+              }
+            },
+            {
+              "date": "2026-10-22",
+              "period": 2,
+              "lessonId": 172,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 8,
+                "name": "Algebra"
+              }
+            },
+            {
+              "date": "2026-10-22",
+              "period": 3,
+              "lessonId": 173,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 10,
+                "name": "Ona tili"
+              }
+            },
+            {
+              "date": "2026-10-22",
+              "period": 4,
+              "lessonId": 174,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 12,
+                "name": "Fizika"
+              }
+            },
+            {
+              "date": "2026-10-23",
+              "period": 1,
+              "lessonId": 175,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 8,
+                "name": "Algebra"
+              }
+            },
+            {
+              "date": "2026-10-23",
+              "period": 2,
+              "lessonId": 176,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 10,
+                "name": "Ona tili"
+              }
+            },
+            {
+              "date": "2026-10-23",
+              "period": 3,
+              "lessonId": 177,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 11,
+                "name": "Ingliz tili"
+              }
+            },
+            {
+              "date": "2026-10-23",
+              "period": 4,
+              "lessonId": 178,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 13,
+                "name": "Tarix"
+              }
+            },
+            {
+              "date": "2026-10-24",
+              "period": 1,
+              "lessonId": 179,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 12,
+                "name": "Fizika"
+              }
+            },
+            {
+              "date": "2026-10-24",
+              "period": 2,
+              "lessonId": 180,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 11,
+                "name": "Ingliz tili"
+              }
+            },
+            {
+              "date": "2026-10-24",
+              "period": 3,
+              "lessonId": 181,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 10,
+                "name": "Ona tili"
+              }
+            },
+            {
+              "date": "2026-10-26",
+              "period": 1,
+              "lessonId": 182,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 10,
+                "name": "Ona tili"
+              }
+            },
+            {
+              "date": "2026-10-26",
+              "period": 2,
+              "lessonId": 183,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 8,
+                "name": "Algebra"
+              }
+            },
+            {
+              "date": "2026-10-26",
+              "period": 3,
+              "lessonId": 184,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 11,
+                "name": "Ingliz tili"
+              }
+            },
+            {
+              "date": "2026-10-26",
+              "period": 4,
+              "lessonId": 185,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 12,
+                "name": "Fizika"
+              }
+            },
+            {
+              "date": "2026-10-27",
+              "period": 1,
+              "lessonId": 186,
+              "status": "absent",
+              "note": "Kasal",
+              "subject": {
+                "id": 8,
+                "name": "Algebra"
+              }
+            },
+            {
+              "date": "2026-10-27",
+              "period": 2,
+              "lessonId": 187,
+              "status": "absent",
+              "note": "Kasal",
+              "subject": {
+                "id": 10,
+                "name": "Ona tili"
+              }
+            },
+            {
+              "date": "2026-10-27",
+              "period": 3,
+              "lessonId": 188,
+              "status": "absent",
+              "note": "Kasal",
+              "subject": {
+                "id": 13,
+                "name": "Tarix"
+              }
+            },
+            {
+              "date": "2026-10-27",
+              "period": 4,
+              "lessonId": 189,
+              "status": "absent",
+              "note": "Kasal",
+              "subject": {
+                "id": 11,
+                "name": "Ingliz tili"
+              }
+            },
+            {
+              "date": "2026-10-28",
+              "period": 1,
+              "lessonId": 190,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 12,
+                "name": "Fizika"
+              }
+            },
+            {
+              "date": "2026-10-28",
+              "period": 2,
+              "lessonId": 191,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 10,
+                "name": "Ona tili"
+              }
+            },
+            {
+              "date": "2026-10-28",
+              "period": 3,
+              "lessonId": 192,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 8,
+                "name": "Algebra"
+              }
+            },
+            {
+              "date": "2026-10-28",
+              "period": 4,
+              "lessonId": 193,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 13,
+                "name": "Tarix"
+              }
+            },
+            {
+              "date": "2026-10-29",
+              "period": 1,
+              "lessonId": 194,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 11,
+                "name": "Ingliz tili"
+              }
+            },
+            {
+              "date": "2026-10-29",
+              "period": 2,
+              "lessonId": 195,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 8,
+                "name": "Algebra"
+              }
+            },
+            {
+              "date": "2026-10-29",
+              "period": 3,
+              "lessonId": 196,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 10,
+                "name": "Ona tili"
+              }
+            },
+            {
+              "date": "2026-10-29",
+              "period": 4,
+              "lessonId": 197,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 12,
+                "name": "Fizika"
+              }
+            },
+            {
+              "date": "2026-10-30",
+              "period": 1,
+              "lessonId": 198,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 8,
+                "name": "Algebra"
+              }
+            },
+            {
+              "date": "2026-10-30",
+              "period": 2,
+              "lessonId": 199,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 10,
+                "name": "Ona tili"
+              }
+            },
+            {
+              "date": "2026-10-30",
+              "period": 3,
+              "lessonId": 200,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 11,
+                "name": "Ingliz tili"
+              }
+            },
+            {
+              "date": "2026-10-30",
+              "period": 4,
+              "lessonId": 201,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 13,
+                "name": "Tarix"
+              }
+            },
+            {
+              "date": "2026-10-31",
+              "period": 1,
+              "lessonId": 202,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 12,
+                "name": "Fizika"
+              }
+            },
+            {
+              "date": "2026-10-31",
+              "period": 2,
+              "lessonId": 203,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 11,
+                "name": "Ingliz tili"
+              }
+            },
+            {
+              "date": "2026-10-31",
+              "period": 3,
+              "lessonId": 204,
+              "status": "present",
+              "note": null,
+              "subject": {
+                "id": 10,
+                "name": "Ona tili"
+              }
+            }
+          ],
+          "summary": {
+            "present": 89,
+            "absent": 10,
+            "late": 2,
+            "excused": 2,
+            "percent": 90.1
+          }
+        }
+      },
+      {
+        "label": "grades (current term)",
+        "request": "GET /api/me/grades",
+        "status": 200,
+        "ms": 6,
+        "response": {
+          "term": {
+            "id": 9,
+            "name": "2-chorak",
+            "startsOn": "2026-11-09",
+            "endsOn": "2026-12-27"
+          },
+          "grades": [
+            {
+              "id": 660,
+              "date": "2026-11-14",
+              "subject": {
+                "id": 11,
+                "name": "Ingliz tili"
+              },
+              "kind": "homework",
+              "value": 4,
+              "comment": null,
+              "teacher": {
+                "id": 24,
+                "firstName": "Shahnoza",
+                "lastName": "Ahmedova"
+              },
+              "lessonId": 28
+            },
+            {
+              "id": 625,
+              "date": "2026-11-13",
+              "subject": {
+                "id": 8,
+                "name": "Algebra"
+              },
+              "kind": "homework",
+              "value": 4,
+              "comment": "Yaxshi, kichik xatolar bor",
+              "teacher": {
+                "id": 22,
+                "firstName": "Dilnoza",
+                "lastName": "Karimova"
+              },
+              "lessonId": 23
+            },
+            {
+              "id": 600,
+              "date": "2026-11-11",
+              "subject": {
+                "id": 12,
+                "name": "Fizika"
+              },
+              "kind": "classwork",
+              "value": 5,
+              "comment": null,
+              "teacher": {
+                "id": 25,
+                "firstName": "Rustam",
+                "lastName": "Qosimov"
+              },
+              "lessonId": 15
+            }
+          ],
+          "averages": [
+            {
+              "subject": {
+                "id": 8,
+                "name": "Algebra"
+              },
+              "average": 4,
+              "count": 1
+            },
+            {
+              "subject": {
+                "id": 12,
+                "name": "Fizika"
+              },
+              "average": 5,
+              "count": 1
+            },
+            {
+              "subject": {
+                "id": 11,
+                "name": "Ingliz tili"
+              },
+              "average": 4,
+              "count": 1
+            }
+          ]
+        }
+      },
+      {
+        "label": "grades (term 1, algebra)",
+        "request": "GET /api/me/grades?termId=8&subjectId=8",
+        "status": 200,
+        "ms": 4,
+        "response": {
+          "term": {
+            "id": 8,
+            "name": "1-chorak",
+            "startsOn": "2026-09-02",
+            "endsOn": "2026-11-01"
+          },
+          "grades": [
+            {
+              "id": 530,
+              "date": "2026-10-30",
+              "subject": {
+                "id": 8,
+                "name": "Algebra"
+              },
+              "kind": "homework",
+              "value": 4,
+              "comment": null,
+              "teacher": {
+                "id": 22,
+                "firstName": "Dilnoza",
+                "lastName": "Karimova"
+              },
+              "lessonId": 198
+            },
+            {
+              "id": 382,
+              "date": "2026-10-21",
+              "subject": {
+                "id": 8,
+                "name": "Algebra"
+              },
+              "kind": "classwork",
+              "value": 4,
+              "comment": "Daftarini tartibli yuritadi",
+              "teacher": {
+                "id": 22,
+                "firstName": "Dilnoza",
+                "lastName": "Karimova"
+              },
+              "lessonId": 169
+            },
+            {
+              "id": 194,
+              "date": "2026-10-09",
+              "subject": {
+                "id": 8,
+                "name": "Algebra"
+              },
+              "kind": "classwork",
+              "value": 4,
+              "comment": "Yaxshi, kichik xatolar bor",
+              "teacher": {
+                "id": 22,
+                "firstName": "Dilnoza",
+                "lastName": "Karimova"
+              },
+              "lessonId": 129
+            },
+            {
+              "id": 91,
+              "date": "2026-10-02",
+              "subject": {
+                "id": 8,
+                "name": "Algebra"
+              },
+              "kind": "homework",
+              "value": 5,
+              "comment": "Faol qatnashdi",
+              "teacher": {
+                "id": 22,
+                "firstName": "Dilnoza",
+                "lastName": "Karimova"
+              },
+              "lessonId": 106
+            },
+            {
+              "id": 58,
+              "date": "2026-09-29",
+              "subject": {
+                "id": 8,
+                "name": "Algebra"
+              },
+              "kind": "classwork",
+              "value": 3,
+              "comment": "Uy vazifasini to'liq bajarmagan",
+              "teacher": {
+                "id": 22,
+                "firstName": "Dilnoza",
+                "lastName": "Karimova"
+              },
+              "lessonId": 94
+            }
+          ],
+          "averages": [
+            {
+              "subject": {
+                "id": 8,
+                "name": "Algebra"
+              },
+              "average": 4,
+              "count": 5
+            }
+          ]
+        }
+      },
+      {
+        "label": "unread count",
+        "request": "GET /api/me/notifications/unread-count",
+        "status": 200,
+        "ms": 14,
+        "response": {
+          "count": 6
+        }
+      },
+      {
+        "label": "notifications",
+        "request": "GET /api/me/notifications",
+        "status": 200,
+        "ms": 8,
+        "response": [
+          {
+            "id": 64,
+            "type": "homework_due",
+            "title": "Ertaga topshirish kerak: Insho: Mening sevimli faslim",
+            "body": "Ona tili. Muddat: 18.11 18:00",
+            "data": {
+              "lessonId": 64,
+              "homeworkId": 62
+            },
+            "readAt": null,
+            "createdAt": "2026-11-17T09:44:11.017Z"
+          },
+          {
+            "id": 65,
+            "type": "quiz_unlocked",
+            "title": "Test ochildi: Birhad va uning standart shakli",
+            "body": "Muddat: 17.11 22:00",
+            "data": {
+              "quizId": 87,
+              "topicId": 7,
+              "lessonId": 63
+            },
+            "readAt": null,
+            "createdAt": "2026-11-17T03:45:00.000Z"
+          },
+          {
+            "id": 63,
+            "type": "homework_checked",
+            "title": "Uy vazifasi tekshirildi: Masalalar: 12-15",
+            "body": "Ball: 85. Yaxshi! 14-masalada birlikni yozmagansiz (m/s).",
+            "data": {
+              "checkedAt": 1794735817,
+              "homeworkId": 64,
+              "submissionId": 53
+            },
+            "readAt": null,
+            "createdAt": "2026-11-15T09:43:37.160Z"
+          },
+          {
+            "id": 61,
+            "type": "grade",
+            "title": "Yangi baho: Ingliz tili — 4",
+            "body": "Uy vazifasi",
+            "data": {
+              "gradeId": 660,
+              "lessonId": 28,
+              "subjectId": 11
+            },
+            "readAt": null,
+            "createdAt": "2026-11-14T04:40:00.000Z"
+          },
+          {
+            "id": 60,
+            "type": "grade",
+            "title": "Yangi baho: Algebra — 4",
+            "body": "Uy vazifasi. Yaxshi, kichik xatolar bor",
+            "data": {
+              "gradeId": 625,
+              "lessonId": 23,
+              "subjectId": 8
+            },
+            "readAt": null,
+            "createdAt": "2026-11-13T03:45:00.000Z"
+          },
+          {
+            "id": 62,
+            "type": "grade",
+            "title": "Yangi baho: Fizika — 5",
+            "body": "Darsdagi ish",
+            "data": {
+              "gradeId": 600,
+              "lessonId": 15,
+              "subjectId": 12
+            },
+            "readAt": null,
+            "createdAt": "2026-11-11T03:45:00.000Z"
+          },
+          {
+            "id": 52,
+            "type": "weekly_progress",
+            "title": "O'tgan hafta natijalari",
+            "body": "Davomat 95%. Algebrada yana mashq qilish foydali bo'ladi.",
+            "data": {
+              "seed": "weekly"
+            },
+            "readAt": "2026-11-09T13:00:00.000Z",
+            "createdAt": "2026-11-09T12:00:00.000Z"
+          },
+          {
+            "id": 51,
+            "type": "flag",
+            "title": "Xush kelibsiz!",
+            "body": "Aziz, bu yerda darslar, testlar, uy vazifalari va baholaringiz bor.",
+            "data": {
+              "seed": "welcome"
+            },
+            "readAt": "2026-10-08T13:00:00.000Z",
+            "createdAt": "2026-10-08T12:00:00.000Z"
+          }
+        ]
+      },
+      {
+        "label": "homework list",
+        "request": "GET /api/me/homework",
+        "status": 200,
+        "ms": 4,
+        "response": [
+          {
+            "id": 63,
+            "title": "Workbook: 34-35 betlar",
+            "subject": {
+              "id": 11,
+              "name": "Ingliz tili"
+            },
+            "lessonId": 61,
+            "lessonDate": "2026-11-16",
+            "dueAt": "2026-11-19T13:00:00.000Z",
+            "status": "submitted",
+            "score": null,
+            "hasAttachments": false
+          },
+          {
+            "id": 62,
+            "title": "Insho: Mening sevimli faslim",
+            "subject": {
+              "id": 10,
+              "name": "Ona tili"
+            },
+            "lessonId": 64,
+            "lessonDate": "2026-11-17",
+            "dueAt": "2026-11-18T13:00:00.000Z",
+            "status": "new",
+            "score": null,
+            "hasAttachments": false
+          },
+          {
+            "id": 64,
+            "title": "Masalalar: 12-15",
+            "subject": {
+              "id": 12,
+              "name": "Fizika"
+            },
+            "lessonId": 22,
+            "lessonDate": "2026-11-12",
+            "dueAt": "2026-11-14T13:00:00.000Z",
+            "status": "checked",
+            "score": 85,
+            "hasAttachments": false
+          },
+          {
+            "id": 65,
+            "title": "3-paragraf savollari",
+            "subject": {
+              "id": 13,
+              "name": "Tarix"
+            },
+            "lessonId": 18,
+            "lessonDate": "2026-11-11",
+            "dueAt": "2026-11-12T13:00:00.000Z",
+            "status": "late",
+            "score": null,
+            "hasAttachments": false
+          }
+        ]
+      },
+      {
+        "label": "homework: only new",
+        "request": "GET /api/me/homework?status=new",
+        "status": 200,
+        "ms": 2,
+        "response": [
+          {
+            "id": 62,
+            "title": "Insho: Mening sevimli faslim",
+            "subject": {
+              "id": 10,
+              "name": "Ona tili"
+            },
+            "lessonId": 64,
+            "lessonDate": "2026-11-17",
+            "dueAt": "2026-11-18T13:00:00.000Z",
+            "status": "new",
+            "score": null,
+            "hasAttachments": false
+          }
+        ]
+      },
+      {
+        "label": "homework detail (submitted)",
+        "request": "GET /api/me/homework/63",
+        "status": 200,
+        "ms": 13,
+        "response": {
+          "id": 63,
+          "title": "Workbook: 34-35 betlar",
+          "subject": {
+            "id": 11,
+            "name": "Ingliz tili"
+          },
+          "lessonId": 61,
+          "lessonDate": "2026-11-16",
+          "dueAt": "2026-11-19T13:00:00.000Z",
+          "status": "submitted",
+          "score": null,
+          "hasAttachments": false,
+          "description": "Exercises 1-4 on pages 34-35 (Present Perfect).",
+          "teacher": {
+            "id": 24,
+            "firstName": "Shahnoza",
+            "lastName": "Ahmedova"
+          },
+          "attachments": [],
+          "submission": {
+            "id": 63,
+            "text": "1) have visited 2) has never seen 3) have you finished 4) hasn't arrived",
+            "status": "submitted",
+            "score": null,
+            "feedback": null,
+            "submittedAt": "2026-11-16T09:43:37.160Z",
+            "checkedAt": null,
+            "files": []
+          }
+        }
+      },
+      {
+        "label": "homework detail (new)",
+        "request": "GET /api/me/homework/62",
+        "status": 200,
+        "ms": 5,
+        "response": {
+          "id": 62,
+          "title": "Insho: Mening sevimli faslim",
+          "subject": {
+            "id": 10,
+            "name": "Ona tili"
+          },
+          "lessonId": 64,
+          "lessonDate": "2026-11-17",
+          "dueAt": "2026-11-18T13:00:00.000Z",
+          "status": "new",
+          "score": null,
+          "hasAttachments": false,
+          "description": "10-12 gapdan iborat insho yozing. Kamida uchta sifatdosh ishlating.",
+          "teacher": {
+            "id": 23,
+            "firstName": "Gulnora",
+            "lastName": "Saidova"
+          },
+          "attachments": [],
+          "submission": null
+        }
+      },
+      {
+        "label": "homework detail (checked)",
+        "request": "GET /api/me/homework/64",
+        "status": 200,
+        "ms": 2,
+        "response": {
+          "id": 64,
+          "title": "Masalalar: 12-15",
+          "subject": {
+            "id": 12,
+            "name": "Fizika"
+          },
+          "lessonId": 22,
+          "lessonDate": "2026-11-12",
+          "dueAt": "2026-11-14T13:00:00.000Z",
+          "status": "checked",
+          "score": 85,
+          "hasAttachments": false,
+          "description": "Darslikdagi 12-15 masalalarni yeching, birliklarni yozishni unutmang.",
+          "teacher": {
+            "id": 25,
+            "firstName": "Rustam",
+            "lastName": "Qosimov"
+          },
+          "attachments": [],
+          "submission": {
+            "id": 53,
+            "text": "12) v = s/t = 120/20 = 6 m/s; 13) ...; 14) ...; 15) ...",
+            "status": "checked",
+            "score": 85,
+            "feedback": "Yaxshi! 14-masalada birlikni yozmagansiz (m/s).",
+            "submittedAt": "2026-11-13T09:43:37.160Z",
+            "checkedAt": "2026-11-15T09:43:37.160Z",
+            "files": []
+          }
+        }
+      },
+      {
+        "label": "homework detail (late)",
+        "request": "GET /api/me/homework/65",
+        "status": 200,
+        "ms": 5,
+        "response": {
+          "id": 65,
+          "title": "3-paragraf savollari",
+          "subject": {
+            "id": 13,
+            "name": "Tarix"
+          },
+          "lessonId": 18,
+          "lessonDate": "2026-11-11",
+          "dueAt": "2026-11-12T13:00:00.000Z",
+          "status": "late",
+          "score": null,
+          "hasAttachments": false,
+          "description": "3-paragraf oxiridagi 1-5 savollarga yozma javob bering.",
+          "teacher": {
+            "id": 26,
+            "firstName": "Bahodir",
+            "lastName": "Ergashev"
+          },
+          "attachments": [],
+          "submission": {
+            "id": 54,
+            "text": "1) Amir Temur 1336-yilda tug'ilgan. 2) ...",
+            "status": "late",
+            "score": null,
+            "feedback": null,
+            "submittedAt": "2026-11-14T09:43:37.160Z",
+            "checkedAt": null,
+            "files": []
+          }
+        }
+      },
+      {
+        "label": "submit the new homework",
+        "request": "POST /api/me/homework/62/submission",
+        "body": "(multipart: text + files)",
+        "status": 200,
+        "ms": 11,
+        "response": {
+          "id": 62,
+          "title": "Insho: Mening sevimli faslim",
+          "subject": {
+            "id": 10,
+            "name": "Ona tili"
+          },
+          "lessonId": 64,
+          "lessonDate": "2026-11-17",
+          "dueAt": "2026-11-18T13:00:00.000Z",
+          "status": "submitted",
+          "score": null,
+          "hasAttachments": false,
+          "description": "10-12 gapdan iborat insho yozing. Kamida uchta sifatdosh ishlating.",
+          "teacher": {
+            "id": 23,
+            "firstName": "Gulnora",
+            "lastName": "Saidova"
+          },
+          "attachments": [],
+          "submission": {
+            "id": 67,
+            "text": "Mening sevimli faslim — kuz. Kuzda daraxtlar oltin rangga kiradi...",
+            "status": "submitted",
+            "score": null,
+            "feedback": null,
+            "submittedAt": "2026-11-17T09:44:11.075Z",
+            "checkedAt": null,
+            "files": [
+              {
+                "id": 55,
+                "url": "/uploads/5e8c2ca9-76d6-4941-9b73-69d5de16449b.pdf",
+                "originalName": "insho.pdf",
+                "mimeType": "application/pdf",
+                "sizeBytes": 193
+              }
+            ]
+          }
+        }
+      },
+      {
+        "label": "mark one read",
+        "request": "PATCH /api/me/notifications/64/read",
+        "status": 200,
+        "ms": 2,
+        "response": {
+          "id": 64,
+          "type": "homework_due",
+          "title": "Ertaga topshirish kerak: Insho: Mening sevimli faslim",
+          "body": "Ona tili. Muddat: 18.11 18:00",
+          "data": {
+            "lessonId": 64,
+            "homeworkId": 62
+          },
+          "readAt": "2026-11-17T09:44:11.080Z",
+          "createdAt": "2026-11-17T09:44:11.017Z"
+        }
+      },
+      {
+        "label": "unread only",
+        "request": "GET /api/me/notifications?unreadOnly=true",
+        "status": 200,
+        "ms": 6,
+        "response": [
+          {
+            "id": 65,
+            "type": "quiz_unlocked",
+            "title": "Test ochildi: Birhad va uning standart shakli",
+            "body": "Muddat: 17.11 22:00",
+            "data": {
+              "quizId": 87,
+              "topicId": 7,
+              "lessonId": 63
+            },
+            "readAt": null,
+            "createdAt": "2026-11-17T03:45:00.000Z"
+          },
+          {
+            "id": 63,
+            "type": "homework_checked",
+            "title": "Uy vazifasi tekshirildi: Masalalar: 12-15",
+            "body": "Ball: 85. Yaxshi! 14-masalada birlikni yozmagansiz (m/s).",
+            "data": {
+              "checkedAt": 1794735817,
+              "homeworkId": 64,
+              "submissionId": 53
+            },
+            "readAt": null,
+            "createdAt": "2026-11-15T09:43:37.160Z"
+          },
+          {
+            "id": 61,
+            "type": "grade",
+            "title": "Yangi baho: Ingliz tili — 4",
+            "body": "Uy vazifasi",
+            "data": {
+              "gradeId": 660,
+              "lessonId": 28,
+              "subjectId": 11
+            },
+            "readAt": null,
+            "createdAt": "2026-11-14T04:40:00.000Z"
+          },
+          {
+            "id": 60,
+            "type": "grade",
+            "title": "Yangi baho: Algebra — 4",
+            "body": "Uy vazifasi. Yaxshi, kichik xatolar bor",
+            "data": {
+              "gradeId": 625,
+              "lessonId": 23,
+              "subjectId": 8
+            },
+            "readAt": null,
+            "createdAt": "2026-11-13T03:45:00.000Z"
+          },
+          {
+            "id": 62,
+            "type": "grade",
+            "title": "Yangi baho: Fizika — 5",
+            "body": "Darsdagi ish",
+            "data": {
+              "gradeId": 600,
+              "lessonId": 15,
+              "subjectId": 12
+            },
+            "readAt": null,
+            "createdAt": "2026-11-11T03:45:00.000Z"
+          }
+        ]
+      },
+      {
+        "label": "read all",
+        "request": "POST /api/me/notifications/read-all",
+        "status": 200,
+        "ms": 2,
+        "response": {
+          "updated": 5
+        }
+      },
+      {
+        "label": "unread count after read-all",
+        "request": "GET /api/me/notifications/unread-count",
+        "status": 200,
+        "ms": 4,
+        "response": {
+          "count": 0
+        }
+      }
+    ]
+  }
 }
