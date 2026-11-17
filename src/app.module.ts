@@ -43,6 +43,7 @@ import { AiModule } from "./modules/ai/ai.module";
 import { DemoModule } from "./modules/demo/demo.module";
 import { MeModule } from "./modules/me/me.module";
 import { HealthModule } from "./modules/health/health.module";
+import { ScheduleModule } from "@nestjs/schedule";
 import { FilesModule } from "./modules/files/files.module";
 import { MailModule } from "./shared/mail/mail.module";
 import { FileModule } from "./shared/file/file.module";
@@ -51,6 +52,7 @@ import { FileModule } from "./shared/file/file.module";
   imports: [
     ConfigModule.forRoot({ envFilePath: ".env", isGlobal: true }),
     DatabaseModule,
+    ScheduleModule.forRoot(),
     HealthModule,
     FilesModule,
     AuthModule,

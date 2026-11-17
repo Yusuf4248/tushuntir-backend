@@ -15,13 +15,7 @@
 import { ConfigService } from "@nestjs/config";
 import * as bcrypt from "bcrypt";
 import { EntityManager } from "typeorm";
-import {
-  addDays,
-  appTimezone,
-  isoWeekday,
-  localDate,
-  quizDeadlineTime,
-} from "../common/school-time";
+import { addDays, isoWeekday, localDate } from "../common/school-time";
 import { readAiConfig } from "../modules/ai/ai.config";
 import { AiUnavailableException } from "../modules/ai/ai.errors";
 import { createLlmService } from "../modules/ai/ai.module";
@@ -29,6 +23,11 @@ import { demoModeEnabled } from "../modules/demo/demo.service";
 import { BCRYPT_ROUNDS } from "../modules/identity/users/users.service";
 import { QuestionGenerationService } from "../modules/learning/question-generation/question-generation.service";
 import dataSource from "./data-source";
+import {
+  algebraTopics,
+  DEMO_SCHOOL_NAME,
+  ensureWeekLessons,
+} from "./demo-week";
 import {
   DEMO_STUDENT_PHONE,
   deleteUploadedFiles,
@@ -39,7 +38,7 @@ import {
 import { upsert } from "./upsert";
 
 const SCHOOL = {
-  name: "21-maktab (demo)",
+  name: DEMO_SCHOOL_NAME,
   region: "Farg'ona viloyati",
   district: "Marg'ilon shahri",
   type: "public",
@@ -191,15 +190,7 @@ async function seedUser(
 async function requireTopics(
   manager: EntityManager,
 ): Promise<{ id: number; title: string }[]> {
-  const topics: { id: number; title: string }[] = await manager.query(
-    `SELECT topic.id, topic.title
-       FROM topics topic
-       JOIN chapters chapter ON chapter.id = topic.chapter_id
-       JOIN textbooks textbook ON textbook.id = chapter.textbook_id
-       JOIN subjects subject ON subject.id = textbook.subject_id
-      WHERE subject.code = 'ALGEBRA' AND textbook.grade = 7
-      ORDER BY chapter.number, topic.position`,
-  );
+  const topics = await algebraTopics(manager);
   if (!topics.length) {
     throw new Error(
       "No Grade 7 algebra topics found; run npm run content:load first",
@@ -328,15 +319,12 @@ async function seed(manager: EntityManager, passwordHash: string) {
     );
   }
 
-  const deadline = quizDeadlineTime();
-  let algebraLesson = 0;
-  const quizzes: { lessonId: number; quizId: number; topic: string }[] = [];
+  // The weekly timetable slots, then this week's lessons and lesson quizzes from them.
   for (const [weekday, codes] of Object.entries(TIMETABLE)) {
-    const date = addDays(monday, Number(weekday) - 1);
     for (const [index, code] of codes.entries()) {
       const period = index + 1;
       const [startsAt, endsAt] = PERIODS[period];
-      const slotId = await upsert(
+      await upsert(
         manager,
         "timetable_slots",
         {
@@ -347,92 +335,14 @@ async function seed(manager: EntityManager, passwordHash: string) {
         },
         { room_id: roomId, starts_at: startsAt, ends_at: endsAt },
       );
-      const topic =
-        code === "ALGEBRA" ? topics[algebraLesson++ % topics.length] : null;
-      const lessonId = await upsert(
-        manager,
-        "lessons",
-        {
-          teacher_assignment_id: assignmentIds[code],
-          timetable_slot_id: slotId,
-          date,
-        },
-        { topic_id: topic?.id ?? null },
-      );
-      if (topic) {
-        const quizId = await seedLessonQuiz(manager, {
-          lessonId,
-          classId,
-          topic,
-          date,
-          deadline,
-          teacherId: teacherIds.ALGEBRA,
-        });
-        quizzes.push({ lessonId, quizId, topic: topic.title });
-      }
     }
   }
+  const { quizzes } = await ensureWeekLessons(manager, {
+    classId,
+    monday,
+    update: true,
+  });
   return { schoolId, classId, monday, quizzes, teacherIds, topics };
-}
-
-/** One homework quiz per algebra lesson, linked through the homework row (lesson → quiz → due_at). */
-async function seedLessonQuiz(
-  manager: EntityManager,
-  input: {
-    lessonId: number;
-    classId: number;
-    topic: { id: number; title: string };
-    date: string;
-    deadline: string;
-    teacherId: number;
-  },
-): Promise<number> {
-  const [{ due }] = await manager.query(
-    `SELECT ($1::date + $2::time) AT TIME ZONE $3 AS due`,
-    [input.date, input.deadline, appTimezone()],
-  );
-  const [homework] = await manager.query(
-    `SELECT id, quiz_id FROM homework WHERE lesson_id = $1 AND quiz_id IS NOT NULL ORDER BY id LIMIT 1`,
-    [input.lessonId],
-  );
-  const quiz = {
-    topic_id: input.topic.id,
-    class_id: input.classId,
-    kind: "homework",
-    title: `${input.topic.title}: dars bo'yicha test`,
-    shuffle_questions: true,
-    created_by: input.teacherId,
-  };
-  if (homework) {
-    await upsert(manager, "quizzes", { id: homework.quiz_id }, quiz);
-    await upsert(manager, "homework", { id: homework.id }, { due_at: due });
-    return homework.quiz_id;
-  }
-  const [{ id: quizId }] = await manager.query(
-    `INSERT INTO quizzes (topic_id, class_id, kind, title, shuffle_questions, created_by)
-     VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
-    [
-      quiz.topic_id,
-      quiz.class_id,
-      quiz.kind,
-      quiz.title,
-      quiz.shuffle_questions,
-      quiz.created_by,
-    ],
-  );
-  await upsert(
-    manager,
-    "homework",
-    { lesson_id: input.lessonId, quiz_id: quizId },
-    {
-      title: "Dars bo'yicha test",
-      description:
-        "Darsdan keyin ochiladi; 10 ta savol, yordamchi maslahatlar bilan.",
-      due_at: due,
-      created_by: input.teacherId,
-    },
-  );
-  return quizId;
 }
 
 /** AI questions for each topic; approved for students when DEMO_MODE=true. */
