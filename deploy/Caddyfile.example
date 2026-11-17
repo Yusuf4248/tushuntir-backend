@@ -1,0 +1,61 @@
+# Caddy config for the Tushuntir API (copy to /etc/caddy/Caddyfile; see docs/DEPLOY.md).
+# Caddy gets and renews the HTTPS certificate by itself; ports 80 and 443 must be open.
+#
+# Replace API_DOMAIN below:
+#   - until your domain is ready, use the server's public IP through sslip.io, written with dashes:
+#       IP 203.0.113.10  ->  203-0-113-10.sslip.io
+#     (sslip.io answers every such name with that IP, so a real certificate works immediately;
+#     if Let's Encrypt is rate-limited for sslip.io, Caddy falls back to ZeroSSL automatically)
+#   - later: api.<your-domain>.uz (an A record pointing to the server's IP), then reload Caddy.
+#
+# Check before reloading:  sudo caddy validate --config /etc/caddy/Caddyfile
+# Apply:                   sudo systemctl reload caddy
+
+{
+	# Address for certificate expiry notices (optional; remove the line if not wanted).
+	email you@example.com
+
+	servers {
+		timeouts {
+			# Uploads of up to 15 MB on a slow mobile connection.
+			read_body 120s
+			read_header 10s
+			# AI answers take up to about 15 s, voice answers about 10 s; generous headroom.
+			write 120s
+			idle 5m
+		}
+	}
+}
+
+API_DOMAIN {
+	# Whole request body. Voice answers (max 5 MB) fit easily. Homework submissions may carry
+	# up to 3 files of 10 MB each in the app, so a submission over 15 MB in total is refused
+	# here with a plain 413 before it reaches Node: raise this to 32MB to allow the full 3 x 10 MB.
+	request_body {
+		max_size 15MB
+	}
+
+	encode zstd gzip
+
+	reverse_proxy 127.0.0.1:4004 {
+		# Caddy sets X-Forwarded-For; the app trusts one proxy hop, so it sees the client IP.
+		transport http {
+			dial_timeout 5s
+			# The app's slowest requests (AI) answer within about 15 s; 90 s ends a hung request.
+			response_header_timeout 90s
+		}
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		-Server
+	}
+
+	log {
+		output file /var/log/caddy/tushuntir-api.log {
+			roll_size 10MiB
+			roll_keep 5
+		}
+	}
+}
