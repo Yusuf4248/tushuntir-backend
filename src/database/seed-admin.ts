@@ -38,7 +38,7 @@ async function main() {
     );
     if (!exists) {
       throw new Error(
-        "Table users does not exist yet; start the app once so the schema is created",
+        "Table users does not exist yet; run the migrations first (npm run migration:run, or migration:run:prod on a server)",
       );
     }
     const users = dataSource.getRepository(User);
