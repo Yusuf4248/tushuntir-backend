@@ -7,6 +7,8 @@
  * 25 students and their parents, five teachers, a weekly timetable (algebra five days a week),
  * this week's lessons (algebra lessons follow the textbook topics in order) and, for every
  * algebra lesson, a homework quiz that closes at QUIZ_DEADLINE_TIME on the lesson's day.
+ * Also the school history of 7-A (src/database/demo-school.ts): past weeks of lessons with
+ * attendance and grades, four written homework items for the demo student, older notifications.
  * Then it generates AI questions for every algebra topic that has fewer than
  * MIN_QUESTIONS usable ones, and approves them when DEMO_MODE=true.
  */
@@ -27,6 +29,13 @@ import { demoModeEnabled } from "../modules/demo/demo.service";
 import { BCRYPT_ROUNDS } from "../modules/identity/users/users.service";
 import { QuestionGenerationService } from "../modules/learning/question-generation/question-generation.service";
 import dataSource from "./data-source";
+import {
+  DEMO_STUDENT_PHONE,
+  deleteUploadedFiles,
+  seedDemoHomework,
+  seedDemoNotifications,
+  seedSchoolHistory,
+} from "./demo-school";
 import { upsert } from "./upsert";
 
 const SCHOOL = {
@@ -489,6 +498,37 @@ async function main() {
         `  lesson ${quiz.lessonId} → quiz ${quiz.quizId} (${quiz.topic})`,
       );
     }
+    const history = await dataSource.transaction((manager) =>
+      seedSchoolHistory(manager, {
+        classId: result.classId,
+        monday: result.monday,
+      }),
+    );
+    console.log(
+      `History: ${history.weeks.length} school weeks (from ${history.weeks.at(-1) ?? "-"}), ${history.lessons} lessons, ` +
+        `${history.attendanceRows} attendance records, ${history.gradesAdded} new grades; ` +
+        `demo student attendance ${history.demoAttendancePercent ?? "-"}%`,
+    );
+    const [demoStudent] = await dataSource.query(
+      `SELECT id, first_name FROM users WHERE phone = $1`,
+      [DEMO_STUDENT_PHONE],
+    );
+    const homework = await dataSource.transaction((manager) =>
+      seedDemoHomework(manager, {
+        classId: result.classId,
+        studentId: demoStudent.id,
+      }),
+    );
+    await deleteUploadedFiles(homework.removedFiles);
+    await dataSource.transaction((manager) =>
+      seedDemoNotifications(manager, {
+        studentId: demoStudent.id,
+        firstName: demoStudent.first_name,
+      }),
+    );
+    console.log(
+      `Demo homework: ${homework.items.map((h) => `${h.title} (${h.status})`).join("; ")}`,
+    );
     await seedQuestions(result.topics, result.teacherIds.ALGEBRA);
     console.log(
       "\nDemo logins (password: the SEED_DEMO_PASSWORD value in .env):",

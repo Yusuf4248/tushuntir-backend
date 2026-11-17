@@ -4,7 +4,11 @@
  * deletes their quiz attempts, the practice quizzes they created, checkpoint tries, topic
  * mastery, chat sessions and the needs_help notifications about them, and reopens this week's
  * lessons of their class (ended_at cleared, quiz deadlines back to QUIZ_DEADLINE_TIME on the
- * lesson day). Generated questions, confirmation questions and textbook content are kept.
+ * lesson day). It also deletes the student's homework submissions from this week and their
+ * notifications from the last 30 days (the app rebuilds the ones still relevant, unread), and
+ * puts the four demo homework items back to their demo state (new, submitted, checked, late).
+ * History is kept: attendance, grades, the seeded notifications and older submissions.
+ * Generated questions, confirmation questions and textbook content are kept.
  *
  * Only runs with DEMO_MODE=true. Uses DATABASE_URL when set (e.g. production), else PG_*.
  * Default student: the first demo student of seed:mvp.
@@ -17,6 +21,11 @@ import {
   quizDeadlineTime,
 } from "../common/school-time";
 import dataSource from "./data-source";
+import {
+  deleteUploadedFiles,
+  removeSubmissionFiles,
+  seedDemoHomework,
+} from "./demo-school";
 
 const DEFAULT_STUDENT_PHONE = "+998901001001";
 
@@ -52,6 +61,7 @@ async function main() {
       `Resetting ${name || "student"} (id ${student.id}) in database "${databaseName()}", week ${monday} to ${sunday}`,
     );
 
+    const removedFiles: string[] = [];
     const counts = await dataSource.transaction(async (manager) => {
       const run = async (sql: string, params: unknown[]): Promise<number> => {
         const result = await manager.query(sql, params);
@@ -110,8 +120,46 @@ async function main() {
               AND homework.due_at IS DISTINCT FROM (lesson.date + $4::time) AT TIME ZONE $5`,
           [id, monday, sunday, quizDeadlineTime(), appTimezone()],
         ),
+        // The app rebuilds grade / homework / quiz notifications from the data on the next read
+        // (looking back up to 30 days), so they come back unread; the seeded ones stay.
+        "notifications (last 30 days)": await run(
+          `DELETE FROM notifications WHERE user_id = $1 AND data->>'seed' IS NULL
+              AND created_at >= now() - interval '30 days'`,
+          [id],
+        ),
+        "submissions from this week": await (async () => {
+          const rows: { homework_id: number }[] = await manager.query(
+            `SELECT homework_id FROM homework_submissions WHERE student_id = $1
+                AND submitted_at >= ($2::date + time '00:00') AT TIME ZONE $3`,
+            [id, monday, appTimezone()],
+          );
+          for (const row of rows) {
+            removedFiles.push(
+              ...(await removeSubmissionFiles(manager, row.homework_id, id)),
+            );
+            await manager.query(
+              `DELETE FROM homework_submissions WHERE homework_id = $1 AND student_id = $2`,
+              [row.homework_id, id],
+            );
+          }
+          return rows.length;
+        })(),
+        "demo homework restored": await (async () => {
+          const [enrolment] = await manager.query(
+            `SELECT class_id FROM class_students WHERE student_id = $1 ORDER BY id DESC LIMIT 1`,
+            [id],
+          );
+          if (!enrolment) return 0;
+          const result = await seedDemoHomework(manager, {
+            classId: enrolment.class_id,
+            studentId: id,
+          });
+          removedFiles.push(...result.removedFiles);
+          return result.items.length;
+        })(),
       };
     });
+    await deleteUploadedFiles(removedFiles);
     for (const [label, count] of Object.entries(counts)) {
       console.log(`  ${label}: ${count}`);
     }
