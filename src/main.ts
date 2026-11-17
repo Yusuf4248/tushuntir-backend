@@ -28,6 +28,8 @@ async function start() {
       logger: WinstonModule.createLogger(winstonConfig),
     });
     const logger = new Logger("Bootstrap");
+    // On SIGINT / SIGTERM (pm2 reload or stop) close the server and let running requests finish.
+    app.enableShutdownHooks();
     const production = process.env.NODE_ENV === "production";
     // Behind Render's (or any) single reverse proxy: req.ip is the client address.
     app.set("trust proxy", 1);
