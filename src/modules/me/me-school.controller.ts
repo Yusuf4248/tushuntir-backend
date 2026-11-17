@@ -30,6 +30,7 @@ import {
   AttendanceQueryDto,
   GradesDto,
   GradesQueryDto,
+  TermDto,
   TimetableDto,
   TimetableQueryDto,
 } from "./dto/school.dto";
@@ -155,6 +156,18 @@ export class MeSchoolController {
       { text: body.text, files: files ?? [] },
       user,
     );
+  }
+
+  @Get("terms")
+  @ApiOperation({
+    summary: "Terms of the student's academic year",
+    description:
+      "In order. isCurrent marks the term containing today, or during a break the last one that started " +
+      "(the default term of /me/grades).",
+  })
+  @ApiOkResponse({ type: [TermDto] })
+  terms(@CurrentUser() user: AuthUser) {
+    return this.school.terms(user);
   }
 
   @Get("grades")

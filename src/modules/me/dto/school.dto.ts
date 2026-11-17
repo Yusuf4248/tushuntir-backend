@@ -61,6 +61,22 @@ export class TimetableLessonDto {
     description: "The lesson has written homework",
   })
   hasHomework: boolean;
+
+  @ApiProperty({
+    example: 87,
+    nullable: true,
+    description:
+      "The lesson's AI quiz (POST /me/quizzes/:id/start); null when none",
+  })
+  quizId: number | null;
+
+  @ApiProperty({
+    example: null,
+    nullable: true,
+    description:
+      "The lesson's written homework (GET /me/homework/:id); the first one if several; null when none",
+  })
+  homeworkId: number | null;
 }
 
 export class TimetableDayDto {
@@ -193,6 +209,13 @@ export class TermDto {
 
   @ApiProperty({ example: "2026-12-27", nullable: true })
   endsOn: string | null;
+
+  @ApiProperty({
+    example: true,
+    description:
+      "The term containing today, or during a break the last one that started (the default term of /me/grades)",
+  })
+  isCurrent: boolean;
 }
 
 export class GradeDto {
@@ -240,8 +263,14 @@ export class SubjectAverageDto {
 }
 
 export class GradesDto {
-  @ApiProperty({ type: TermDto, nullable: true })
+  @ApiProperty({ type: TermDto, nullable: true, description: "The term shown" })
   term: TermDto | null;
+
+  @ApiProperty({
+    type: [TermDto],
+    description: "All terms of the academic year, for a term picker",
+  })
+  terms: TermDto[];
 
   @ApiProperty({ type: [GradeDto], description: "Newest first" })
   grades: GradeDto[];

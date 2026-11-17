@@ -40,6 +40,8 @@ interface TimetableRow {
   topicTitle: string | null;
   hasQuiz: boolean;
   hasHomework: boolean;
+  quizId: number | null;
+  homeworkId: number | null;
 }
 
 const round2 = (value: number) => Math.round(value * 100) / 100;
@@ -108,7 +110,11 @@ export class StudentSchoolService {
               teacher.id AS "teacherId", teacher.first_name AS "firstName", teacher.last_name AS "lastName",
               room.name AS room, topic.id AS "topicId", topic.title AS "topicTitle",
               EXISTS (SELECT 1 FROM homework WHERE lesson_id = planned.lesson_id AND quiz_id IS NOT NULL) AS "hasQuiz",
-              EXISTS (SELECT 1 FROM homework WHERE lesson_id = planned.lesson_id AND quiz_id IS NULL) AS "hasHomework"
+              EXISTS (SELECT 1 FROM homework WHERE lesson_id = planned.lesson_id AND quiz_id IS NULL) AS "hasHomework",
+              (SELECT quiz_id FROM homework WHERE lesson_id = planned.lesson_id AND quiz_id IS NOT NULL
+                ORDER BY id LIMIT 1) AS "quizId",
+              (SELECT id FROM homework WHERE lesson_id = planned.lesson_id AND quiz_id IS NULL
+                ORDER BY id LIMIT 1) AS "homeworkId"
          FROM planned
          JOIN teacher_assignments assignment ON assignment.id = planned.teacher_assignment_id
          JOIN subjects subject ON subject.id = assignment.subject_id
@@ -143,6 +149,8 @@ export class StudentSchoolService {
         topic: row.topicId ? { id: row.topicId, title: row.topicTitle! } : null,
         hasQuiz: row.hasQuiz,
         hasHomework: row.hasHomework,
+        quizId: row.quizId,
+        homeworkId: row.homeworkId,
       });
     }
     return {
@@ -200,16 +208,13 @@ export class StudentSchoolService {
   }
 
   /**
-   * The student's grades in one term (default: the term containing today, else the last one that
-   * started), newest first, with the average per subject.
+   * Terms of the student's academic year, in order. isCurrent marks the term containing today,
+   * or during a break the last one that started (the default term of /me/grades).
    */
-  async grades(
-    user: AuthUser,
-    filter: { subjectId?: number; termId?: number },
-  ): Promise<GradesDto> {
+  async terms(user: AuthUser): Promise<TermDto[]> {
     const studentClass = await this.schedule.classOf(user.id);
-    if (!studentClass) return { term: null, grades: [], averages: [] };
-    const terms: TermDto[] = await this.dataSource.query(
+    if (!studentClass) return [];
+    const rows: Omit<TermDto, "isCurrent">[] = await this.dataSource.query(
       `SELECT term.id, term.name, term.starts_on::text AS "startsOn", term.ends_on::text AS "endsOn"
          FROM terms term JOIN classes class ON class.academic_year_id = term.academic_year_id
         WHERE class.id = $1
@@ -217,22 +222,37 @@ export class StudentSchoolService {
       [studentClass.id],
     );
     const today = localDate();
+    const current =
+      rows.find(
+        (t) =>
+          t.startsOn !== null &&
+          t.startsOn <= today &&
+          (t.endsOn === null || today <= t.endsOn),
+      ) ??
+      [...rows]
+        .reverse()
+        .find((t) => t.startsOn !== null && t.startsOn <= today);
+    return rows.map((t) => ({ ...t, isCurrent: t.id === current?.id }));
+  }
+
+  /**
+   * The student's grades in one term (default: the term containing today, else the last one that
+   * started), newest first, with the average per subject.
+   */
+  async grades(
+    user: AuthUser,
+    filter: { subjectId?: number; termId?: number },
+  ): Promise<GradesDto> {
+    if (!(await this.schedule.classOf(user.id))) {
+      return { term: null, terms: [], grades: [], averages: [] };
+    }
+    const terms = await this.terms(user);
     let term: TermDto | null;
     if (filter.termId) {
       term = terms.find((t) => t.id === filter.termId) ?? null;
       if (!term) throw new NotFoundException(`Term ${filter.termId} not found`);
     } else {
-      term =
-        terms.find(
-          (t) =>
-            t.startsOn !== null &&
-            t.startsOn <= today &&
-            (t.endsOn === null || today <= t.endsOn),
-        ) ??
-        [...terms]
-          .reverse()
-          .find((t) => t.startsOn !== null && t.startsOn <= today) ??
-        null;
+      term = terms.find((t) => t.isCurrent) ?? null;
     }
     const rows: {
       id: number;
@@ -302,6 +322,6 @@ export class StudentSchoolService {
         count: values.length,
       }))
       .sort((a, b) => a.subject.name.localeCompare(b.subject.name));
-    return { term, grades, averages };
+    return { term, terms, grades, averages };
   }
 }

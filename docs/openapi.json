@@ -22235,6 +22235,87 @@
         ]
       }
     },
+    "/api/me/terms": {
+      "get": {
+        "description": "In order. isCurrent marks the term containing today, or during a break the last one that started (the default term of /me/grades).",
+        "operationId": "MeSchoolController_terms",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TermDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed or a referenced record is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid access token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Role not allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Record or referenced record not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Duplicate value, or the record is still referenced",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ],
+        "summary": "Terms of the student's academic year",
+        "tags": [
+          "Student · School"
+        ]
+      }
+    },
     "/api/me/grades": {
       "get": {
         "description": "Grades (date, subject, kind, value 2-5, comment, teacher), newest first, filtered by subjectId; termId defaults to the term containing today (or the last one started). averages: per subject, two decimals.",
@@ -30034,6 +30115,18 @@
             "type": "boolean",
             "example": false,
             "description": "The lesson has written homework"
+          },
+          "quizId": {
+            "type": "number",
+            "nullable": true,
+            "example": 87,
+            "description": "The lesson's AI quiz (POST /me/quizzes/:id/start); null when none"
+          },
+          "homeworkId": {
+            "type": "number",
+            "nullable": true,
+            "example": null,
+            "description": "The lesson's written homework (GET /me/homework/:id); the first one if several; null when none"
           }
         },
         "required": [
@@ -30047,7 +30140,9 @@
           "room",
           "topic",
           "hasQuiz",
-          "hasHomework"
+          "hasHomework",
+          "quizId",
+          "homeworkId"
         ]
       },
       "TimetableDayDto": {
@@ -30494,13 +30589,19 @@
             "type": "string",
             "nullable": true,
             "example": "2026-12-27"
+          },
+          "isCurrent": {
+            "type": "boolean",
+            "example": true,
+            "description": "The term containing today, or during a break the last one that started (the default term of /me/grades)"
           }
         },
         "required": [
           "id",
           "name",
           "startsOn",
-          "endsOn"
+          "endsOn",
+          "isCurrent"
         ]
       },
       "GradeDto": {
@@ -30583,11 +30684,19 @@
         "properties": {
           "term": {
             "nullable": true,
+            "description": "The term shown",
             "allOf": [
               {
                 "$ref": "#/components/schemas/TermDto"
               }
             ]
+          },
+          "terms": {
+            "description": "All terms of the academic year, for a term picker",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TermDto"
+            }
           },
           "grades": {
             "description": "Newest first",
@@ -30606,6 +30715,7 @@
         },
         "required": [
           "term",
+          "terms",
           "grades",
           "averages"
         ]
