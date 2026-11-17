@@ -31,7 +31,8 @@ async function start() {
     // On SIGINT / SIGTERM (pm2 reload or stop) close the server and let running requests finish.
     app.enableShutdownHooks();
     const production = process.env.NODE_ENV === "production";
-    // Behind Render's (or any) single reverse proxy: req.ip is the client address.
+    // Behind one reverse proxy (Caddy on the same server): req.ip is the client address from
+    // X-Forwarded-For, so per-IP limits see the real client, not 127.0.0.1.
     app.set("trust proxy", 1);
     // Private files (homework submissions) are only served through /api/files, never here.
     app.use(
@@ -92,8 +93,10 @@ async function start() {
         },
       });
     }
-    await app.listen(PORT, () => {
-      console.log(`Server started at http://localhost:${PORT}/api`);
+    // HOST=127.0.0.1 on the server: only the local reverse proxy can reach the app.
+    const HOST = process.env.HOST?.trim() || "0.0.0.0";
+    await app.listen(PORT, HOST, () => {
+      console.log(`Server started at http://${HOST}:${PORT}/api`);
     });
   } catch (error) {
     // Exit non-zero so the host (e.g. Render) sees the failed start and restarts or alerts.
