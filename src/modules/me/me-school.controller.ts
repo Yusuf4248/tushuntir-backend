@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Query,
   UploadedFiles,
@@ -34,6 +35,13 @@ import {
 } from "./dto/school.dto";
 import { StudentSchoolService } from "./student-school.service";
 import { StudentHomeworkService } from "./student-homework.service";
+import { StudentNotificationsService } from "./student-notifications.service";
+import {
+  NotificationDto,
+  NotificationsQueryDto,
+  ReadAllDto,
+  UnreadCountDto,
+} from "./dto/notification.dto";
 import { SubmissionUploadInterceptor } from "./submission-upload.interceptor";
 import {
   HomeworkDetailDto,
@@ -53,6 +61,7 @@ export class MeSchoolController {
   constructor(
     private readonly school: StudentSchoolService,
     private readonly homework: StudentHomeworkService,
+    private readonly notifications: StudentNotificationsService,
   ) {}
 
   @Get("timetable")
@@ -158,5 +167,47 @@ export class MeSchoolController {
   @ApiOkResponse({ type: GradesDto })
   grades(@Query() query: GradesQueryDto, @CurrentUser() user: AuthUser) {
     return this.school.grades(user, query);
+  }
+
+  @Get("notifications")
+  @ApiOperation({
+    summary: "The student's notifications, newest first",
+    description:
+      "Reading this (or the unread count) first adds what is missing: a new grade (last 7 days), homework " +
+      "checked or returned, written homework due tomorrow and not submitted, a lesson quiz that unlocked " +
+      "(last 7 days, still open). Checkpoint passed is added when it happens. data links to the item " +
+      "(homeworkId, quizId, gradeId, topicId, …). limit 1-100, default 50.",
+  })
+  @ApiOkResponse({ type: [NotificationDto] })
+  notificationList(
+    @Query() query: NotificationsQueryDto,
+    @CurrentUser() user: AuthUser,
+  ) {
+    return this.notifications.list(user, query);
+  }
+
+  @Get("notifications/unread-count")
+  @ApiOperation({ summary: "How many notifications are unread" })
+  @ApiOkResponse({ type: UnreadCountDto })
+  unreadCount(@CurrentUser() user: AuthUser) {
+    return this.notifications.unreadCount(user);
+  }
+
+  @Patch("notifications/:id/read")
+  @ApiOperation({ summary: "Mark one notification read (own only, else 404)" })
+  @ApiOkResponse({ type: NotificationDto })
+  markRead(
+    @Param("id", ParseIntPipe) id: number,
+    @CurrentUser() user: AuthUser,
+  ) {
+    return this.notifications.markRead(id, user);
+  }
+
+  @Post("notifications/read-all")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "Mark all my notifications read" })
+  @ApiOkResponse({ type: ReadAllDto })
+  readAll(@CurrentUser() user: AuthUser) {
+    return this.notifications.readAll(user);
   }
 }

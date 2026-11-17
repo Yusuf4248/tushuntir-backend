@@ -24,6 +24,9 @@ export class CreateNotificationDto {
       "weekly_progress",
       "flag",
       "needs_help",
+      "homework_checked",
+      "quiz_unlocked",
+      "checkpoint_passed",
     ],
     nullable: true,
   })
@@ -35,6 +38,9 @@ export class CreateNotificationDto {
     "weekly_progress",
     "flag",
     "needs_help",
+    "homework_checked",
+    "quiz_unlocked",
+    "checkpoint_passed",
   ])
   type?: string | null;
 

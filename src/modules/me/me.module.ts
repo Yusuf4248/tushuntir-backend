@@ -16,6 +16,7 @@ import { StudentScheduleService } from "./student-schedule.service";
 import { StudentTopicsService } from "./student-topics.service";
 import { StudentSchoolService } from "./student-school.service";
 import { StudentHomeworkService } from "./student-homework.service";
+import { StudentNotificationsService } from "./student-notifications.service";
 
 /** Student app endpoints under /api/me; every query is limited to the logged-in student. */
 @Module({
@@ -38,6 +39,7 @@ import { StudentHomeworkService } from "./student-homework.service";
     StudentTopicsService,
     StudentSchoolService,
     StudentHomeworkService,
+    StudentNotificationsService,
   ],
 })
 export class MeModule {}

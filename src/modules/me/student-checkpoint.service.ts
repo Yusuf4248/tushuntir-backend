@@ -33,6 +33,7 @@ import {
   MasteryStatus,
   NEEDS_HELP_AFTER_TRIES,
 } from "./me.types";
+import { StudentNotificationsService } from "./student-notifications.service";
 import {
   StudentScheduleService,
   StudentTopic,
@@ -97,6 +98,7 @@ export class StudentCheckpointService {
     private readonly stt: SttService,
     private readonly tts: TtsService,
     private readonly schedule: StudentScheduleService,
+    private readonly notifications: StudentNotificationsService,
   ) {}
 
   /** Opens a new try, or returns the open one. */
@@ -276,6 +278,19 @@ export class StudentCheckpointService {
              ON CONFLICT (student_id, topic_id) DO UPDATE SET is_mastered = true, updated_at = now()`,
             [user.id, topic.id],
           );
+          const { next } = await this.schedule.neighbours(topic.id);
+          await this.notifications.notify(manager, user.id, {
+            type: "checkpoint_passed",
+            title: `Tabriklaymiz! "${topic.title}" mavzusi o'zlashtirildi`,
+            body: next
+              ? `Keyingi mavzu ochildi: ${next.title}`
+              : "Sardorga mavzuni tushuntirib berdingiz.",
+            data: {
+              topicId: topic.id,
+              checkpointId: row.id,
+              nextTopicId: next?.topicId ?? null,
+            },
+          });
           return { nextRow: null, teacherNotified: false };
         }
         const next = await this.insertTry(

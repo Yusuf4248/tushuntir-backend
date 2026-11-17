@@ -33,6 +33,13 @@ export class Notification {
   @Column({ name: "body", type: "text", nullable: true })
   body: string | null;
 
+  /**
+   * What the notification is about, for links and to avoid duplicates, e.g. { "homeworkId": 12 },
+   * { "quizId": 15 }, { "gradeId": 40 }, { "topicId": 8 }.
+   */
+  @Column({ name: "data", type: "jsonb", nullable: true })
+  data: Record<string, unknown> | null;
+
   @Column({ name: "read_at", type: "timestamptz", nullable: true })
   readAt: Date | null;
 
