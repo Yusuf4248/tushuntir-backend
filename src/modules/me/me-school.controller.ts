@@ -27,6 +27,8 @@ import { ApiErrorResponses } from "../../common/swagger/api-responses.decorator"
 import {
   AttendanceDto,
   AttendanceQueryDto,
+  GradesDto,
+  GradesQueryDto,
   TimetableDto,
   TimetableQueryDto,
 } from "./dto/school.dto";
@@ -144,5 +146,17 @@ export class MeSchoolController {
       { text: body.text, files: files ?? [] },
       user,
     );
+  }
+
+  @Get("grades")
+  @ApiOperation({
+    summary: "The student's grades of a term with per-subject averages",
+    description:
+      "Grades (date, subject, kind, value 2-5, comment, teacher), newest first, filtered by subjectId; " +
+      "termId defaults to the term containing today (or the last one started). averages: per subject, two decimals.",
+  })
+  @ApiOkResponse({ type: GradesDto })
+  grades(@Query() query: GradesQueryDto, @CurrentUser() user: AuthUser) {
+    return this.school.grades(user, query);
   }
 }

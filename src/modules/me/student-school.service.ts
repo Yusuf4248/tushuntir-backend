@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { DataSource } from "typeorm";
 import { AuthUser } from "../../common/auth/auth-user";
 import {
@@ -11,6 +11,8 @@ import {
   AttendanceDto,
   AttendanceRecordDto,
   AttendanceStatus,
+  GradesDto,
+  TermDto,
   TimetableDto,
   TimetableLessonDto,
 } from "./dto/school.dto";
@@ -195,5 +197,111 @@ export class StudentSchoolService {
           : null,
       },
     };
+  }
+
+  /**
+   * The student's grades in one term (default: the term containing today, else the last one that
+   * started), newest first, with the average per subject.
+   */
+  async grades(
+    user: AuthUser,
+    filter: { subjectId?: number; termId?: number },
+  ): Promise<GradesDto> {
+    const studentClass = await this.schedule.classOf(user.id);
+    if (!studentClass) return { term: null, grades: [], averages: [] };
+    const terms: TermDto[] = await this.dataSource.query(
+      `SELECT term.id, term.name, term.starts_on::text AS "startsOn", term.ends_on::text AS "endsOn"
+         FROM terms term JOIN classes class ON class.academic_year_id = term.academic_year_id
+        WHERE class.id = $1
+        ORDER BY term.starts_on NULLS LAST, term.id`,
+      [studentClass.id],
+    );
+    const today = localDate();
+    let term: TermDto | null;
+    if (filter.termId) {
+      term = terms.find((t) => t.id === filter.termId) ?? null;
+      if (!term) throw new NotFoundException(`Term ${filter.termId} not found`);
+    } else {
+      term =
+        terms.find(
+          (t) =>
+            t.startsOn !== null &&
+            t.startsOn <= today &&
+            (t.endsOn === null || today <= t.endsOn),
+        ) ??
+        [...terms]
+          .reverse()
+          .find((t) => t.startsOn !== null && t.startsOn <= today) ??
+        null;
+    }
+    const rows: {
+      id: number;
+      date: string;
+      subjectId: number;
+      subjectName: string;
+      kind: string | null;
+      value: number | null;
+      comment: string | null;
+      teacherId: number;
+      firstName: string;
+      lastName: string;
+      lessonId: number | null;
+    }[] = await this.dataSource.query(
+      `SELECT * FROM (
+         SELECT grade.id,
+                COALESCE(lesson.date, (grade.created_at AT TIME ZONE $5)::date)::text AS date,
+                subject.id AS "subjectId", subject.name AS "subjectName",
+                grade.kind, grade.value, grade.comment,
+                teacher.id AS "teacherId", teacher.first_name AS "firstName", teacher.last_name AS "lastName",
+                grade.lesson_id AS "lessonId", grade.created_at
+           FROM grades grade
+           JOIN teacher_assignments assignment ON assignment.id = grade.teacher_assignment_id
+           JOIN subjects subject ON subject.id = assignment.subject_id
+           JOIN users teacher ON teacher.id = assignment.teacher_id
+           LEFT JOIN lessons lesson ON lesson.id = grade.lesson_id
+          WHERE grade.student_id = $1 AND ($2::int IS NULL OR subject.id = $2)) item
+        WHERE ($3::date IS NULL OR item.date::date >= $3) AND ($4::date IS NULL OR item.date::date <= $4)
+        ORDER BY item.date DESC, item.created_at DESC, item.id DESC`,
+      [
+        user.id,
+        filter.subjectId ?? null,
+        term?.startsOn ?? null,
+        term?.endsOn ?? null,
+        appTimezone(),
+      ],
+    );
+    const grades = rows.map((row) => ({
+      id: row.id,
+      date: row.date,
+      subject: { id: row.subjectId, name: row.subjectName },
+      kind: row.kind,
+      value: row.value,
+      comment: row.comment,
+      teacher: {
+        id: row.teacherId,
+        firstName: row.firstName,
+        lastName: row.lastName,
+      },
+      lessonId: row.lessonId,
+    }));
+    const bySubject = new Map<number, { name: string; values: number[] }>();
+    for (const grade of grades) {
+      const entry = bySubject.get(grade.subject.id) ?? {
+        name: grade.subject.name,
+        values: [],
+      };
+      if (grade.value !== null) entry.values.push(grade.value);
+      bySubject.set(grade.subject.id, entry);
+    }
+    const averages = [...bySubject.entries()]
+      .map(([id, { name, values }]) => ({
+        subject: { id, name },
+        average: values.length
+          ? round2(values.reduce((a, b) => a + b, 0) / values.length)
+          : null,
+        count: values.length,
+      }))
+      .sort((a, b) => a.subject.name.localeCompare(b.subject.name));
+    return { term, grades, averages };
   }
 }
