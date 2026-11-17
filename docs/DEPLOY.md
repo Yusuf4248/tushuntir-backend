@@ -373,5 +373,5 @@ This resets the demo student (`+998901001001`, or pass another phone after `--`)
 
 - **One process only.** The rate limits, the voice cache and the daily demo job live in the process. Don't raise `instances` in `ecosystem.config.cjs`.
 - **Private files.** Homework submission files are private. They are stored in `uploads/private/`, never served under `/uploads`, and reached only through `/api/files/:id` or the signed links in API responses.
-- **Request size limit.** Caddy accepts requests up to 15 MB. A homework submission with files totalling more than 15 MB gets a plain 413 from Caddy; raise `max_size` in the Caddyfile to allow the app's full 3 × 10 MB.
+- **Request size limit.** Caddy accepts requests up to 32 MB, enough for a homework submission with 3 files of 10 MB. The app checks the limit of each file itself.
 - **Security updates.** Ubuntu installs them automatically (`unattended-upgrades`, on by default). Reboot now and then: `sudo reboot`. pm2 and Caddy start again on their own.

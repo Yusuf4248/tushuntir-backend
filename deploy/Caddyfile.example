@@ -17,7 +17,7 @@
 
 	servers {
 		timeouts {
-			# Uploads of up to 15 MB on a slow mobile connection.
+			# Uploads of up to 32 MB on a slow mobile connection.
 			read_body 120s
 			read_header 10s
 			# AI answers take up to about 15 s, voice answers about 10 s; generous headroom.
@@ -28,11 +28,10 @@
 }
 
 API_DOMAIN {
-	# Whole request body. Voice answers (max 5 MB) fit easily. Homework submissions may carry
-	# up to 3 files of 10 MB each in the app, so a submission over 15 MB in total is refused
-	# here with a plain 413 before it reaches Node: raise this to 32MB to allow the full 3 x 10 MB.
+	# Whole request body: a homework submission may carry 3 files of 10 MB each plus its text
+	# (the app checks each file); voice answers are at most 5 MB. Bigger requests get 413 here.
 	request_body {
-		max_size 15MB
+		max_size 32MB
 	}
 
 	encode zstd gzip
