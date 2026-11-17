@@ -9,7 +9,10 @@ import { winstonConfig } from "./common/logger/winston.logger";
 import { AllExceptionFilter } from "./common/errors/all-exception.filter";
 import { buildSwaggerDocument } from "./common/swagger/swagger-document";
 import { NestExpressApplication } from "@nestjs/platform-express";
-import { UPLOAD_URL_PREFIX, uploadsDir } from "./shared/file/file.service";
+import {
+  ensureUploadsDir,
+  UPLOAD_URL_PREFIX,
+} from "./shared/file/file.service";
 import { Logger } from "@nestjs/common";
 
 /** CORS_ORIGINS: comma-separated origins, e.g. https://app.vercel.app. Unset: any origin (local only). */
@@ -41,7 +44,9 @@ async function start() {
         res.sendStatus(404),
     );
     // Uploaded files keep the Content-Type that matches their extension.
-    app.useStaticAssets(uploadsDir(), {
+    const uploads = ensureUploadsDir();
+    logger.log(`Uploads folder: ${uploads}`);
+    app.useStaticAssets(uploads, {
       prefix: UPLOAD_URL_PREFIX,
       setHeaders: (res) => res.setHeader("X-Content-Type-Options", "nosniff"),
     });

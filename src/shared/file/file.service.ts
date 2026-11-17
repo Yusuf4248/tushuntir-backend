@@ -1,18 +1,37 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { randomUUID } from "crypto";
-import { promises as fs } from "fs";
+import { accessSync, constants, mkdirSync, promises as fs } from "fs";
 import * as path from "path";
 
+/** Where uploads live on the server when UPLOADS_DIR is not set: outside the app directory. */
+export const PRODUCTION_UPLOADS_DIR = "/var/lib/tushuntir/uploads";
+
 /**
- * Files are stored on local disk (UPLOADS_DIR, default ./uploads) and public ones are served by
- * main.ts under /uploads. Read when used, so a value from .env (loaded by ConfigModule) is seen
- * too. On a host without a persistent disk everything here is lost on restart or redeploy.
+ * Files are stored on local disk and public ones are served by main.ts under /uploads.
+ * UPLOADS_DIR, else /var/lib/tushuntir/uploads with NODE_ENV=production, else ./uploads.
+ * Read when used, so a value from .env (loaded by ConfigModule) is seen too.
  */
 export function uploadsDir(): string {
-  return path.resolve(
-    process.cwd(),
-    process.env.UPLOADS_DIR?.trim() || "uploads",
-  );
+  const configured = process.env.UPLOADS_DIR?.trim();
+  if (configured) return path.resolve(process.cwd(), configured);
+  return process.env.NODE_ENV === "production"
+    ? PRODUCTION_UPLOADS_DIR
+    : path.resolve(process.cwd(), "uploads");
+}
+
+/** Creates the uploads folder (with private/) if needed and fails clearly when it is not writable. */
+export function ensureUploadsDir(): string {
+  const dir = uploadsDir();
+  try {
+    mkdirSync(path.join(dir, "private"), { recursive: true });
+    accessSync(dir, constants.W_OK);
+  } catch (error) {
+    throw new Error(
+      `Uploads folder ${dir} is not writable (${(error as Error).message}). ` +
+        "Create it for the app user or set UPLOADS_DIR.",
+    );
+  }
+  return dir;
 }
 export const UPLOAD_URL_PREFIX = "/uploads";
 
