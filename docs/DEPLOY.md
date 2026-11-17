@@ -146,9 +146,10 @@ DATABASE_URL='postgresql://...neon.tech/...' DEMO_MODE=true npm run demo:reset  
 ```
 
 This resets the demo student (`+998901001001`, or pass another phone after `--`):
-- **deleted:** their attempts, the practice quizzes they created, checkpoint tries, mastery, chat sessions and the `needs_help` notifications about them;
+- **deleted:** their attempts, the practice quizzes they created, checkpoint tries, mastery, chat sessions, the `needs_help` notifications about them, their homework submissions from this week (with files) and their notifications from the last 30 days (the app rebuilds the relevant ones, unread, on the next read);
+- **restored:** the 4 demo homework items (new, submitted, checked, late), dated relative to today;
 - **reopened:** this week's lessons of their class, with quiz deadlines back to `QUIZ_DEADLINE_TIME`;
-- **kept:** generated questions, confirmation questions and the textbook.
+- **kept:** attendance, grades and other history, generated questions, confirmation questions and the textbook.
 
 It refuses to run unless `DEMO_MODE=true`, and prints only the database name.
 

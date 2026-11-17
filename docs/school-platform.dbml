@@ -475,7 +475,8 @@ Table support_group_students {
 Table notifications {
   id uuid [pk]
   user_id uuid [ref: > users.id, not null]
-  type varchar [note: 'grade, homework_due, absence, weekly_progress, flag, needs_help (3 failed Tushuntir checkpoint tries)']
+  type varchar [note: 'grade, homework_due, homework_checked, quiz_unlocked, checkpoint_passed, absence, weekly_progress, flag, needs_help (3 failed Tushuntir checkpoint tries)']
+  data jsonb [note: 'what it is about, for links and to avoid duplicates: homeworkId, quizId, gradeId, topicId, ...']
   title varchar
   body text
   read_at timestamptz
