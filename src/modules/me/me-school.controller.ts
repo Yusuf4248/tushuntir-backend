@@ -10,7 +10,12 @@ import { CurrentUser } from "../../common/decorators/current-user.decorator";
 import { Roles } from "../../common/decorators/roles.decorator";
 import { UserRole } from "../../common/enums";
 import { ApiErrorResponses } from "../../common/swagger/api-responses.decorator";
-import { TimetableDto, TimetableQueryDto } from "./dto/school.dto";
+import {
+  AttendanceDto,
+  AttendanceQueryDto,
+  TimetableDto,
+  TimetableQueryDto,
+} from "./dto/school.dto";
 import { StudentSchoolService } from "./student-school.service";
 
 /** The student's school day outside the AI loop: timetable, attendance, homework, grades, notifications. */
@@ -33,5 +38,20 @@ export class MeSchoolController {
   @ApiOkResponse({ type: TimetableDto })
   timetable(@Query() query: TimetableQueryDto, @CurrentUser() user: AuthUser) {
     return this.school.timetable(user, query.weekStart);
+  }
+
+  @Get("attendance")
+  @ApiOperation({
+    summary: "The student's attendance of a month",
+    description:
+      "Records (date, period, subject, lesson, status present / absent / late / excused, note), oldest first, " +
+      "and a summary. percent = (present + late) / (all records - excused) * 100. Default: this month.",
+  })
+  @ApiOkResponse({ type: AttendanceDto })
+  attendance(
+    @Query() query: AttendanceQueryDto,
+    @CurrentUser() user: AuthUser,
+  ) {
+    return this.school.attendance(user, query.month);
   }
 }

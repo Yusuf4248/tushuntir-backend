@@ -7,7 +7,13 @@ import {
   isoWeekday,
   localDate,
 } from "../../common/school-time";
-import { TimetableDto, TimetableLessonDto } from "./dto/school.dto";
+import {
+  AttendanceDto,
+  AttendanceRecordDto,
+  AttendanceStatus,
+  TimetableDto,
+  TimetableLessonDto,
+} from "./dto/school.dto";
 import { LessonStatus } from "./me.types";
 import { StudentScheduleService } from "./student-schedule.service";
 
@@ -33,6 +39,8 @@ interface TimetableRow {
   hasQuiz: boolean;
   hasHomework: boolean;
 }
+
+const round2 = (value: number) => Math.round(value * 100) / 100;
 
 /** Read-only school views for the student: timetable, attendance, grades. */
 @Injectable()
@@ -144,6 +152,48 @@ export class StudentSchoolService {
         name: `${studentClass.grade}-${studentClass.letter}`,
       },
       days,
+    };
+  }
+
+  /** The student's attendance records of one month, with counts and the attendance percent. */
+  async attendance(user: AuthUser, month?: string): Promise<AttendanceDto> {
+    const value = month ?? localDate().slice(0, 7);
+    const rows: (Omit<AttendanceRecordDto, "subject"> & {
+      subjectId: number;
+      subjectName: string;
+    })[] = await this.dataSource.query(
+      `SELECT lesson.date::text AS date, slot.period, subject.id AS "subjectId", subject.name AS "subjectName",
+              lesson.id AS "lessonId", record.status, record.note
+         FROM attendance record
+         JOIN lessons lesson ON lesson.id = record.lesson_id
+         JOIN teacher_assignments assignment ON assignment.id = lesson.teacher_assignment_id
+         JOIN subjects subject ON subject.id = assignment.subject_id
+         LEFT JOIN timetable_slots slot ON slot.id = lesson.timetable_slot_id
+        WHERE record.student_id = $1 AND to_char(lesson.date, 'YYYY-MM') = $2
+        ORDER BY lesson.date, slot.period NULLS LAST, lesson.id`,
+      [user.id, value],
+    );
+    const count = (status: AttendanceStatus) =>
+      rows.filter((r) => r.status === status).length;
+    const summary = {
+      present: count(AttendanceStatus.PRESENT),
+      absent: count(AttendanceStatus.ABSENT),
+      late: count(AttendanceStatus.LATE),
+      excused: count(AttendanceStatus.EXCUSED),
+    };
+    const counted = rows.length - summary.excused;
+    return {
+      month: value,
+      records: rows.map(({ subjectId, subjectName, ...record }) => ({
+        ...record,
+        subject: { id: subjectId, name: subjectName },
+      })),
+      summary: {
+        ...summary,
+        percent: counted
+          ? round2(((summary.present + summary.late) / counted) * 100)
+          : null,
+      },
     };
   }
 }

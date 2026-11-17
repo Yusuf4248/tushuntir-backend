@@ -89,3 +89,73 @@ export class TimetableDto {
   @ApiProperty({ type: [TimetableDayDto] })
   days: TimetableDayDto[];
 }
+
+export class AttendanceQueryDto {
+  @ApiPropertyOptional({
+    example: "2026-11",
+    description: "YYYY-MM; default: this month (school time zone)",
+  })
+  @IsOptional()
+  @Matches(/^\d{4}-(0[1-9]|1[0-2])$/, { message: "month must be YYYY-MM" })
+  month?: string;
+}
+
+export enum AttendanceStatus {
+  PRESENT = "present",
+  ABSENT = "absent",
+  LATE = "late",
+  EXCUSED = "excused",
+}
+
+export class AttendanceRecordDto {
+  @ApiProperty({ example: "2026-11-10" })
+  date: string;
+
+  @ApiProperty({ example: 2, nullable: true })
+  period: number | null;
+
+  @ApiProperty({ type: RefDto })
+  subject: RefDto;
+
+  @ApiProperty({ example: 41 })
+  lessonId: number;
+
+  @ApiProperty({ enum: AttendanceStatus, example: AttendanceStatus.PRESENT })
+  status: AttendanceStatus;
+
+  @ApiProperty({ example: null, nullable: true })
+  note: string | null;
+}
+
+export class AttendanceSummaryDto {
+  @ApiProperty({ example: 40 })
+  present: number;
+
+  @ApiProperty({ example: 2 })
+  absent: number;
+
+  @ApiProperty({ example: 1 })
+  late: number;
+
+  @ApiProperty({ example: 1 })
+  excused: number;
+
+  @ApiProperty({
+    example: 95.35,
+    nullable: true,
+    description:
+      "(present + late) / (all records - excused) * 100, two decimals; null when there is nothing to count",
+  })
+  percent: number | null;
+}
+
+export class AttendanceDto {
+  @ApiProperty({ example: "2026-11" })
+  month: string;
+
+  @ApiProperty({ type: [AttendanceRecordDto], description: "Oldest first" })
+  records: AttendanceRecordDto[];
+
+  @ApiProperty({ type: AttendanceSummaryDto })
+  summary: AttendanceSummaryDto;
+}
