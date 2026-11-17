@@ -31,6 +31,12 @@ async function start() {
     const production = process.env.NODE_ENV === "production";
     // Behind Render's (or any) single reverse proxy: req.ip is the client address.
     app.set("trust proxy", 1);
+    // Private files (homework submissions) are only served through /api/files, never here.
+    app.use(
+      `${UPLOAD_URL_PREFIX}/private`,
+      (_req: unknown, res: { sendStatus(code: number): void }) =>
+        res.sendStatus(404),
+    );
     // Uploaded files keep the Content-Type that matches their extension.
     app.useStaticAssets(uploadsDir(), {
       prefix: UPLOAD_URL_PREFIX,

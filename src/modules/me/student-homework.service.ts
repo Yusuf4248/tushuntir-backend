@@ -7,6 +7,7 @@ import {
 import * as path from "path";
 import { DataSource } from "typeorm";
 import { AuthUser } from "../../common/auth/auth-user";
+import { FileLinksService } from "../../shared/file/file-links.service";
 import { FileService, StoredFile } from "../../shared/file/file.service";
 import {
   FileDto,
@@ -56,6 +57,7 @@ export class StudentHomeworkService {
     private readonly dataSource: DataSource,
     private readonly schedule: StudentScheduleService,
     private readonly files: FileService,
+    private readonly links: FileLinksService,
   ) {}
 
   async list(
@@ -117,7 +119,9 @@ export class StudentHomeworkService {
     const stored: StoredFile[] = [];
     let removed: string[];
     try {
-      for (const file of input.files) stored.push(await this.files.save(file));
+      for (const file of input.files) {
+        stored.push(await this.files.save(file, { private: true }));
+      }
       removed = await this.dataSource.transaction(async (manager) => {
         const late = row.dueAt !== null && Date.now() > row.dueAt.getTime();
         const [{ id }] = await manager.query(
@@ -247,7 +251,15 @@ export class StudentHomeworkService {
          FROM homework_submissions WHERE id = $1`,
       [id],
     );
-    return { ...row, files: await this.filesOf("submission", id) };
+    // Submission files are private: signed links instead of public /uploads URLs.
+    const files = await this.filesOf("submission", id);
+    return {
+      ...row,
+      files: files.map((file) => ({
+        ...file,
+        url: this.links.signedUrl(file.id),
+      })),
+    };
   }
 
   private filesOf(entityType: string, entityId: number): Promise<FileDto[]> {

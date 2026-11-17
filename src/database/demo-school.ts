@@ -5,10 +5,10 @@
  * Everything is derived from stable keys (dates, periods, the student's place in the class
  * list), so running it again changes nothing.
  */
-import * as path from "path";
 import { promises as fs } from "fs";
 import { EntityManager } from "typeorm";
 import { addDays, appTimezone, localDate } from "../common/school-time";
+import { storedFilePath } from "../shared/file/file.service";
 
 export const DEMO_STUDENT_PHONE = "+998901001001";
 
@@ -520,16 +520,11 @@ export async function removeSubmissionFiles(
   return rows.map((r) => r.url).filter(Boolean);
 }
 
-/** Removes uploaded files from disk (UPLOADS_DIR, default ./uploads), after the commit. */
+/** Removes stored files (public or private) from disk, after the commit. */
 export async function deleteUploadedFiles(urls: string[]): Promise<void> {
-  const dir = path.resolve(
-    process.cwd(),
-    process.env.UPLOADS_DIR?.trim() || "uploads",
-  );
   for (const url of urls) {
-    if (url.startsWith("/uploads/")) {
-      await fs.rm(path.join(dir, path.basename(url)), { force: true });
-    }
+    const filePath = storedFilePath(url);
+    if (filePath) await fs.rm(filePath, { force: true });
   }
 }
 

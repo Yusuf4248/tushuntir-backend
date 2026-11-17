@@ -67,8 +67,11 @@ export class FileDto {
   id: number;
 
   @ApiProperty({
-    example: "/uploads/3f1c0b9e-5a7d-4c21-b8e6-f0a9d2c4e7b1.pdf",
-    description: "Relative to the API origin",
+    example: "/api/files/signed/31?expires=1795003200&sig=Zm9vYmFy",
+    description:
+      "Relative to the API origin. The teacher's files: a public /uploads link. My submission files: a signed " +
+      "link that works directly in <img> / <a> and expires at the end of the next full hour (403 after that: " +
+      "fetch the homework again for a new link).",
   })
   url: string;
 

@@ -4,9 +4,9 @@ import { promises as fs } from "fs";
 import * as path from "path";
 
 /**
- * Files are stored on local disk (UPLOADS_DIR, default ./uploads) and served by main.ts under
- * /uploads. Read when used, so a value from .env (loaded by ConfigModule) is seen too. On a host
- * without a persistent disk everything here is lost on restart or redeploy.
+ * Files are stored on local disk (UPLOADS_DIR, default ./uploads) and public ones are served by
+ * main.ts under /uploads. Read when used, so a value from .env (loaded by ConfigModule) is seen
+ * too. On a host without a persistent disk everything here is lost on restart or redeploy.
  */
 export function uploadsDir(): string {
   return path.resolve(
@@ -15,6 +15,26 @@ export function uploadsDir(): string {
   );
 }
 export const UPLOAD_URL_PREFIX = "/uploads";
+
+/**
+ * Private files (homework submissions) live in <UPLOADS_DIR>/private, which main.ts never serves;
+ * their stored url is "private/<name>" and they are downloaded through /api/files.
+ */
+export const PRIVATE_URL_PREFIX = "private/";
+export function privateDir(): string {
+  return path.join(uploadsDir(), "private");
+}
+
+/** Absolute path of a stored file url (public "/uploads/<name>" or "private/<name>"), else null. */
+export function storedFilePath(url: string): string | null {
+  if (url.startsWith(`${UPLOAD_URL_PREFIX}/`)) {
+    return path.join(uploadsDir(), path.basename(url));
+  }
+  if (url.startsWith(PRIVATE_URL_PREFIX)) {
+    return path.join(privateDir(), path.basename(url));
+  }
+  return null;
+}
 export const MAX_UPLOAD_BYTES = 20 * 1024 * 1024;
 
 /** MIME type -> accepted extensions. SVG is deliberately not allowed. */
@@ -37,7 +57,7 @@ export const ALLOWED_UPLOADS: Record<string, string[]> = {
 };
 
 export interface StoredFile {
-  /** Relative URL, e.g. /uploads/3f1c....pdf (no domain). */
+  /** Public: relative URL, e.g. /uploads/3f1c....pdf (no domain). Private: private/3f1c....pdf */
   url: string;
   mimeType: string;
   sizeBytes: number;
@@ -46,7 +66,11 @@ export interface StoredFile {
 
 @Injectable()
 export class FileService {
-  async save(file: Express.Multer.File | undefined): Promise<StoredFile> {
+  /** Validates and stores an upload; `private` files are kept out of the public /uploads route. */
+  async save(
+    file: Express.Multer.File | undefined,
+    options: { private?: boolean } = {},
+  ): Promise<StoredFile> {
     if (!file)
       throw new BadRequestException("A file is required (field name: file)");
     const extension = path.extname(file.originalname).toLowerCase();
@@ -61,10 +85,13 @@ export class FileService {
       throw new BadRequestException("File is larger than 20 MB");
     }
     const storedName = `${randomUUID()}${extension}`;
-    await fs.mkdir(uploadsDir(), { recursive: true });
-    await fs.writeFile(path.join(uploadsDir(), storedName), file.buffer);
+    const dir = options.private ? privateDir() : uploadsDir();
+    await fs.mkdir(dir, { recursive: true });
+    await fs.writeFile(path.join(dir, storedName), file.buffer);
     return {
-      url: `${UPLOAD_URL_PREFIX}/${storedName}`,
+      url: options.private
+        ? `${PRIVATE_URL_PREFIX}${storedName}`
+        : `${UPLOAD_URL_PREFIX}/${storedName}`,
       mimeType: file.mimetype,
       sizeBytes: file.size,
       originalName: file.originalname,
@@ -73,9 +100,7 @@ export class FileService {
 
   /** Absolute path for a stored URL, or null if the URL is not an upload. */
   pathOf(url: string): string | null {
-    if (!url.startsWith(`${UPLOAD_URL_PREFIX}/`)) return null;
-    const name = path.basename(url);
-    return path.join(uploadsDir(), name);
+    return storedFilePath(url);
   }
 
   async remove(url: string): Promise<void> {

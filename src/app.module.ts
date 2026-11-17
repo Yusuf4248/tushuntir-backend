@@ -43,6 +43,7 @@ import { AiModule } from "./modules/ai/ai.module";
 import { DemoModule } from "./modules/demo/demo.module";
 import { MeModule } from "./modules/me/me.module";
 import { HealthModule } from "./modules/health/health.module";
+import { FilesModule } from "./modules/files/files.module";
 import { MailModule } from "./shared/mail/mail.module";
 import { FileModule } from "./shared/file/file.module";
 
@@ -51,6 +52,7 @@ import { FileModule } from "./shared/file/file.module";
     ConfigModule.forRoot({ envFilePath: ".env", isGlobal: true }),
     DatabaseModule,
     HealthModule,
+    FilesModule,
     AuthModule,
     SchoolsModule,
     UsersModule,
