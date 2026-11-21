@@ -9,6 +9,15 @@ import { upsert } from "./upsert";
 
 export const DEMO_SCHOOL_NAME = "21-maktab (demo)";
 
+/** First shift: period → [starts, ends] (school time). */
+export const DEMO_PERIODS: Record<number, [string, string]> = {
+  1: ["08:00", "08:45"],
+  2: ["08:55", "09:40"],
+  3: ["09:50", "10:35"],
+  4: ["10:45", "11:30"],
+  5: ["11:40", "12:25"],
+};
+
 export interface AlgebraTopic {
   id: number;
   title: string;

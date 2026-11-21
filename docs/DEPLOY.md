@@ -366,6 +366,12 @@ This resets the demo student (`+998901001001`, or pass another phone after `--`)
   - their homework submissions from this week, with their files;
   - their notifications from the last 30 days. The app rebuilds the relevant ones, unread, on the next read.
 - **restored:** the 4 demo homework items (new, submitted, checked, late), dated relative to today;
+- **today's lesson:** on any day, weekends included, an ended Algebra lesson on the student's next unmastered topic, with its quiz open until 22:00 (at least 2 more hours), so the dashboard shows "Bugungi vazifa" with "Boshlash".
+  - Saturday gets an Algebra period after its last lesson (10:45–11:30). Sunday's lesson uses the 08:00–08:45 times.
+  - On other days the lesson shows as finished from its start time onwards.
+- **progress:**
+  - the earlier Algebra quizzes are submitted with scores (70–100%) and quiz grades; at most one is left overdue;
+  - the first 2 of 6 topics are mastered (quiz and passed checkpoint), so today's topic is unlocked and its checkpoint can follow the quiz;
 - **reopened:** this week's lessons of the class, with quiz deadlines back to `QUIZ_DEADLINE_TIME`;
 - **kept:** attendance, grades and other history, generated questions and the textbook.
 

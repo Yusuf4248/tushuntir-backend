@@ -21,6 +21,7 @@ import {
   quizDeadlineTime,
 } from "../common/school-time";
 import dataSource from "./data-source";
+import { DemoProgressSummary, seedDemoProgress } from "./demo-progress";
 import {
   deleteUploadedFiles,
   removeSubmissionFiles,
@@ -62,6 +63,7 @@ async function main() {
     );
 
     const removedFiles: string[] = [];
+    let progress: DemoProgressSummary | null = null;
     const counts = await dataSource.transaction(async (manager) => {
       const run = async (sql: string, params: unknown[]): Promise<number> => {
         const result = await manager.query(sql, params);
@@ -157,18 +159,44 @@ async function main() {
           removedFiles.push(...result.removedFiles);
           return result.items.length;
         })(),
+        // Last, after the steps above reopened this week's lessons and reset their deadlines.
+        "demo progress": await (async () => {
+          const [enrolment] = await manager.query(
+            `SELECT class_id FROM class_students WHERE student_id = $1 ORDER BY id DESC LIMIT 1`,
+            [id],
+          );
+          if (!enrolment) return "no class";
+          progress = await seedDemoProgress(manager, {
+            classId: enrolment.class_id,
+            studentId: id,
+          });
+          return `${progress.submitted} quizzes submitted, ${progress.overdue} overdue`;
+        })(),
       };
     });
     await deleteUploadedFiles(removedFiles);
     for (const [label, count] of Object.entries(counts)) {
       console.log(`  ${label}: ${count}`);
     }
+    if (progress) printProgress(progress);
     console.log(
       "Done. Generated questions and textbook content were not touched.",
     );
   } finally {
     await dataSource.destroy();
   }
+}
+
+function printProgress(p: DemoProgressSummary): void {
+  const lesson = p.todayLesson;
+  console.log(
+    lesson
+      ? `Today (${p.today}): Algebra lesson ${lesson.lessonId}${lesson.period ? ` (period ${lesson.period})` : ""}` +
+          ` on "${lesson.topic}", quiz ${lesson.quizId} open until tonight` +
+          (p.slotAdded ? "; an Algebra slot was added to this weekday" : "")
+      : `Today (${p.today}) is not a term day: no demo lesson`,
+  );
+  console.log(`Mastered: ${p.mastered.join(", ") || "-"}`);
 }
 
 main().catch((error: Error) => {

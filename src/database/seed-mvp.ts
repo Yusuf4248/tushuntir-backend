@@ -25,9 +25,11 @@ import { QuestionGenerationService } from "../modules/learning/question-generati
 import dataSource from "./data-source";
 import {
   algebraTopics,
+  DEMO_PERIODS,
   DEMO_SCHOOL_NAME,
   ensureWeekLessons,
 } from "./demo-week";
+import { seedDemoProgress } from "./demo-progress";
 import {
   DEMO_STUDENT_PHONE,
   deleteUploadedFiles,
@@ -90,15 +92,6 @@ const TEACHERS: Record<
     last: "Ergashev",
     phone: "+998901000005",
   },
-};
-
-/** First shift: period → [starts, ends] */
-const PERIODS: Record<number, [string, string]> = {
-  1: ["08:00", "08:45"],
-  2: ["08:55", "09:40"],
-  3: ["09:50", "10:35"],
-  4: ["10:45", "11:30"],
-  5: ["11:40", "12:25"],
 };
 
 /** Weekday (1 = Monday) → subject codes by period. Algebra five days a week. */
@@ -323,7 +316,7 @@ async function seed(manager: EntityManager, passwordHash: string) {
   for (const [weekday, codes] of Object.entries(TIMETABLE)) {
     for (const [index, code] of codes.entries()) {
       const period = index + 1;
-      const [startsAt, endsAt] = PERIODS[period];
+      const [startsAt, endsAt] = DEMO_PERIODS[period];
       await upsert(
         manager,
         "timetable_slots",
@@ -438,6 +431,17 @@ async function main() {
     );
     console.log(
       `Demo homework: ${homework.items.map((h) => `${h.title} (${h.status})`).join("; ")}`,
+    );
+    const progress = await dataSource.transaction((manager) =>
+      seedDemoProgress(manager, {
+        classId: result.classId,
+        studentId: demoStudent.id,
+      }),
+    );
+    console.log(
+      `Demo progress: today ${progress.today} Algebra on "${progress.todayLesson?.topic ?? "-"}" ` +
+        `(quiz ${progress.todayLesson?.quizId ?? "-"} open); ${progress.submitted} quizzes submitted, ` +
+        `${progress.overdue} overdue; mastered: ${progress.mastered.join(", ") || "-"}`,
     );
     await seedQuestions(result.topics, result.teacherIds.ALGEBRA);
     console.log(

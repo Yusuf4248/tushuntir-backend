@@ -69,7 +69,8 @@ export async function seedSchoolHistory(
        FROM timetable_slots slot
        JOIN teacher_assignments assignment ON assignment.id = slot.teacher_assignment_id
        JOIN subjects subject ON subject.id = assignment.subject_id
-      WHERE assignment.class_id = $1
+      -- School days only: a Sunday slot added for the demo (demo-progress) is not history.
+      WHERE assignment.class_id = $1 AND slot.weekday <= 6
       ORDER BY slot.weekday, slot.period, slot.id DESC`,
     [input.classId],
   );
