@@ -106,7 +106,7 @@ export class ChatTurnDto extends ChatMessageBaseDto {
   })
   onTopic: boolean | null;
 
-  @ApiProperty({ example: "uz", enum: ["uz", "ru"], nullable: true })
+  @ApiProperty({ example: "uz", enum: ["uz", "ru", "en"], nullable: true })
   language: string | null;
 
   @ApiProperty({
@@ -138,7 +138,7 @@ export class ChatReplyDto extends ChatMessageBaseDto {
   })
   onTopic: boolean;
 
-  @ApiProperty({ example: "uz", enum: ["uz", "ru"] })
+  @ApiProperty({ example: "uz", enum: ["uz", "ru", "en"] })
   language: string;
 
   @ApiProperty({

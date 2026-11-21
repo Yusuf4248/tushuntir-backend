@@ -68,6 +68,14 @@ export class CheckpointDto {
   })
   followUp: SardorLineDto | null;
 
+  @ApiProperty({
+    enum: ["uz", "ru", "en"],
+    example: "uz",
+    description:
+      "Language of Sardor's lines in this try (from Accept-Language when it was started)",
+  })
+  language: "uz" | "ru" | "en";
+
   @ApiProperty()
   createdAt: Date;
 }

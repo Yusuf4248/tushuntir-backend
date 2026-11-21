@@ -199,6 +199,7 @@ Legend:
 | `AI_PROVIDER`, `AI_EMBEDDING_MODEL`, `AI_TIMEOUT_MS` | optional | – | `anthropic`, `voyage-4`, `60000` |
 | `STT_PROVIDER`, `STT_MODEL`, `STT_TIMEOUT_MS` | optional | – | `openai`, `gpt-transcribe`, `60000` |
 | `TTS_VOICE` | optional | – | `uz-UZ-SardorNeural` |
+| `TTS_VOICE_RU`, `TTS_VOICE_EN` | optional | – | `ru-RU-DmitryNeural`, `en-US-BrianNeural`: Sardor's voice when the app language is Russian or English |
 | `FFMPEG_PATH` | optional | – | default: the binary from the `ffmpeg-static` package |
 | `PG_HOST`, `PG_PORT`, `PG_USER`, `PG_PASSWORD`, `PG_DB`, `PG_SSL` | optional | – | alternative to `DATABASE_URL` (which wins); leave empty |
 | `SMTP_HOST`, `SMTP_USER`, `SMTP_PASSWORD` | optional | – | nothing sends mail yet |

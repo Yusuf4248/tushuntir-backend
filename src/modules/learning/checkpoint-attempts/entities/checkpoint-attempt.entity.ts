@@ -82,6 +82,10 @@ export class CheckpointAttempt {
   @Column({ name: "feedback", type: "text", nullable: true })
   feedback: string | null;
 
+  /** Language of Sardor's lines in this try (uz | ru | en); NULL means uz */
+  @Column({ name: "language", type: "varchar", length: 5, nullable: true })
+  language: string | null;
+
   @CreateDateColumn({ name: "created_at", type: "timestamptz" })
   createdAt: Date;
 

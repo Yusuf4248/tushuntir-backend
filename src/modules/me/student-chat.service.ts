@@ -6,6 +6,7 @@ import {
 import { DataSource } from "typeorm";
 import * as z from "zod";
 import { AuthUser } from "../../common/auth/auth-user";
+import { AppLanguage } from "../../common/i18n/language";
 import { LlmService } from "../ai/llm.service";
 import {
   StudyChatAction,
@@ -22,6 +23,7 @@ import {
 } from "./dto/chat.dto";
 import { MasteryStatus } from "./me.types";
 import { StudentScheduleService } from "./student-schedule.service";
+import { StudentTranslator } from "./student-translator";
 
 const SESSION_KIND = "study";
 const HISTORY_MESSAGES = 12;
@@ -31,12 +33,20 @@ const ChatAnswer = z.object({
   used_fragment_ids: z.array(z.number()),
   covered: z.boolean(),
   on_topic: z.boolean(),
-  language: z.enum(["uz", "ru"]),
+  language: z.enum(["uz", "ru", "en"]),
 });
 
-const OPEN_QUIZ_REPLY =
-  "Bu savol hozir ishlayotgan testingizda bor, shuning uchun javobini aytmayman. " +
-  "Testni topshirganingizdan keyin qoidani birga ko'rib chiqamiz yoki boshqa misol bilan tushuntiraman.";
+const OPEN_QUIZ_REPLY: Record<AppLanguage, string> = {
+  uz:
+    "Bu savol hozir ishlayotgan testingizda bor, shuning uchun javobini aytmayman. " +
+    "Testni topshirganingizdan keyin qoidani birga ko'rib chiqamiz yoki boshqa misol bilan tushuntiraman.",
+  ru:
+    "Этот вопрос есть в тесте, который вы сейчас решаете, поэтому ответ я не скажу. " +
+    "После сдачи теста разберём правило вместе или я объясню на другом примере.",
+  en:
+    "This question is in the quiz you are taking now, so I won't give the answer. " +
+    "After you submit the quiz we can go through the rule together, or I can explain it with another example.",
+};
 
 /** What an assistant turn stores in ai_messages.reply_meta. */
 interface ReplyMeta {
@@ -79,6 +89,7 @@ export class StudentChatService {
     private readonly llm: LlmService,
     private readonly retrieval: RetrievalService,
     private readonly schedule: StudentScheduleService,
+    private readonly translator: StudentTranslator,
   ) {}
 
   async createSession(
@@ -139,6 +150,7 @@ export class StudentChatService {
     sessionId: number,
     input: { text?: string; selectedText?: string; action?: StudyChatAction },
     user: AuthUser,
+    language: AppLanguage = "uz",
   ): Promise<ChatExchangeDto> {
     const text = input.text?.trim() || null;
     const selectedText = input.selectedText?.trim() || null;
@@ -155,14 +167,22 @@ export class StudentChatService {
       .filter(Boolean)
       .join("\n\n");
 
-    // A question copied from the student's open quiz is refused without calling the AI.
-    if (text && this.matchesOpenQuiz(text, openQuizQuestions)) {
+    // A question copied from the student's open quiz is refused without calling the AI, also
+    // when it was copied from the quiz shown in the student's language.
+    const shownQuestions =
+      language === "uz"
+        ? openQuizQuestions
+        : [
+            ...openQuizQuestions,
+            ...(await this.translator.texts(openQuizQuestions, language)),
+          ];
+    if (text && this.matchesOpenQuiz(text, shownQuestions)) {
       return this.save(session.id, studentContent, {
-        answer: OPEN_QUIZ_REPLY,
+        answer: OPEN_QUIZ_REPLY[language],
         sources: [],
         covered: true,
         onTopic: true,
-        language: "uz",
+        language,
         refused: "open_quiz",
       });
     }
@@ -174,7 +194,8 @@ export class StudentChatService {
       system: studyChatSystem({
         topicTitle: session.title,
         chunks,
-        openQuizQuestions,
+        openQuizQuestions: shownQuestions,
+        language,
       }),
       messages: [
         ...history.map((m) => ({
@@ -208,7 +229,10 @@ export class StudentChatService {
   }
 
   /** Topics that need practice, with what went wrong in the student's unfixed mistakes there. */
-  async weakTopics(user: AuthUser): Promise<WeakTopicDto[]> {
+  async weakTopics(
+    user: AuthUser,
+    language: AppLanguage = "uz",
+  ): Promise<WeakTopicDto[]> {
     const weak = (await this.schedule.mastery(user.id)).topics.filter(
       (t) =>
         t.status === MasteryStatus.NEEDS_PRACTICE ||
@@ -231,7 +255,7 @@ export class StudentChatService {
         ORDER BY attempt.finished_at DESC, answer.id`,
       [user.id, weak.map((t) => t.topicId)],
     );
-    return weak.map((topic) => {
+    const topics = weak.map((topic) => {
       const mine = rows.filter((r) => r.topic_id === topic.topicId);
       const skills = mine
         .map(
@@ -250,6 +274,14 @@ export class StudentChatService {
         openMistakes: mine.length,
       };
     });
+    const batch = this.translator.batch(language);
+    for (const topic of topics) {
+      topic.subSkills.forEach((skill, i) =>
+        batch.text(skill, (t) => (topic.subSkills[i] = t)),
+      );
+    }
+    await batch.run();
+    return topics;
   }
 
   private async save(

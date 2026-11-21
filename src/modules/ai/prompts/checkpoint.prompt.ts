@@ -1,11 +1,22 @@
-import { UZBEK_OUTPUT_RULES } from "./uzbek-output.prompt";
+import { AppLanguage } from "../../../common/i18n/language";
+import { outputRules } from "./uzbek-output.prompt";
+
+/** How maths sounds when read aloud, per language. */
+const SPOKEN_MATHS: Record<AppLanguage, string> = {
+  uz: `write maths as it is spoken in Uzbek: "a kvadrat", "ikki a b", "x teng besh", "uch karra x", "minus to'rt"`,
+  ru: `write maths as it is spoken in Russian: "a в квадрате", "два a b", "x равно пяти", "три умножить на x", "минус четыре"`,
+  en: `write maths as it is spoken in English: "a squared", "two a b", "x equals five", "three times x", "minus four"`,
+};
 
 /** Lines Sardor says are read aloud, so maths must be written as it is spoken. */
-const SPOKEN_RULES = `Sardor's lines are read aloud by text-to-speech, so in them:
-- write maths as it is spoken in Uzbek: "a kvadrat", "ikki a b", "x teng besh", "uch karra x", "minus to'rt";
+const spokenRules = (language: AppLanguage) =>
+  `Sardor's lines are read aloud by text-to-speech, so in them:
+- ${SPOKEN_MATHS[language]};
 - no symbols such as ^, *, /, =, brackets or emoji; no lists or markdown.`;
 
-export const CHECKPOINT_OPENING_SYSTEM = `You write the opening line of a "Teach me" checkpoint in a maths app for Grade 7.
+export const checkpointOpeningSystem = (
+  language: AppLanguage = "uz",
+) => `You write the opening line of a "Teach me" checkpoint in a maths app for Grade 7.
 
 Sardor is the student's classmate. He has understood one idea of the topic wrongly and is sure he is right. In 2-3 short sentences he states his wrong belief as his own, with one tiny concrete example of the wrong reasoning, and asks the student to explain where he is wrong and why.
 
@@ -14,9 +25,9 @@ Sardor is the student's classmate. He has understood one idea of the topic wrong
 - If earlier openings are listed, pick a different idea or a different angle.
 - Sardor never gives the correct rule himself.
 
-${SPOKEN_RULES}
+${spokenRules(language)}
 
-${UZBEK_OUTPUT_RULES}`;
+${outputRules(language)}`;
 
 export function checkpointOpeningMessage(input: {
   topicTitle: string;
@@ -49,10 +60,12 @@ ${mistake}${earlier}`;
 
 export type CheckpointStage = "first" | "final";
 
-export const CHECKPOINT_JUDGE_SYSTEM = `You judge a Grade 7 student's explanation in a "Teach me" checkpoint of a maths app. The classmate Sardor stated a wrong belief and the student explained the topic to him.
+export const checkpointJudgeSystem = (
+  language: AppLanguage = "uz",
+) => `You judge a Grade 7 student's explanation in a "Teach me" checkpoint of a maths app. The classmate Sardor stated a wrong belief and the student explained the topic to him.
 
 Judge meaning, not wording:
-- The explanation may mix Uzbek and Russian. Read it charitably: judge what the student meant.
+- The explanation may be in Uzbek, Russian or English, or mix them; the key ideas are in Uzbek. Judge the meaning in any of these languages and read it charitably: judge what the student meant.
 - When it was spoken, it is a speech-to-text transcript, and recognition often drops or garbles short words: a letter after a number ("besh" for "besh x"), "kavs" for "qavs". If an example in a spoken answer is wrong only because of such a missing or garbled word, and the student's own stated rule gives the right result, treat it as a recognition error, not a wrong statement. A claim that states a misconception (for example "harfiy qismlar ham qo'shiladi", or a result like "besh x kvadrat") is still a wrong statement.
 - A key idea is covered when the student states it in their own words or clearly uses it in a correct example. It does not have to match the textbook wording.
 - A wrong statement is a mathematically false claim the student makes and does not correct. Recognition errors, slips corrected right away and informal wording are not wrong statements.
@@ -64,9 +77,11 @@ Then write Sardor's reaction texts (fill only the fields the stage asks for, use
 - explanation (stage "final" only): 2-4 short sentences addressed to the student (not from Sardor) that correctly explain the missing ideas or correct the wrong statements, with one small example.
 - next_question (stage "final" only): Sardor's new opening for the next try: 1-2 sentences with a different wrong belief or angle on the topic, asking to be taught again.
 
-${SPOKEN_RULES} (This applies to praise, follow_up and next_question; explanation is read on screen and may use maths notation.)
+${spokenRules(language)} (This applies to praise, follow_up and next_question; explanation is read on screen and may use maths notation.)
 
-${UZBEK_OUTPUT_RULES}`;
+Write every text field (praise, follow_up, explanation, next_question and wrong_statements) in the language below.
+
+${outputRules(language)}`;
 
 export function checkpointJudgeMessage(input: {
   topicTitle: string;

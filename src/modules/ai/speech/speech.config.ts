@@ -1,4 +1,5 @@
 import { ConfigService } from "@nestjs/config";
+import { AppLanguage } from "../../../common/i18n/language";
 
 /** The ffmpeg binary that the ffmpeg-static package downloads on npm install (null if unavailable). */
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -17,8 +18,8 @@ export interface SpeechConfig {
    * FFMPEG_PATH, else the ffmpeg-static binary, else "ffmpeg" on the PATH.
    */
   ffmpegPath: string;
-  /** Edge text-to-speech voice for Sardor. */
-  ttsVoice: string;
+  /** Edge text-to-speech voice for Sardor, per language of the line. */
+  ttsVoices: Record<AppLanguage, string>;
 }
 
 export function readSpeechConfig(config: ConfigService): SpeechConfig {
@@ -29,6 +30,11 @@ export function readSpeechConfig(config: ConfigService): SpeechConfig {
     sttModel: value("STT_MODEL") ?? "gpt-transcribe",
     sttTimeoutMs: Number(value("STT_TIMEOUT_MS") ?? 60_000),
     ffmpegPath: value("FFMPEG_PATH") ?? bundledFfmpeg ?? "ffmpeg",
-    ttsVoice: value("TTS_VOICE") ?? "uz-UZ-SardorNeural",
+    ttsVoices: {
+      uz: value("TTS_VOICE") ?? "uz-UZ-SardorNeural",
+      ru: value("TTS_VOICE_RU") ?? "ru-RU-DmitryNeural",
+      // A young male voice, casual and conversational, for the English Sardor.
+      en: value("TTS_VOICE_EN") ?? "en-US-BrianNeural",
+    },
   };
 }

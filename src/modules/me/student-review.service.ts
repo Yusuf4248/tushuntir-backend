@@ -8,6 +8,7 @@ import {
 import { DataSource } from "typeorm";
 import * as z from "zod";
 import { AuthUser } from "../../common/auth/auth-user";
+import { AppLanguage } from "../../common/i18n/language";
 import { QuestionType } from "../../common/enums";
 import { AiUnavailableException } from "../ai/ai.errors";
 import { LlmService } from "../ai/llm.service";
@@ -28,6 +29,7 @@ import {
 } from "./dto/review.dto";
 import { bestParagraph, chunkParagraphs, StoredChunk } from "./paragraphs";
 import { AnswerRow, StudentAttemptsService } from "./student-attempts.service";
+import { StudentTranslator } from "./student-translator";
 
 const MistakeExplanations = z.object({
   explanations: z.array(
@@ -78,20 +80,56 @@ export class StudentReviewService {
     private readonly attempts: StudentAttemptsService,
     private readonly generation: QuestionGenerationService,
     private readonly llm: LlmService,
+    private readonly translator: StudentTranslator,
   ) {}
 
   /**
    * A review still being prepared for the same attempt (e.g. the prewarm started at submit) is
    * shared, so its explanations and confirmation questions are generated once.
    */
-  async review(attemptId: number, user: AuthUser): Promise<ReviewDto> {
+  async review(
+    attemptId: number,
+    user: AuthUser,
+    language: AppLanguage = "uz",
+  ): Promise<ReviewDto> {
     const key = `${user.id}:${attemptId}`;
-    const running = this.inFlight.get(key);
-    if (running) return running;
-    const review = this.buildReview(attemptId, user).finally(() =>
-      this.inFlight.delete(key),
-    );
-    this.inFlight.set(key, review);
+    let review = this.inFlight.get(key);
+    if (!review) {
+      review = this.buildReview(attemptId, user).finally(() =>
+        this.inFlight.delete(key),
+      );
+      this.inFlight.set(key, review);
+    }
+    // The shared review is built in Uzbek; other languages get a translated copy.
+    return language === "uz"
+      ? review
+      : this.translateReview(structuredClone(await review), language);
+  }
+
+  private async translateReview(
+    review: ReviewDto,
+    language: AppLanguage,
+  ): Promise<ReviewDto> {
+    const batch = this.translator.batch(language);
+    for (const m of review.mistakes) {
+      batch
+        .text(m.prompt, (t) => (m.prompt = t))
+        .options(m.options, (o) => (m.options = o))
+        .text(m.misconception, (t) => (m.misconception = t))
+        .text(m.explanation, (t) => (m.explanation = t));
+      if (m.type === QuestionType.MULTIPLE_CHOICE) {
+        batch
+          .text(m.yourAnswer, (t) => (m.yourAnswer = t))
+          .text(m.correctAnswer, (t) => (m.correctAnswer = t));
+      }
+      const c = m.confirmation;
+      if (c) {
+        batch
+          .text(c.prompt, (t) => (c.prompt = t))
+          .options(c.options, (o) => (c.options = o));
+      }
+    }
+    await batch.run();
     return review;
   }
 
@@ -208,6 +246,7 @@ export class StudentReviewService {
     questionId: number,
     answer: string,
     user: AuthUser,
+    language: AppLanguage = "uz",
   ): Promise<ConfirmResultDto> {
     const attempt = await this.attempts.ownAttempt(attemptId, user);
     if (!attempt.finished_at) {
@@ -240,22 +279,32 @@ export class StudentReviewService {
       );
     }
     if (row.fixedAt) {
-      return {
-        questionId,
-        correct: true,
-        fixed: true,
-        explanation: variant.explanation,
-        hint: null,
-        feedback: null,
-      };
+      return this.translateConfirm(
+        {
+          questionId,
+          correct: true,
+          fixed: true,
+          explanation: variant.explanation,
+          hint: null,
+          feedback: null,
+        },
+        language,
+      );
     }
-    const given = answer.trim();
+    let given = answer.trim();
     let correct: boolean;
     let feedback: string | null = null;
     if (variant.type === QuestionType.MULTIPLE_CHOICE) {
-      if (!(variant.options ?? []).map((o) => o.trim()).includes(given)) {
+      // A translated option is mapped back to the original before grading.
+      const original = await this.translator.originalOption(
+        variant.options ?? [],
+        given,
+        language,
+      );
+      if (original === null) {
         throw new BadRequestException("answer must be one of the options");
       }
+      given = original;
       correct = given === variant.correct_answer.trim();
     } else {
       ({ isCorrect: correct, feedback } = await this.attempts.checkShortAnswer(
@@ -265,6 +314,7 @@ export class StudentReviewService {
           questionId: variant.id,
         },
         given,
+        language,
       ));
     }
     if (correct) {
@@ -273,14 +323,30 @@ export class StudentReviewService {
         [row.answerId],
       );
     }
-    return {
-      questionId,
-      correct,
-      fixed: correct,
-      explanation: correct ? variant.explanation : null,
-      hint: correct ? null : (variant.hints?.[0] ?? null),
-      feedback,
-    };
+    return this.translateConfirm(
+      {
+        questionId,
+        correct,
+        fixed: correct,
+        explanation: correct ? variant.explanation : null,
+        hint: correct ? null : (variant.hints?.[0] ?? null),
+        feedback,
+      },
+      language,
+    );
+  }
+
+  /** feedback is already in the request's language (written by the short-answer check). */
+  private async translateConfirm(
+    result: ConfirmResultDto,
+    language: AppLanguage,
+  ): Promise<ConfirmResultDto> {
+    await this.translator
+      .batch(language)
+      .text(result.explanation, (t) => (result.explanation = t))
+      .text(result.hint, (t) => (result.hint = t))
+      .run();
+    return result;
   }
 
   /**

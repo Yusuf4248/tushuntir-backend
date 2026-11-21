@@ -19767,7 +19767,17 @@
       "get": {
         "description": "Lessons of the student's class for today (school time zone): subject, topic, teacher, time and status (upcoming / in_progress / finished). Each lesson carries its quiz, which unlocks when the lesson ends. `quizzes` lists every quiz the student can take now, with its deadline.",
         "operationId": "MeController_today",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
@@ -19845,7 +19855,17 @@
       "get": {
         "description": "A quiz unlocks when its lesson ends and closes at its deadline (22:00 school time on the lesson day by default). Locked quizzes are not listed.",
         "operationId": "MeController_quizzes",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
@@ -19924,6 +19944,15 @@
         "description": "Picks 10 random approved questions of the quiz topic (a different set and order per student). One attempt per quiz: calling again returns the same open attempt; 409 once submitted, before the lesson ends or after the deadline.",
         "operationId": "MeController_start",
         "parameters": [
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "name": "id",
             "required": true,
@@ -20011,6 +20040,15 @@
         "description": "Lesson quizzes, practice quizzes and Tushuntir checkpoint tries (exams are not listed). For quizzes `id` is the attempt id (open the review with it); for checkpoints it is the checkpoint id.",
         "operationId": "MeController_attemptHistory",
         "parameters": [
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "name": "limit",
             "required": false,
@@ -20117,6 +20155,15 @@
         "operationId": "MeController_attempt",
         "parameters": [
           {
+            "name": "Accept-Language",
+            "in": "header",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "id",
             "required": true,
             "in": "path",
@@ -20203,6 +20250,15 @@
         "description": "One answer at a time; it can be changed until submit. Correctness is not revealed until submit. Short answers are checked by normalized match first, then by the AI.",
         "operationId": "MeController_answer",
         "parameters": [
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "name": "id",
             "required": true,
@@ -20304,6 +20360,15 @@
         "operationId": "MeController_hint",
         "parameters": [
           {
+            "name": "Accept-Language",
+            "in": "header",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "id",
             "required": true,
             "in": "path",
@@ -20399,6 +20464,15 @@
         "operationId": "MeController_submit",
         "parameters": [
           {
+            "name": "Accept-Language",
+            "in": "header",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "id",
             "required": true,
             "in": "path",
@@ -20486,6 +20560,15 @@
         "operationId": "MeController_review",
         "parameters": [
           {
+            "name": "Accept-Language",
+            "in": "header",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "id",
             "required": true,
             "in": "path",
@@ -20572,6 +20655,15 @@
         "description": "`questionId` is the original question (the mistake). A correct answer marks the mistake as fixed; a wrong one returns a hint and can be retried.",
         "operationId": "MeController_confirm",
         "parameters": [
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "name": "id",
             "required": true,
@@ -20678,7 +20770,17 @@
     "/api/me/chat/sessions": {
       "post": {
         "operationId": "MeController_createChatSession",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -20765,6 +20867,15 @@
         "description": "Own study sessions only; 404 when the student has no session for the topic yet (then start one).",
         "operationId": "MeController_latestChatSession",
         "parameters": [
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "name": "topicId",
             "required": true,
@@ -20855,6 +20966,15 @@
         "operationId": "MeController_chatSession",
         "parameters": [
           {
+            "name": "Accept-Language",
+            "in": "header",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "id",
             "required": true,
             "in": "path",
@@ -20941,6 +21061,15 @@
         "description": "Answers only from the topic's textbook text (plus `selectedText`), in simple Uzbek, or Russian when asked or with action `in_russian`. Returns the source pages; says so when the text does not cover the question. Stays on school topics and refuses to solve the student's open quiz questions. Quick actions: explain_simple, real_life_example, in_russian, quiz_me. Messages are saved in ai_messages.",
         "operationId": "MeController_sendChatMessage",
         "parameters": [
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "name": "id",
             "required": true,
@@ -21040,7 +21169,17 @@
       "get": {
         "description": "Topics with status needs_practice (or needs_help); subSkills lists what went wrong in the student's unfixed mistakes there, latest first.",
         "operationId": "MeController_weakTopics",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
@@ -21122,6 +21261,15 @@
         "description": "Only topics of the student's class subjects and grade (else 404). Paragraphs are the topic's textbook text in order, each with its real page. status / unlocked follow docs/mastery-rules.md; prevTopicId / nextTopicId follow book order within the textbook.",
         "operationId": "MeController_topic",
         "parameters": [
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "name": "id",
             "required": true,
@@ -21209,6 +21357,15 @@
         "description": "Aimed at the student's past mistakes in the topic: unseen approved questions of the same type and difficulty as the mistakes come first; new questions are generated (with the self-check) only when the pool runs out. Then use the normal answers / hint / submit / review endpoints; submit updates mastery.",
         "operationId": "MeController_startPractice",
         "parameters": [
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "name": "id",
             "required": true,
@@ -21300,6 +21457,15 @@
         "operationId": "MeController_startCheckpoint",
         "parameters": [
           {
+            "name": "Accept-Language",
+            "in": "header",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "id",
             "required": true,
             "in": "path",
@@ -21389,6 +21555,15 @@
         "description": "Audio is transcribed (speech-to-text) and deleted; only the transcript is kept. The explanation is judged against the topic's key ideas by meaning (Uzbek-Russian mixing is fine). Passing needs at least 80% of the key ideas and no wrong statement. Missing ideas on the first answer → outcome `follow_up`: Sardor asks one question, answer it with this endpoint. Then `passed` (topic mastered) or `not_yet` (a short explanation and the next try in `next`; tries are unlimited). The 3rd not_yet since the last pass notifies the teacher.",
         "operationId": "MeController_answerCheckpoint",
         "parameters": [
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "name": "id",
             "required": true,
@@ -21516,6 +21691,15 @@
         "operationId": "MeController_checkpointStatus",
         "parameters": [
           {
+            "name": "Accept-Language",
+            "in": "header",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "id",
             "required": true,
             "in": "path",
@@ -21601,7 +21785,17 @@
       "get": {
         "description": "topicsTotal counts the topics of the subject's textbook(s) at the class grade (0 when there is no textbook yet); topicsMastered counts those with status mastered.",
         "operationId": "MeController_subjects",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
@@ -21682,7 +21876,17 @@
       "get": {
         "description": "Topics in book order. status: mastered (passed the Tushuntir checkpoint) > needs_help (3+ failed checkpoint tries since the last pass; the teacher was notified) > not_started (no quiz yet) / in_progress (latest quiz ≥ 80%) / needs_practice (latest quiz < 80%). unlocked: the first topic of its textbook, a mastered topic, or the previous topic is mastered. unlocked is information only: lessons, the textbook, quizzes, practice and the checkpoint stay open for every topic. Full rules: docs/mastery-rules.md.",
         "operationId": "MeController_mastery",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
@@ -29200,7 +29404,8 @@
             "example": "uz",
             "enum": [
               "uz",
-              "ru"
+              "ru",
+              "en"
             ]
           },
           "refused": {
@@ -29333,7 +29538,8 @@
             "example": "uz",
             "enum": [
               "uz",
-              "ru"
+              "ru",
+              "en"
             ]
           },
           "refused": {
@@ -29646,6 +29852,16 @@
               }
             ]
           },
+          "language": {
+            "type": "string",
+            "enum": [
+              "uz",
+              "ru",
+              "en"
+            ],
+            "example": "uz",
+            "description": "Language of Sardor's lines in this try (from Accept-Language when it was started)"
+          },
           "createdAt": {
             "format": "date-time",
             "type": "string"
@@ -29660,6 +29876,7 @@
           "stage",
           "prompt",
           "followUp",
+          "language",
           "createdAt"
         ]
       },

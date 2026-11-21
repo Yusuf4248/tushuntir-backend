@@ -6,6 +6,7 @@ import {
 } from "@nestjs/common";
 import { DataSource } from "typeorm";
 import { AuthUser } from "../../common/auth/auth-user";
+import { AppLanguage } from "../../common/i18n/language";
 import { QuestionStatus } from "../../common/enums";
 import { shuffle } from "../../common/shuffle";
 import { AiUnavailableException } from "../ai/ai.errors";
@@ -38,7 +39,11 @@ export class StudentPracticeService {
     private readonly generation: QuestionGenerationService,
   ) {}
 
-  async start(topicId: number, user: AuthUser): Promise<AttemptViewDto> {
+  async start(
+    topicId: number,
+    user: AuthUser,
+    language: AppLanguage = "uz",
+  ): Promise<AttemptViewDto> {
     const topic = await this.schedule.topicFor(topicId, user.id);
     if (!topic) throw new NotFoundException(`Topic ${topicId} not found`);
 
@@ -99,7 +104,7 @@ export class StudentPracticeService {
       }
       return id as number;
     });
-    return this.attempts.view(attemptId, user);
+    return this.attempts.view(attemptId, user, language);
   }
 
   /**

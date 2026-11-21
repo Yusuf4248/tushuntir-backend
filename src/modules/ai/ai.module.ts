@@ -12,6 +12,7 @@ import {
 } from "./speech/speech.config";
 import { SttService } from "./speech/stt.service";
 import { TtsService } from "./speech/tts.service";
+import { TranslationService } from "./translation/translation.service";
 
 export function createLlmService(config: AiConfig): LlmService {
   switch (config.provider) {
@@ -52,8 +53,16 @@ export function createSttService(config: SpeechConfig): SttService {
       inject: [SPEECH_CONFIG],
     },
     TtsService,
+    TranslationService,
     RetrievalService,
   ],
-  exports: [LlmService, RetrievalService, SttService, TtsService, AI_CONFIG],
+  exports: [
+    LlmService,
+    RetrievalService,
+    SttService,
+    TtsService,
+    TranslationService,
+    AI_CONFIG,
+  ],
 })
 export class AiModule {}

@@ -8,10 +8,11 @@ import {
 import { DataSource, EntityManager } from "typeorm";
 import * as z from "zod";
 import { AuthUser } from "../../common/auth/auth-user";
+import { AppLanguage } from "../../common/i18n/language";
 import { LlmService } from "../ai/llm.service";
 import {
-  CHECKPOINT_JUDGE_SYSTEM,
-  CHECKPOINT_OPENING_SYSTEM,
+  checkpointJudgeSystem,
+  checkpointOpeningSystem,
   checkpointJudgeMessage,
   checkpointOpeningMessage,
 } from "../ai/prompts/checkpoint.prompt";
@@ -34,6 +35,7 @@ import {
   NEEDS_HELP_AFTER_TRIES,
 } from "./me.types";
 import { StudentNotificationsService } from "./student-notifications.service";
+import { StudentTranslator } from "./student-translator";
 import {
   StudentScheduleService,
   StudentTopic,
@@ -45,11 +47,35 @@ const SPEAKER = "Sardor";
 const STT_VOCABULARY =
   "ifoda, birhad, ko'phad, koeffitsiyent, daraja, kvadrat, tenglama, ildiz, qavs, ishora, yig'indi, ayirma, ko'paytma, o'xshash hadlar";
 
-const FALLBACK_FOLLOW_UP =
-  "Hali to'liq tushunmadim. Yana bitta misol bilan tushuntirib bera olasanmi?";
-const FALLBACK_NEXT_QUESTION =
-  "Keling, yana bir marta urinib ko'ramiz. Shu mavzuni menga boshidan sodda qilib tushuntirib bera olasanmi?";
-const FALLBACK_PRAISE = "Rahmat, endi tushundim!";
+/** Speech-to-text hint in the language the student speaks (general maths words only). */
+function sttPrompt(language: AppLanguage, topicTitle: string): string {
+  if (language === "ru") {
+    return "Урок математики на русском языке. Выражение, одночлен, многочлен, коэффициент, степень, квадрат, уравнение, корень, скобки, знак, сумма, разность, произведение, подобные члены.";
+  }
+  if (language === "en") {
+    return "A maths lesson in English. Expression, monomial, polynomial, coefficient, degree, square, equation, root, brackets, sign, sum, difference, product, like terms.";
+  }
+  return `O'zbek tilida matematika darsi. Mavzu: ${topicTitle}. ${STT_VOCABULARY}.`;
+}
+
+const FALLBACK_FOLLOW_UP: Record<AppLanguage, string> = {
+  uz: "Hali to'liq tushunmadim. Yana bitta misol bilan tushuntirib bera olasanmi?",
+  ru: "Я ещё не совсем понял. Можешь объяснить ещё на одном примере?",
+  en: "I still don't quite get it. Can you explain it with one more example?",
+};
+const FALLBACK_NEXT_QUESTION: Record<AppLanguage, string> = {
+  uz: "Keling, yana bir marta urinib ko'ramiz. Shu mavzuni menga boshidan sodda qilib tushuntirib bera olasanmi?",
+  ru: "Давай попробуем ещё раз. Можешь объяснить мне эту тему с самого начала, простыми словами?",
+  en: "Let's try once more. Can you explain this topic to me from the start, in simple words?",
+};
+const FALLBACK_PRAISE: Record<AppLanguage, string> = {
+  uz: "Rahmat, endi tushundim!",
+  ru: "Спасибо, теперь я понял!",
+  en: "Thanks, now I get it!",
+};
+
+const asLanguage = (value: string | null): AppLanguage =>
+  value === "ru" || value === "en" ? value : "uz";
 
 const Opening = z.object({ line: z.string() });
 
@@ -71,6 +97,7 @@ interface CheckpointRow {
   transcript: string | null;
   follow_up: string | null;
   result: CheckpointResult | null;
+  language: string | null;
   created_at: Date;
 }
 
@@ -99,10 +126,18 @@ export class StudentCheckpointService {
     private readonly tts: TtsService,
     private readonly schedule: StudentScheduleService,
     private readonly notifications: StudentNotificationsService,
+    private readonly translator: StudentTranslator,
   ) {}
 
-  /** Opens a new try, or returns the open one. */
-  async start(topicId: number, user: AuthUser): Promise<CheckpointDto> {
+  /**
+   * Opens a new try in the student's language, or returns the open one (in the language it was
+   * started in).
+   */
+  async start(
+    topicId: number,
+    user: AuthUser,
+    language: AppLanguage = "uz",
+  ): Promise<CheckpointDto> {
     const topic = await this.checkpointTopic(topicId, user);
     const [open]: CheckpointRow[] = await this.dataSource.query(
       `SELECT * FROM checkpoint_attempts
@@ -111,12 +146,13 @@ export class StudentCheckpointService {
       [user.id, topic.id],
     );
     if (open) return this.view(open, topic);
-    const prompt = await this.opening(topic, user);
+    const prompt = await this.opening(topic, user, language);
     const row = await this.insertTry(
       this.dataSource.manager,
       topic.id,
       user.id,
       prompt,
+      language,
     );
     return this.view(row, topic);
   }
@@ -125,6 +161,7 @@ export class StudentCheckpointService {
     checkpointId: number,
     input: { text?: string; audio?: AudioInput },
     user: AuthUser,
+    language: AppLanguage = "uz",
   ): Promise<CheckpointAnswerResultDto> {
     const [row]: CheckpointRow[] = await this.dataSource.query(
       `SELECT * FROM checkpoint_attempts WHERE id = $1 AND student_id = $2`,
@@ -150,7 +187,7 @@ export class StudentCheckpointService {
     const answer = input.audio
       ? cleanTranscript(
           await this.stt.transcribe(input.audio, {
-            prompt: `O'zbek tilida matematika darsi. Mavzu: ${topic.title}. ${STT_VOCABULARY}.`,
+            prompt: sttPrompt(language, topic.title),
           }),
         )
       : typed!;
@@ -166,7 +203,7 @@ export class StudentCheckpointService {
     const judgeStarted = Date.now();
     const judgement = await this.llm.chatJson({
       purpose: `checkpoint-judge:${stage}`,
-      system: CHECKPOINT_JUDGE_SYSTEM,
+      system: checkpointJudgeSystem(language),
       messages: [
         {
           role: "user",
@@ -203,19 +240,25 @@ export class StudentCheckpointService {
         `stt_ms=${sttMs} judge_ms=${judgeMs} covered=${matchedIdeas.length}/${keyIdeas.length} ` +
         `wrong=${wrongStatements.length} passed=${passed}`,
     );
+    // Key ideas are stored in Uzbek; the response shows them in the student's language.
+    const [shownMatched, shownMissing] = await Promise.all([
+      this.translator.texts(matchedIdeas, language),
+      this.translator.texts(missingIdeas, language),
+    ]);
     const base = {
       checkpointId: row.id,
       tryNumber: row.try_number,
       mode,
       transcript: answer,
-      matchedIdeas,
-      missingIdeas,
+      matchedIdeas: shownMatched,
+      missingIdeas: shownMissing,
       wrongStatements,
     } as const;
 
     // Key ideas missing on the first answer: Sardor asks one follow-up question.
     if (!passed && stage === "first") {
-      const followUp = judgement.follow_up.trim() || FALLBACK_FOLLOW_UP;
+      const followUp =
+        judgement.follow_up.trim() || FALLBACK_FOLLOW_UP[language];
       const saved = await this.dataSource.query(
         `UPDATE checkpoint_attempts
             SET mode = $2, transcript = $3, follow_up = $4,
@@ -236,7 +279,7 @@ export class StudentCheckpointService {
       return {
         ...base,
         outcome: CheckpointOutcome.FOLLOW_UP,
-        followUp: await this.line(followUp),
+        followUp: await this.line(followUp, language),
         feedback: null,
         next: null,
         masteryStatus: await this.schedule.topicStatus(user.id, topic.id),
@@ -247,7 +290,7 @@ export class StudentCheckpointService {
 
     const result = passed ? CheckpointResult.PASSED : CheckpointResult.NOT_YET;
     const feedback = passed
-      ? judgement.praise.trim() || FALLBACK_PRAISE
+      ? judgement.praise.trim() || FALLBACK_PRAISE[language]
       : judgement.explanation.trim() || null;
     const { nextRow, teacherNotified } = await this.dataSource.transaction(
       async (manager) => {
@@ -297,7 +340,8 @@ export class StudentCheckpointService {
           manager,
           topic.id,
           user.id,
-          judgement.next_question.trim() || FALLBACK_NEXT_QUESTION,
+          judgement.next_question.trim() || FALLBACK_NEXT_QUESTION[language],
+          language,
         );
         return {
           nextRow: next,
@@ -330,7 +374,11 @@ export class StudentCheckpointService {
     return next ? { ...next, unlocked: true } : null;
   }
 
-  async status(topicId: number, user: AuthUser): Promise<CheckpointStatusDto> {
+  async status(
+    topicId: number,
+    user: AuthUser,
+    language: AppLanguage = "uz",
+  ): Promise<CheckpointStatusDto> {
     const topic = await this.schedule.topicFor(topicId, user.id);
     if (!topic) throw new NotFoundException(`Topic ${topicId} not found`);
     const stats = (
@@ -364,8 +412,12 @@ export class StudentCheckpointService {
       needsHelp: notYet >= NEEDS_HELP_AFTER_TRIES,
       openCheckpointId: stats?.openCheckpointId ?? null,
       lastFeedback: last ? last.feedback : null,
-      lastMatchedIdeas: last ? (last.matched_ideas ?? []) : null,
-      lastMissingIdeas: last ? (last.missing_ideas ?? []) : null,
+      lastMatchedIdeas: last
+        ? await this.translator.texts(last.matched_ideas ?? [], language)
+        : null,
+      lastMissingIdeas: last
+        ? await this.translator.texts(last.missing_ideas ?? [], language)
+        : null,
     };
   }
 
@@ -384,7 +436,11 @@ export class StudentCheckpointService {
   }
 
   /** Sardor's opening: the student's latest mistake in the topic, else a common one. */
-  private async opening(topic: StudentTopic, user: AuthUser): Promise<string> {
+  private async opening(
+    topic: StudentTopic,
+    user: AuthUser,
+    language: AppLanguage,
+  ): Promise<string> {
     const chunks = await this.retrieval.chunksForTopic(topic.id);
     const [mistake]: {
       prompt: string;
@@ -410,7 +466,7 @@ export class StudentCheckpointService {
     );
     const { line } = await this.llm.chatJson({
       purpose: "checkpoint-opening",
-      system: CHECKPOINT_OPENING_SYSTEM,
+      system: checkpointOpeningSystem(language),
       messages: [
         {
           role: "user",
@@ -442,13 +498,14 @@ export class StudentCheckpointService {
     topicId: number,
     studentId: number,
     prompt: string,
+    language: AppLanguage,
   ): Promise<CheckpointRow> {
     const [row] = await manager.query(
-      `INSERT INTO checkpoint_attempts (student_id, topic_id, try_number, prompt)
-       SELECT $1, $2, COALESCE(max(try_number), 0) + 1, $3
+      `INSERT INTO checkpoint_attempts (student_id, topic_id, try_number, prompt, language)
+       SELECT $1, $2, COALESCE(max(try_number), 0) + 1, $3, $4
          FROM checkpoint_attempts WHERE student_id = $1 AND topic_id = $2
        RETURNING *`,
-      [studentId, topicId, prompt],
+      [studentId, topicId, prompt, language],
     );
     return row;
   }
@@ -503,9 +560,11 @@ export class StudentCheckpointService {
     row: CheckpointRow,
     topic: StudentTopic,
   ): Promise<CheckpointDto> {
+    // Sardor's lines are voiced in the language this try was started in.
+    const language = asLanguage(row.language);
     const [prompt, followUp] = await Promise.all([
-      this.line(row.prompt),
-      row.follow_up ? this.line(row.follow_up) : null,
+      this.line(row.prompt, language),
+      row.follow_up ? this.line(row.follow_up, language) : null,
     ]);
     return {
       checkpointId: row.id,
@@ -518,12 +577,16 @@ export class StudentCheckpointService {
         : CheckpointStage.OPENING,
       prompt,
       followUp,
+      language,
       createdAt: row.created_at,
     };
   }
 
-  private async line(text: string): Promise<SardorLineDto> {
-    return { text, audioUrl: await this.tts.speak(text) };
+  private async line(
+    text: string,
+    language: AppLanguage,
+  ): Promise<SardorLineDto> {
+    return { text, audioUrl: await this.tts.speak(text, language) };
   }
 
   private alreadyAnswered(): never {

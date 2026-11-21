@@ -12,9 +12,10 @@ import { QuestionStatus, QuestionType } from "../../common/enums";
 import { seededShuffle, shuffle } from "../../common/shuffle";
 import { AiUnavailableException } from "../ai/ai.errors";
 import { LlmService } from "../ai/llm.service";
+import { AppLanguage } from "../../common/i18n/language";
 import {
-  SHORT_ANSWER_CHECK_SYSTEM,
   shortAnswerCheckMessage,
+  shortAnswerCheckSystem,
 } from "../ai/prompts/short-answer-check.prompt";
 import {
   answersMatch,
@@ -32,6 +33,7 @@ import {
   StudentQuizStatus,
 } from "./me.types";
 import { StudentScheduleService } from "./student-schedule.service";
+import { StudentTranslator } from "./student-translator";
 
 const ShortAnswerVerdict = z.object({
   is_correct: z.boolean(),
@@ -86,10 +88,15 @@ export class StudentAttemptsService {
     private readonly dataSource: DataSource,
     private readonly schedule: StudentScheduleService,
     private readonly llm: LlmService,
+    private readonly translator: StudentTranslator,
   ) {}
 
   /** Creates the attempt with a random set of approved questions, or returns the open one. */
-  async start(quizId: number, user: AuthUser): Promise<AttemptViewDto> {
+  async start(
+    quizId: number,
+    user: AuthUser,
+    language: AppLanguage = "uz",
+  ): Promise<AttemptViewDto> {
     const quiz = (await this.schedule.quizzesOf(user.id)).find(
       (q) => q.quizId === quizId,
     );
@@ -147,7 +154,7 @@ export class StudentAttemptsService {
       }
       return id as number;
     });
-    return this.view(attemptId, user);
+    return this.view(attemptId, user, language);
   }
 
   async answer(
@@ -155,6 +162,7 @@ export class StudentAttemptsService {
     questionId: number,
     answer: string,
     user: AuthUser,
+    language: AppLanguage = "uz",
   ): Promise<AnswerResultDto> {
     const attempt = await this.openAttempt(attemptId, user);
     const rows = await this.answers(this.dataSource.manager, attempt.id);
@@ -164,17 +172,27 @@ export class StudentAttemptsService {
         `Question ${questionId} is not part of attempt ${attemptId}`,
       );
     }
-    const given = answer.trim();
+    let given = answer.trim();
     let isCorrect: boolean;
     let feedback: string | null = null;
     if (row.type === QuestionType.MULTIPLE_CHOICE) {
-      const options = (row.options ?? []).map((o) => o.trim());
-      if (!options.includes(given)) {
+      // A translated option is mapped back to the original; the original is stored and graded.
+      const original = await this.translator.originalOption(
+        row.options ?? [],
+        given,
+        language,
+      );
+      if (original === null) {
         throw new BadRequestException("answer must be one of the options");
       }
+      given = original;
       isCorrect = given === row.correctAnswer.trim();
     } else {
-      ({ isCorrect, feedback } = await this.checkShortAnswer(row, given));
+      ({ isCorrect, feedback } = await this.checkShortAnswer(
+        row,
+        given,
+        language,
+      ));
     }
     await this.dataSource.query(
       `UPDATE attempt_answers SET answer = $1, is_correct = $2, ai_feedback = $3 WHERE id = $4`,
@@ -182,7 +200,7 @@ export class StudentAttemptsService {
     );
     return {
       questionId,
-      answer: given,
+      answer: answer.trim(),
       answeredCount: rows.filter(
         (r) => r.answer !== null || r.questionId === questionId,
       ).length,
@@ -195,6 +213,7 @@ export class StudentAttemptsService {
     attemptId: number,
     questionId: number,
     user: AuthUser,
+    language: AppLanguage = "uz",
   ): Promise<HintDto> {
     const attempt = await this.openAttempt(attemptId, user);
     const row = (await this.answers(this.dataSource.manager, attempt.id)).find(
@@ -233,7 +252,7 @@ export class StudentAttemptsService {
         misconception = null;
       }
     }
-    return {
+    const result: HintDto = {
       questionId,
       level,
       hint: levels[level - 1],
@@ -241,10 +260,20 @@ export class StudentAttemptsService {
       hintsUsed: level,
       hintsRemaining: levels.length - level,
     };
+    await this.translator
+      .batch(language)
+      .text(result.hint, (t) => (result.hint = t))
+      .text(result.misconception, (t) => (result.misconception = t))
+      .run();
+    return result;
   }
 
   /** Scores the attempt, records points and updates topic mastery. Submitting twice returns the same result. */
-  async submit(attemptId: number, user: AuthUser): Promise<SubmitResultDto> {
+  async submit(
+    attemptId: number,
+    user: AuthUser,
+    language: AppLanguage = "uz",
+  ): Promise<SubmitResultDto> {
     const attempt = await this.ownAttempt(attemptId, user);
     if (!attempt.finished_at) {
       this.assertBeforeDeadline(attempt);
@@ -273,12 +302,13 @@ export class StudentAttemptsService {
         }
       });
     }
-    return this.result(attemptId, user);
+    return this.result(attemptId, user, language);
   }
 
   private async result(
     attemptId: number,
     user: AuthUser,
+    language: AppLanguage,
   ): Promise<SubmitResultDto> {
     const attempt = await this.ownAttempt(attemptId, user);
     const rows = await this.answers(this.dataSource.manager, attempt.id);
@@ -288,7 +318,7 @@ export class StudentAttemptsService {
           [user.id, attempt.topic_id],
         )
       : [];
-    return {
+    const result: SubmitResultDto = {
       attemptId: attempt.id,
       quizId: attempt.quiz_id,
       scorePercent: Number(attempt.score_percent ?? 0),
@@ -321,12 +351,30 @@ export class StudentAttemptsService {
             }
           : null,
     };
+    const batch = this.translator.batch(language);
+    for (const q of result.questions) {
+      batch
+        .text(q.prompt, (t) => (q.prompt = t))
+        .options(q.options, (o) => (q.options = o))
+        .text(q.explanation, (t) => (q.explanation = t));
+      if (q.type === QuestionType.MULTIPLE_CHOICE) {
+        batch
+          .text(q.yourAnswer, (t) => (q.yourAnswer = t))
+          .text(q.correctAnswer, (t) => (q.correctAnswer = t));
+      }
+    }
+    await batch.run();
+    return result;
   }
 
-  async view(attemptId: number, user: AuthUser): Promise<AttemptViewDto> {
+  async view(
+    attemptId: number,
+    user: AuthUser,
+    language: AppLanguage = "uz",
+  ): Promise<AttemptViewDto> {
     const attempt = await this.ownAttempt(attemptId, user);
     const rows = await this.answers(this.dataSource.manager, attempt.id);
-    return {
+    const view: AttemptViewDto = {
       attemptId: attempt.id,
       quizId: attempt.quiz_id,
       title: attempt.title,
@@ -344,6 +392,20 @@ export class StudentAttemptsService {
         hints: hintLevels(r).slice(0, r.hintsUsed ?? 0),
       })),
     };
+    // Other languages: question, options and revealed hints translated; answers stay originals
+    // internally, so the saved answer is shown in the same language as its options.
+    const batch = this.translator.batch(language);
+    for (const q of view.questions) {
+      batch
+        .text(q.prompt, (t) => (q.prompt = t))
+        .options(q.options, (o) => (q.options = o));
+      if (q.type === QuestionType.MULTIPLE_CHOICE) {
+        batch.text(q.answer, (t) => (q.answer = t));
+      }
+      q.hints.forEach((hint, i) => batch.text(hint, (t) => (q.hints[i] = t)));
+    }
+    await batch.run();
+    return view;
   }
 
   /** Option order is shuffled per attempt answer, so it differs between students but stays stable. */
@@ -355,6 +417,7 @@ export class StudentAttemptsService {
   async checkShortAnswer(
     row: Pick<AnswerRow, "prompt" | "correctAnswer" | "questionId">,
     given: string,
+    language: AppLanguage = "uz",
   ): Promise<{ isCorrect: boolean; feedback: string | null }> {
     if (answersMatch(given, row.correctAnswer)) {
       return { isCorrect: true, feedback: null };
@@ -362,7 +425,7 @@ export class StudentAttemptsService {
     try {
       const verdict = await this.llm.chatJson({
         purpose: "short-answer-check",
-        system: SHORT_ANSWER_CHECK_SYSTEM,
+        system: shortAnswerCheckSystem(language),
         messages: [
           {
             role: "user",

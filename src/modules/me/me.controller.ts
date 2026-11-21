@@ -16,12 +16,14 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiConsumes,
+  ApiHeader,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
 } from "@nestjs/swagger";
 import { AuthUser } from "../../common/auth/auth-user";
+import { AppLanguage, Lang } from "../../common/i18n/language";
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
 import { Roles } from "../../common/decorators/roles.decorator";
 import { UserRole } from "../../common/enums";
@@ -72,6 +74,14 @@ import {
 } from "./dto/topic.dto";
 
 @ApiTags("Student · Me")
+@ApiHeader({
+  name: "Accept-Language",
+  required: false,
+  description:
+    "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his " +
+    "judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the " +
+    "original Uzbek question.",
+})
 @ApiBearerAuth("JWT-auth")
 @ApiErrorResponses()
 @Roles(UserRole.STUDENT)
@@ -123,8 +133,12 @@ export class MeController {
       "One attempt per quiz: calling again returns the same open attempt; 409 once submitted, before the lesson ends or after the deadline.",
   })
   @ApiOkResponse({ type: AttemptViewDto })
-  start(@Param("id", ParseIntPipe) id: number, @CurrentUser() user: AuthUser) {
-    return this.attempts.start(id, user);
+  start(
+    @Param("id", ParseIntPipe) id: number,
+    @CurrentUser() user: AuthUser,
+    @Lang() language: AppLanguage,
+  ) {
+    return this.attempts.start(id, user, language);
   }
 
   @Get("attempts")
@@ -153,8 +167,9 @@ export class MeController {
   attempt(
     @Param("id", ParseIntPipe) id: number,
     @CurrentUser() user: AuthUser,
+    @Lang() language: AppLanguage,
   ) {
-    return this.attempts.view(id, user);
+    return this.attempts.view(id, user, language);
   }
 
   @Post("attempts/:id/answers")
@@ -171,8 +186,9 @@ export class MeController {
     @Param("id", ParseIntPipe) id: number,
     @Body() dto: AnswerDto,
     @CurrentUser() user: AuthUser,
+    @Lang() language: AppLanguage,
   ) {
-    return this.attempts.answer(id, dto.questionId, dto.answer, user);
+    return this.attempts.answer(id, dto.questionId, dto.answer, user, language);
   }
 
   @Post("attempts/:id/questions/:qid/hint")
@@ -188,8 +204,9 @@ export class MeController {
     @Param("id", ParseIntPipe) id: number,
     @Param("qid", ParseIntPipe) questionId: number,
     @CurrentUser() user: AuthUser,
+    @Lang() language: AppLanguage,
   ) {
-    return this.attempts.hint(id, questionId, user);
+    return this.attempts.hint(id, questionId, user, language);
   }
 
   @Post("attempts/:id/submit")
@@ -205,8 +222,9 @@ export class MeController {
   async submit(
     @Param("id", ParseIntPipe) id: number,
     @CurrentUser() user: AuthUser,
+    @Lang() language: AppLanguage,
   ) {
-    const result = await this.attempts.submit(id, user);
+    const result = await this.attempts.submit(id, user, language);
     if (result.correctCount < result.totalQuestions) {
       // Prepare the mistake review (explanations, confirmation questions) in the background.
       this.reviews
@@ -229,8 +247,12 @@ export class MeController {
       "Explanations and confirmation questions are generated once and cached. 409 before submit.",
   })
   @ApiOkResponse({ type: ReviewDto })
-  review(@Param("id", ParseIntPipe) id: number, @CurrentUser() user: AuthUser) {
-    return this.reviews.review(id, user);
+  review(
+    @Param("id", ParseIntPipe) id: number,
+    @CurrentUser() user: AuthUser,
+    @Lang() language: AppLanguage,
+  ) {
+    return this.reviews.review(id, user, language);
   }
 
   @Post("attempts/:id/confirm/:questionId")
@@ -248,8 +270,9 @@ export class MeController {
     @Param("questionId", ParseIntPipe) questionId: number,
     @Body() dto: ConfirmDto,
     @CurrentUser() user: AuthUser,
+    @Lang() language: AppLanguage,
   ) {
-    return this.reviews.confirm(id, questionId, dto.answer, user);
+    return this.reviews.confirm(id, questionId, dto.answer, user, language);
   }
 
   @Post("chat/sessions")
@@ -302,8 +325,9 @@ export class MeController {
     @Param("id", ParseIntPipe) id: number,
     @Body() dto: ChatMessageDto,
     @CurrentUser() user: AuthUser,
+    @Lang() language: AppLanguage,
   ) {
-    return this.chat.send(id, dto, user);
+    return this.chat.send(id, dto, user, language);
   }
 
   @Get("weak-topics")
@@ -314,8 +338,8 @@ export class MeController {
       "unfixed mistakes there, latest first.",
   })
   @ApiOkResponse({ type: [WeakTopicDto] })
-  weakTopics(@CurrentUser() user: AuthUser) {
-    return this.chat.weakTopics(user);
+  weakTopics(@CurrentUser() user: AuthUser, @Lang() language: AppLanguage) {
+    return this.chat.weakTopics(user, language);
   }
 
   @Get("topics/:id")
@@ -345,8 +369,9 @@ export class MeController {
   startPractice(
     @Param("id", ParseIntPipe) id: number,
     @CurrentUser() user: AuthUser,
+    @Lang() language: AppLanguage,
   ) {
-    return this.practice.start(id, user);
+    return this.practice.start(id, user, language);
   }
 
   @Post("topics/:id/checkpoint/start")
@@ -363,8 +388,9 @@ export class MeController {
   startCheckpoint(
     @Param("id", ParseIntPipe) id: number,
     @CurrentUser() user: AuthUser,
+    @Lang() language: AppLanguage,
   ) {
-    return this.checkpoints.start(id, user);
+    return this.checkpoints.start(id, user, language);
   }
 
   @Post("checkpoints/:id/answer")
@@ -399,6 +425,7 @@ export class MeController {
     @Body() dto: CheckpointAnswerDto,
     @UploadedFile() audio: Express.Multer.File | undefined,
     @CurrentUser() user: AuthUser,
+    @Lang() language: AppLanguage,
   ) {
     return this.checkpoints.answer(
       id,
@@ -411,6 +438,7 @@ export class MeController {
         },
       },
       user,
+      language,
     );
   }
 
@@ -424,8 +452,9 @@ export class MeController {
   checkpointStatus(
     @Param("id", ParseIntPipe) id: number,
     @CurrentUser() user: AuthUser,
+    @Lang() language: AppLanguage,
   ) {
-    return this.checkpoints.status(id, user);
+    return this.checkpoints.status(id, user, language);
   }
 
   @Get("subjects")
