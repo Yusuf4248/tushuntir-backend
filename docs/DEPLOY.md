@@ -241,7 +241,7 @@ npm run seed:mvp:prod        # demo school 21-maktab, class 7-A, 6 weeks of hist
 
 Run them in this order. Running any of them again is safe: they update and don't duplicate.
 
-With `DEMO_MODE=true`, the app also keeps the demo week filled. Every day at 00:10 Tashkent time, and at every start, it creates the current week's missing lessons and lesson quizzes, with no AI calls. Running `seed:mvp:prod` each week is not needed.
+With `DEMO_MODE=true`, the app also keeps the demo week filled. At every start it creates the current week's missing lessons and lesson quizzes, with no AI calls. Every day at 00:10 Tashkent time, weekends included, it runs the same reset as `demo:reset` (see "Re-running the demo"). Running `seed:mvp:prod` each week is not needed.
 
 ## 12. Caddy and HTTPS (first with an sslip.io name)
 
@@ -359,7 +359,17 @@ curl -s http://127.0.0.1:4004/api/health
 cd ~/app && npm run demo:reset:prod        # needs DEMO_MODE=true
 ```
 
-This resets the demo student (`+998901001001`, or pass another phone after `--`):
+This resets three demo students of 7-A to the same state: the main demo student `+998901001001` and the next two existing students by phone number (`+998901001002`, `+998901001003` with the seed data). It prints their phone numbers at the end. Pass one phone after `--` to reset only that student.
+
+The app runs the same reset every night at 00:10 Tashkent time, so each day starts with a fresh "Bugungi vazifa". A restart does not reset anyone. At start the app logs when the next run is due:
+
+```bash
+pm2 logs tushuntir-api --lines 500 --nostream | grep -i "demo reset"
+# demo reset scheduled daily at 00:10 Asia/Tashkent, next run 2026-11-23T00:10:00.000+05:00
+# after a night: demo reset (daily): +998901001001 today (...) Algebra lesson ... open until tonight
+```
+
+For each student:
 - **deleted:**
   - their attempts and the practice quizzes they created;
   - checkpoint tries, mastery and chat sessions;

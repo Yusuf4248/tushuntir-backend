@@ -386,8 +386,8 @@ export const DEMO_HOMEWORK: DemoHomework[] = [
 ];
 
 /** At 18:00 school time, `days` from today. */
-function dueAt(days: number): string {
-  return `${addDays(localDate(), days)} 18:00`;
+function dueAt(days: number, now: Date): string {
+  return `${addDays(localDate(now), days)} 18:00`;
 }
 
 /**
@@ -398,13 +398,14 @@ function dueAt(days: number): string {
  */
 export async function seedDemoHomework(
   manager: EntityManager,
-  input: { classId: number; studentId: number },
+  input: { classId: number; studentId: number; now?: Date },
 ): Promise<{
   items: { title: string; status: string }[];
   removedFiles: string[];
 }> {
   const timezone = appTimezone();
-  const today = localDate();
+  const now = input.now ?? new Date();
+  const today = localDate(now);
   const items: { title: string; status: string }[] = [];
   const removedFiles: string[] = [];
   for (const item of DEMO_HOMEWORK) {
@@ -437,7 +438,7 @@ export async function seedDemoHomework(
       await manager.query(
         `UPDATE homework SET lesson_id = $3, description = $4, created_by = $5, due_at = ${due} WHERE id = $6`,
         [
-          dueAt(item.dueInDays),
+          dueAt(item.dueInDays, now),
           timezone,
           lesson.id,
           item.description,
@@ -450,7 +451,7 @@ export async function seedDemoHomework(
         `INSERT INTO homework (lesson_id, title, description, created_by, due_at)
          VALUES ($3, $4, $5, $6, ${due}) RETURNING id`,
         [
-          dueAt(item.dueInDays),
+          dueAt(item.dueInDays, now),
           timezone,
           lesson.id,
           item.title,
@@ -474,8 +475,8 @@ export async function seedDemoHomework(
     await manager.query(
       `INSERT INTO homework_submissions (homework_id, student_id, answer_text, status, submitted_at,
                                          score, feedback, checked_at, checked_by)
-       VALUES ($1, $2, $3, $4::submission_status, now() - make_interval(days => $5),
-               $6, $7, CASE WHEN $8::int IS NULL THEN NULL ELSE now() - make_interval(days => $8::int) END,
+       VALUES ($1, $2, $3, $4::submission_status, $10::timestamptz - make_interval(days => $5),
+               $6, $7, CASE WHEN $8::int IS NULL THEN NULL ELSE $10::timestamptz - make_interval(days => $8::int) END,
                CASE WHEN $8::int IS NULL THEN NULL ELSE $9::int END)
        ON CONFLICT (homework_id, student_id) DO UPDATE
          SET answer_text = EXCLUDED.answer_text, status = EXCLUDED.status, submitted_at = EXCLUDED.submitted_at,
@@ -491,6 +492,7 @@ export async function seedDemoHomework(
         s.feedback ?? null,
         s.checkedDaysAgo ?? null,
         lesson.teacher_id,
+        now,
       ],
     );
     items.push({ title: item.title, status: s.status });
