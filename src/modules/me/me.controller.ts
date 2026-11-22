@@ -55,6 +55,7 @@ import {
 import { ConfirmDto, ConfirmResultDto, ReviewDto } from "./dto/review.dto";
 import { StudentAttemptsService } from "./student-attempts.service";
 import { AudioUploadInterceptor } from "./audio-upload.interceptor";
+import { ContentTranslationInterceptor } from "./content-translation.interceptor";
 import {
   HOUR,
   MINUTE,
@@ -79,12 +80,13 @@ import {
   required: false,
   description:
     "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his " +
-    "judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the " +
-    "original Uzbek question.",
+    "judging), of translated quiz questions and of content names (subjects, topics, quiz titles). Answers " +
+    "may be sent in the shown language; grading uses the original Uzbek question.",
 })
 @ApiBearerAuth("JWT-auth")
 @ApiErrorResponses()
 @Roles(UserRole.STUDENT)
+@UseInterceptors(ContentTranslationInterceptor)
 @Controller("me")
 export class MeController {
   private readonly logger = new Logger(MeController.name);

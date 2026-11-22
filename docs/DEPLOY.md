@@ -369,6 +369,8 @@ pm2 logs tushuntir-api --lines 500 --nostream | grep -i "demo reset"
 # after a night: demo reset (daily): +998901001001 today (...) Algebra lesson ... open until tonight
 ```
 
+It then translates the class's subject, chapter, topic, quiz and homework names into Russian and English (`ru: 22 of 22 ready`), so `Accept-Language: ru` / `en` requests show them without waiting. Translations are cached in `text_translations`, so only new names call the AI. Without the AI the reset still succeeds and the app shows those names in Uzbek.
+
 For each student:
 - **deleted:**
   - their attempts and the practice quizzes they created;

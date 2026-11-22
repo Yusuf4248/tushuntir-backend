@@ -225,3 +225,39 @@ export function describeProgress(p: DemoProgressSummary | null): string {
         (p.slotAdded ? "; an Algebra slot was added to this weekday" : "")
     : `today (${p.today}): no demo lesson`;
 }
+
+/**
+ * The content names the student app shows for these classes: subject names, chapter and topic
+ * titles of their textbooks, and the titles of their lesson quizzes and homework. demo:reset
+ * translates them ahead of time so ru / en requests don't wait for the AI.
+ */
+export async function demoContentTexts(
+  manager: EntityManager,
+  studentIds: number[],
+): Promise<string[]> {
+  const rows: { text: string }[] = await manager.query(
+    `WITH class AS (
+       SELECT DISTINCT class.id, class.grade FROM class_students enrolment
+         JOIN classes class ON class.id = enrolment.class_id
+        WHERE enrolment.student_id = ANY($1)),
+     subject AS (
+       SELECT DISTINCT assignment.subject_id AS id, class.grade FROM teacher_assignments assignment
+         JOIN class ON class.id = assignment.class_id)
+     SELECT DISTINCT text FROM (
+       SELECT name AS text FROM subjects WHERE id IN (SELECT id FROM subject)
+       UNION ALL
+       SELECT unnest(ARRAY[chapter.title, topic.title]) FROM topics topic
+         JOIN chapters chapter ON chapter.id = topic.chapter_id
+         JOIN textbooks textbook ON textbook.id = chapter.textbook_id
+         JOIN subject ON subject.id = textbook.subject_id AND subject.grade = textbook.grade
+       UNION ALL
+       SELECT unnest(ARRAY[homework.title, quiz.title]) FROM homework
+         JOIN lessons lesson ON lesson.id = homework.lesson_id
+         JOIN teacher_assignments assignment ON assignment.id = lesson.teacher_assignment_id
+         LEFT JOIN quizzes quiz ON quiz.id = homework.quiz_id
+        WHERE assignment.class_id IN (SELECT id FROM class)) texts
+     WHERE text IS NOT NULL ORDER BY text`,
+    [studentIds],
+  );
+  return rows.map((row) => row.text);
+}

@@ -16,6 +16,7 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiConsumes,
+  ApiHeader,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
@@ -44,6 +45,7 @@ import {
   UnreadCountDto,
 } from "./dto/notification.dto";
 import { SubmissionUploadInterceptor } from "./submission-upload.interceptor";
+import { ContentTranslationInterceptor } from "./content-translation.interceptor";
 import {
   HomeworkDetailDto,
   HomeworkItemDto,
@@ -54,9 +56,17 @@ import { HOUR, RateLimit } from "../../common/throttle/rate-limit.decorator";
 
 /** The student's school day outside the AI loop: timetable, attendance, homework, grades, notifications. */
 @ApiTags("Student · School")
+@ApiHeader({
+  name: "Accept-Language",
+  required: false,
+  description:
+    "uz (default), ru or en: the language of subject names, lesson topics, homework titles and " +
+    "notification texts. Names of people, classes and terms, and the student's own texts, are not translated.",
+})
 @ApiBearerAuth("JWT-auth")
 @ApiErrorResponses()
 @Roles(UserRole.STUDENT)
+@UseInterceptors(ContentTranslationInterceptor)
 @Controller("me")
 export class MeSchoolController {
   constructor(

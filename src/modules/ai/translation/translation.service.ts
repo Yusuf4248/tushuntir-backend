@@ -23,6 +23,18 @@ const HAS_WORDS = /\p{L}{3,}/u;
 const hashOf = (text: string) =>
   createHash("sha256").update(text).digest("hex");
 
+/** The distinct trimmed texts worth translating (with words, not maths only). */
+function wantedTexts(texts: (string | null | undefined)[]): string[] {
+  return [
+    ...new Set(
+      texts
+        .filter((t): t is string => Boolean(t?.trim()))
+        .map((t) => t.trim())
+        .filter((t) => HAS_WORDS.test(t)),
+    ),
+  ];
+}
+
 /**
  * Translates Uzbek app content into Russian or English with the AI, caching every text in
  * text_translations so it is translated once per language for all students. Uzbek passes through
@@ -43,29 +55,10 @@ export class TranslationService {
     language: AppLanguage,
   ): Promise<T[]> {
     if (language === "uz") return texts;
-    const wanted = [
-      ...new Set(
-        texts
-          .filter((t): t is NonNullable<T> & string => Boolean(t?.trim()))
-          .map((t) => t.trim())
-          .filter((t) => HAS_WORDS.test(t)),
-      ),
-    ];
+    const wanted = wantedTexts(texts);
     if (!wanted.length) return texts;
-    const known = new Map<string, string>();
-    const rows: { source_hash: string; translated_text: string }[] =
-      await this.dataSource.query(
-        `SELECT source_hash, translated_text FROM text_translations
-          WHERE language = $1 AND source_hash = ANY($2)`,
-        [language, wanted.map(hashOf)],
-      );
-    const byHash = new Map(rows.map((r) => [r.source_hash, r.translated_text]));
-    const missing: string[] = [];
-    for (const text of wanted) {
-      const cached = byHash.get(hashOf(text));
-      if (cached !== undefined) known.set(text, cached);
-      else missing.push(text);
-    }
+    const known = await this.cached(wanted, language);
+    const missing = wanted.filter((text) => !known.has(text));
     for (let i = 0; i < missing.length; i += BATCH) {
       const batch = missing.slice(i, i + BATCH);
       for (const [source, translated] of await this.translateBatch(
@@ -78,6 +71,46 @@ export class TranslationService {
     return texts.map((t) =>
       t?.trim() ? ((known.get(t.trim()) ?? t) as T) : t,
     );
+  }
+
+  /**
+   * Translates texts ahead of time so the first student does not wait; returns how many of them
+   * are in the cache now, how many this call translated, and how many are still missing (AI down).
+   */
+  async prewarm(
+    texts: string[],
+    language: AppLanguage,
+  ): Promise<{ texts: number; translated: number; missing: number }> {
+    const wanted = language === "uz" ? [] : wantedTexts(texts);
+    if (!wanted.length) return { texts: 0, translated: 0, missing: 0 };
+    const before = (await this.cached(wanted, language)).size;
+    await this.translate(wanted, language);
+    const after = (await this.cached(wanted, language)).size;
+    return {
+      texts: wanted.length,
+      translated: after - before,
+      missing: wanted.length - after,
+    };
+  }
+
+  /** The cached translations of the given (trimmed) texts. */
+  private async cached(
+    wanted: string[],
+    language: AppLanguage,
+  ): Promise<Map<string, string>> {
+    const rows: { source_hash: string; translated_text: string }[] =
+      await this.dataSource.query(
+        `SELECT source_hash, translated_text FROM text_translations
+          WHERE language = $1 AND source_hash = ANY($2)`,
+        [language, wanted.map(hashOf)],
+      );
+    const byHash = new Map(rows.map((r) => [r.source_hash, r.translated_text]));
+    const known = new Map<string, string>();
+    for (const text of wanted) {
+      const cached = byHash.get(hashOf(text));
+      if (cached !== undefined) known.set(text, cached);
+    }
+    return known;
   }
 
   /** One AI call for up to BATCH texts; saves the results. On failure, nothing is translated. */

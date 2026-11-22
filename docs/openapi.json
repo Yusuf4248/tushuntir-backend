@@ -19771,7 +19771,7 @@
           {
             "name": "Accept-Language",
             "in": "header",
-            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging), of translated quiz questions and of content names (subjects, topics, quiz titles). Answers may be sent in the shown language; grading uses the original Uzbek question.",
             "required": false,
             "schema": {
               "type": "string"
@@ -19859,7 +19859,7 @@
           {
             "name": "Accept-Language",
             "in": "header",
-            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging), of translated quiz questions and of content names (subjects, topics, quiz titles). Answers may be sent in the shown language; grading uses the original Uzbek question.",
             "required": false,
             "schema": {
               "type": "string"
@@ -19947,7 +19947,7 @@
           {
             "name": "Accept-Language",
             "in": "header",
-            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging), of translated quiz questions and of content names (subjects, topics, quiz titles). Answers may be sent in the shown language; grading uses the original Uzbek question.",
             "required": false,
             "schema": {
               "type": "string"
@@ -20043,7 +20043,7 @@
           {
             "name": "Accept-Language",
             "in": "header",
-            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging), of translated quiz questions and of content names (subjects, topics, quiz titles). Answers may be sent in the shown language; grading uses the original Uzbek question.",
             "required": false,
             "schema": {
               "type": "string"
@@ -20157,7 +20157,7 @@
           {
             "name": "Accept-Language",
             "in": "header",
-            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging), of translated quiz questions and of content names (subjects, topics, quiz titles). Answers may be sent in the shown language; grading uses the original Uzbek question.",
             "required": false,
             "schema": {
               "type": "string"
@@ -20253,7 +20253,7 @@
           {
             "name": "Accept-Language",
             "in": "header",
-            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging), of translated quiz questions and of content names (subjects, topics, quiz titles). Answers may be sent in the shown language; grading uses the original Uzbek question.",
             "required": false,
             "schema": {
               "type": "string"
@@ -20362,7 +20362,7 @@
           {
             "name": "Accept-Language",
             "in": "header",
-            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging), of translated quiz questions and of content names (subjects, topics, quiz titles). Answers may be sent in the shown language; grading uses the original Uzbek question.",
             "required": false,
             "schema": {
               "type": "string"
@@ -20466,7 +20466,7 @@
           {
             "name": "Accept-Language",
             "in": "header",
-            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging), of translated quiz questions and of content names (subjects, topics, quiz titles). Answers may be sent in the shown language; grading uses the original Uzbek question.",
             "required": false,
             "schema": {
               "type": "string"
@@ -20562,7 +20562,7 @@
           {
             "name": "Accept-Language",
             "in": "header",
-            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging), of translated quiz questions and of content names (subjects, topics, quiz titles). Answers may be sent in the shown language; grading uses the original Uzbek question.",
             "required": false,
             "schema": {
               "type": "string"
@@ -20658,7 +20658,7 @@
           {
             "name": "Accept-Language",
             "in": "header",
-            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging), of translated quiz questions and of content names (subjects, topics, quiz titles). Answers may be sent in the shown language; grading uses the original Uzbek question.",
             "required": false,
             "schema": {
               "type": "string"
@@ -20774,7 +20774,7 @@
           {
             "name": "Accept-Language",
             "in": "header",
-            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging), of translated quiz questions and of content names (subjects, topics, quiz titles). Answers may be sent in the shown language; grading uses the original Uzbek question.",
             "required": false,
             "schema": {
               "type": "string"
@@ -20870,7 +20870,7 @@
           {
             "name": "Accept-Language",
             "in": "header",
-            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging), of translated quiz questions and of content names (subjects, topics, quiz titles). Answers may be sent in the shown language; grading uses the original Uzbek question.",
             "required": false,
             "schema": {
               "type": "string"
@@ -20968,7 +20968,7 @@
           {
             "name": "Accept-Language",
             "in": "header",
-            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging), of translated quiz questions and of content names (subjects, topics, quiz titles). Answers may be sent in the shown language; grading uses the original Uzbek question.",
             "required": false,
             "schema": {
               "type": "string"
@@ -21064,7 +21064,7 @@
           {
             "name": "Accept-Language",
             "in": "header",
-            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging), of translated quiz questions and of content names (subjects, topics, quiz titles). Answers may be sent in the shown language; grading uses the original Uzbek question.",
             "required": false,
             "schema": {
               "type": "string"
@@ -21173,7 +21173,7 @@
           {
             "name": "Accept-Language",
             "in": "header",
-            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging), of translated quiz questions and of content names (subjects, topics, quiz titles). Answers may be sent in the shown language; grading uses the original Uzbek question.",
             "required": false,
             "schema": {
               "type": "string"
@@ -21264,7 +21264,7 @@
           {
             "name": "Accept-Language",
             "in": "header",
-            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging), of translated quiz questions and of content names (subjects, topics, quiz titles). Answers may be sent in the shown language; grading uses the original Uzbek question.",
             "required": false,
             "schema": {
               "type": "string"
@@ -21360,7 +21360,7 @@
           {
             "name": "Accept-Language",
             "in": "header",
-            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging), of translated quiz questions and of content names (subjects, topics, quiz titles). Answers may be sent in the shown language; grading uses the original Uzbek question.",
             "required": false,
             "schema": {
               "type": "string"
@@ -21459,7 +21459,7 @@
           {
             "name": "Accept-Language",
             "in": "header",
-            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging), of translated quiz questions and of content names (subjects, topics, quiz titles). Answers may be sent in the shown language; grading uses the original Uzbek question.",
             "required": false,
             "schema": {
               "type": "string"
@@ -21558,7 +21558,7 @@
           {
             "name": "Accept-Language",
             "in": "header",
-            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging), of translated quiz questions and of content names (subjects, topics, quiz titles). Answers may be sent in the shown language; grading uses the original Uzbek question.",
             "required": false,
             "schema": {
               "type": "string"
@@ -21693,7 +21693,7 @@
           {
             "name": "Accept-Language",
             "in": "header",
-            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging), of translated quiz questions and of content names (subjects, topics, quiz titles). Answers may be sent in the shown language; grading uses the original Uzbek question.",
             "required": false,
             "schema": {
               "type": "string"
@@ -21789,7 +21789,7 @@
           {
             "name": "Accept-Language",
             "in": "header",
-            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging), of translated quiz questions and of content names (subjects, topics, quiz titles). Answers may be sent in the shown language; grading uses the original Uzbek question.",
             "required": false,
             "schema": {
               "type": "string"
@@ -21880,7 +21880,7 @@
           {
             "name": "Accept-Language",
             "in": "header",
-            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging) and of translated quiz questions. Answers may be sent in the shown language; grading uses the original Uzbek question.",
+            "description": "uz (default), ru or en: the language of AI replies (chat, hints, mistake review, Sardor and his judging), of translated quiz questions and of content names (subjects, topics, quiz titles). Answers may be sent in the shown language; grading uses the original Uzbek question.",
             "required": false,
             "schema": {
               "type": "string"
@@ -21965,6 +21965,15 @@
         "description": "Lessons per day with time, subject, teacher, room, topic and status (upcoming / in_progress / finished), plus whether the lesson has an AI quiz or written homework. Default: this week. A slot without a lesson record (future weeks) has lessonId null; days outside a term (school breaks) are empty.",
         "operationId": "MeSchoolController_timetable",
         "parameters": [
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "description": "uz (default), ru or en: the language of subject names, lesson topics, homework titles and notification texts. Names of people, classes and terms, and the student's own texts, are not translated.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "name": "weekStart",
             "required": false,
@@ -22056,6 +22065,15 @@
         "operationId": "MeSchoolController_attendance",
         "parameters": [
           {
+            "name": "Accept-Language",
+            "in": "header",
+            "description": "uz (default), ru or en: the language of subject names, lesson topics, homework titles and notification texts. Names of people, classes and terms, and the student's own texts, are not translated.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "month",
             "required": false,
             "in": "query",
@@ -22145,6 +22163,15 @@
         "description": "Newest due date first. Lesson quizzes are not here (see /me/quizzes). status per item: new / overdue (not submitted, before / after the deadline), submitted, late (submitted after the deadline), checked, returned.",
         "operationId": "MeSchoolController_homeworkList",
         "parameters": [
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "description": "uz (default), ru or en: the language of subject names, lesson topics, homework titles and notification texts. Names of people, classes and terms, and the student's own texts, are not translated.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "name": "status",
             "required": false,
@@ -22244,6 +22271,15 @@
         "operationId": "MeSchoolController_homeworkDetail",
         "parameters": [
           {
+            "name": "Accept-Language",
+            "in": "header",
+            "description": "uz (default), ru or en: the language of subject names, lesson topics, homework titles and notification texts. Names of people, classes and terms, and the student's own texts, are not translated.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "id",
             "required": true,
             "in": "path",
@@ -22330,6 +22366,15 @@
         "description": "Creates my submission or updates it until the teacher checks it (409 after that; a returned one can be sent again). Sent text replaces the text; sent files replace all previous files, otherwise they are kept. After the deadline the submission is marked late. Returns the homework with my submission.",
         "operationId": "MeSchoolController_submitHomework",
         "parameters": [
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "description": "uz (default), ru or en: the language of subject names, lesson topics, homework titles and notification texts. Names of people, classes and terms, and the student's own texts, are not translated.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "name": "id",
             "required": true,
@@ -22443,7 +22488,17 @@
       "get": {
         "description": "In order. isCurrent marks the term containing today, or during a break the last one that started (the default term of /me/grades).",
         "operationId": "MeSchoolController_terms",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "description": "uz (default), ru or en: the language of subject names, lesson topics, homework titles and notification texts. Names of people, classes and terms, and the student's own texts, are not translated.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
@@ -22525,6 +22580,15 @@
         "description": "Grades (date, subject, kind, value 2-5, comment, teacher), newest first, filtered by subjectId; termId defaults to the term containing today (or the last one started). averages: per subject, two decimals.",
         "operationId": "MeSchoolController_grades",
         "parameters": [
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "description": "uz (default), ru or en: the language of subject names, lesson topics, homework titles and notification texts. Names of people, classes and terms, and the student's own texts, are not translated.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "name": "subjectId",
             "required": false,
@@ -22625,6 +22689,15 @@
         "description": "Reading this (or the unread count) first adds what is missing: a new grade (last 7 days), homework checked or returned, written homework due tomorrow and not submitted, a lesson quiz that unlocked (last 7 days, still open). Checkpoint passed is added when it happens. data links to the item (homeworkId, quizId, gradeId, topicId, …). limit 1-100, default 50.",
         "operationId": "MeSchoolController_notificationList",
         "parameters": [
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "description": "uz (default), ru or en: the language of subject names, lesson topics, homework titles and notification texts. Names of people, classes and terms, and the student's own texts, are not translated.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "name": "unreadOnly",
             "required": false,
@@ -22727,7 +22800,17 @@
     "/api/me/notifications/unread-count": {
       "get": {
         "operationId": "MeSchoolController_unreadCount",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "description": "uz (default), ru or en: the language of subject names, lesson topics, homework titles and notification texts. Names of people, classes and terms, and the student's own texts, are not translated.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
@@ -22805,6 +22888,15 @@
       "patch": {
         "operationId": "MeSchoolController_markRead",
         "parameters": [
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "description": "uz (default), ru or en: the language of subject names, lesson topics, homework titles and notification texts. Names of people, classes and terms, and the student's own texts, are not translated.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "name": "id",
             "required": true,
@@ -22890,7 +22982,17 @@
     "/api/me/notifications/read-all": {
       "post": {
         "operationId": "MeSchoolController_readAll",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "description": "uz (default), ru or en: the language of subject names, lesson topics, homework titles and notification texts. Names of people, classes and terms, and the student's own texts, are not translated.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
